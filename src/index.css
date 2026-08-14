@@ -1,1 +1,52 @@
 @import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-ink: #1B1410;
+  --color-ink-soft: #4A4038;
+  --color-paper: #FAF6F0;
+  --color-paper-dim: #F2EBE1;
+  --color-sand: #EAE0D0;
+  --color-crimson: #C31F3B;
+  --color-crimson-dark: #8F1329;
+  --color-verified: #1F6F5C;
+  --color-line: rgba(27, 20, 16, 0.14);
+  --color-line-soft: rgba(27, 20, 16, 0.08);
+
+  /* Fonts */
+  --font-serif: "Fraunces", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Custom Animations */
+  @keyframes blip {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.7); }
+  }
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(195, 31, 59, 0)); }
+    50% { filter: drop-shadow(0 0 6px rgba(195, 31, 59, 0.55)); }
+  }
+}
+
+/* Global Base Styles */
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-serif font-semibold tracking-tight;
+  }
+}
+
+/* Custom Utilities for your specific Pulse Path */
+.pulse-path {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: draw 3.2s ease-out forwards, glow 2.4s ease-in-out 3.2s infinite;
+}
+
+
