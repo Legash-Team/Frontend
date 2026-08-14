@@ -3,7 +3,7 @@ import { ShieldCheck, Database, Radio } from 'lucide-react'; // If you have luci
 export const Trust = () => {
   return (
     <section className="py-32 bg-white" id="hospitals">
-      <div className="max-w-[1180px] mx-auto px-8">
+      <div className="max-w-1180px mx-auto px-8">
         <div className="grid lg:grid-cols-12 gap-16 items-center">
           
           {/* Left Side: Content */}
@@ -42,7 +42,7 @@ export const Trust = () => {
               title="Smart Broadcast"
               desc="Our matching engine only alerts donors within your specific radius who carry the exact blood type needed."
             />
-            <div className="sm:col-span-2 p-8 rounded-[32px] bg-ink text-paper flex flex-col md:flex-row items-center gap-8 group overflow-hidden relative">
+            <div className="sm:col-span-2 p-8 rounded-32px bg-ink text-paper flex flex-col md:flex-row items-center gap-8 group overflow-hidden relative">
                <div className="relative z-10">
                   <h3 className="text-2xl font-serif font-bold mb-2">Verified Status</h3>
                   <p className="text-paper/60 text-sm leading-relaxed">
@@ -64,7 +64,7 @@ export const Trust = () => {
 };
 
 const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => (
-  <div className="p-8 rounded-[32px] border border-line-soft bg-paper-dim/30 hover:bg-white hover:shadow-xl hover:shadow-crimson/5 transition-all duration-300">
+  <div className="p-8 rounded-32px border border-line-soft bg-paper-dim/30 hover:bg-white hover:shadow-xl hover:shadow-crimson/5 transition-all duration-300">
     <div className="mb-6">{icon}</div>
     <h3 className="text-xl font-bold text-ink mb-3">{title}</h3>
     <p className="text-ink-soft text-sm leading-relaxed">{desc}</p>

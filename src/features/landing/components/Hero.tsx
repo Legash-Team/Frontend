@@ -11,7 +11,7 @@ export const Hero = () => {
           </div>
           
           <h1 className="text-[clamp(2.5rem,4.6vw,3.75rem)] leading-[1.04] text-ink mb-6">
-            The right blood type,<br />close enough, <em className="italic text-crimson not-italic font-serif">in time</em>.
+            The right blood type,<br />close enough, <em className="italic text-crimson font-serif">in time</em>.
           </h1>
           
           <p className="text-[1.13rem] leading-relaxed text-ink-soft max-w-[46ch] mb-8">
@@ -19,7 +19,12 @@ export const Hero = () => {
           </p>
 
           <div className="flex gap-3.5 flex-wrap mb-10">
-            <Button variant="outline">Register your hospital</Button>
+             <Button 
+    variant="primary" 
+    size="md" 
+    href="/register"
+    className="bg-crimson border-2 border-crimson hover:bg-ink hover:border-ink transition-all duration-300 shadow-md"
+  >Register your hospital</Button>
           </div>
           
           {/* Hero Facts */}

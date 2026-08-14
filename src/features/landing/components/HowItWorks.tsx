@@ -7,10 +7,10 @@ export const HowItWorks = () => {
 
   return (
     <section className="py-24 bg-paper-dim" id="how">
-      <div className="max-w-[1180px] mx-auto px-8">
+      <div className="max-w-1180px mx-auto px-8">
         
         {/* Section Header */}
-        <div className="max-w-[640px] mb-14">
+        <div className="max-w-640px mb-14">
           <span className="font-mono text-[0.76rem] font-bold text-crimson-dark uppercase tracking-widest block mb-3.5">
             How it works
           </span>

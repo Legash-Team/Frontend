@@ -1,7 +1,7 @@
 import { Navbar } from '@/components/navigation/Navbar';
 import { Hero } from '@/features/landing/components/Hero';
 import { HowItWorks } from '@/features/landing/components/HowItWorks';
-import { Vision } from '@/features/landing/components/Vision';
+import { AboutUs } from '@/features/landing/components/AboutUs';
 import { PrivacySection } from '@/features/landing/components/PrivacySection';
 import { Trust } from '@/features/landing/components/Trust';
 import { Footer } from '@/components/navigation/Footer';
@@ -14,7 +14,7 @@ export default function LandingPage() {
         <Hero />
         <div className="max-w-7xl mx-auto px-6"><hr className="border-gray-100" /></div>
         <HowItWorks />
-        <Vision />
+        <AboutUs />
         <PrivacySection />
         <div className="max-w-7xl mx-auto px-6"><hr className="border-gray-100" /></div>
         <Trust />
