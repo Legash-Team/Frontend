@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { Logo } from '@/components/ui/Logo';
 import {
   LayoutDashboard,
   User,
@@ -9,7 +10,6 @@ import {
   LogOut,
   Menu,
   X,
-  Plus,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -43,19 +43,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-paper flex flex-col md:flex-row font-sans text-ink">
       {/* Mobile Top Header */}
-      <header className="md:hidden bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-30 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
-            <Plus className="w-5 h-5 stroke-[3]" />
-          </div>
-          <div>
-            <span className="text-lg font-bold text-gray-900 tracking-tight">Legash</span>
-            <span className="text-[10px] ml-1.5 px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-semibold">
-              Hospital
-            </span>
-          </div>
+      <header className="md:hidden bg-white/90 backdrop-blur-md border-b border-line-soft px-4 py-3 sticky top-0 z-30 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-2">
+          <Logo size="md" />
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
+            Hospital
+          </span>
         </div>
 
         <button
@@ -78,23 +73,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           />
 
           {/* Drawer Content */}
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white border-r border-gray-200">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
-                  <Plus className="w-5 h-5 stroke-[3]" />
-                </div>
-                <div>
-                  <span className="text-lg font-bold text-gray-900 tracking-tight">Legash</span>
-                  <span className="text-[10px] ml-1.5 px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-semibold">
-                    Portal
-                  </span>
-                </div>
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white border-r border-line-soft">
+            <div className="p-4 border-b border-line-soft flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Logo size="md" />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
+                  Portal
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100"
+                className="p-1.5 text-ink-soft hover:text-ink rounded-md hover:bg-paper-dim"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -109,14 +99,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                       to={item.path}
                       onClick={() => setMobileMenuOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-sans font-medium transition-all ${
                           isActive
-                            ? 'bg-red-50 text-red-700 font-semibold shadow-xs'
-                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                            ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
+                            : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
                         }`
                       }
                     >
-                      <IconComponent className="w-4 h-4 shrink-0" />
+                      <IconComponent className="w-4 h-4 shrink-0 stroke-[1.75]" />
                       <span>{item.label}</span>
                     </NavLink>
 
@@ -130,14 +120,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                               to={sub.path}
                               onClick={() => setMobileMenuOpen(false)}
                               className={({ isActive }) =>
-                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${
                                   isActive
-                                    ? 'bg-red-50 text-red-700 font-semibold'
-                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                    ? 'bg-crimson/10 text-crimson font-semibold'
+                                    : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
                                 }`
                               }
                             >
-                              <SubIcon className="w-3.5 h-3.5 shrink-0" />
+                              <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[1.75]" />
                               <span>{sub.label}</span>
                             </NavLink>
                           );
@@ -165,29 +155,34 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Desktop Fixed Left Sidebar */}
       <aside
-        className={`hidden md:flex flex-col fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-30 shadow-xs transition-all duration-300 ease-in-out ${
+        className={`hidden md:flex flex-col fixed inset-y-0 left-0 bg-white border-r border-line-soft z-30 shadow-xs transition-all duration-300 ease-in-out ${
           isMinimized ? 'w-20' : 'w-64'
         }`}
       >
         {/* Brand Header & Minimize Toggle Button */}
         <div
-          className={`py-5 border-b border-gray-100 flex items-center justify-between ${
+          className={`py-5 border-b border-line-soft flex items-center justify-between ${
             isMinimized ? 'px-3 flex-col gap-3' : 'px-5'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
-              <Plus className="w-6 h-6 stroke-[3]" />
-            </div>
-            {!isMinimized && (
+            {!isMinimized ? (
               <div className="overflow-hidden whitespace-nowrap">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xl font-bold text-gray-900 tracking-tight">Legash</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-semibold">
+                <div className="flex items-center gap-2">
+                  <Logo size="md" />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
                     Hospital
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-500 font-medium">Emergency Blood Network</p>
+                <p className="text-[11px] font-sans text-ink-soft/70 font-medium mt-0.5">Emergency Blood Network</p>
+              </div>
+            ) : (
+              <div className="p-1">
+                <span className="inline-block transform translate-y-[1px]">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2.5C12 2.5 5 11.2 5 15.8C5 19.7 8.1 22.5 12 22.5C15.9 22.5 19 19.7 19 15.8C19 11.2 12 2.5 12 2.5Z" fill="#C31F3B" />
+                  </svg>
+                </span>
               </div>
             )}
           </div>
@@ -195,14 +190,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           <button
             type="button"
             onClick={() => setIsMinimized((prev) => !prev)}
-            className="p-1.5 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
+            className="p-1.5 text-ink-soft hover:text-ink rounded-lg hover:bg-paper-dim transition-colors focus:outline-none"
             title={isMinimized ? 'Expand Sidebar' : 'Minimize Sidebar'}
             aria-label={isMinimized ? 'Expand Sidebar' : 'Minimize Sidebar'}
           >
             {isMinimized ? (
-              <PanelLeftOpen className="w-5 h-5 text-gray-700" />
+              <PanelLeftOpen className="w-5 h-5 text-ink-soft" />
             ) : (
-              <PanelLeftClose className="w-5 h-5 text-gray-700" />
+              <PanelLeftClose className="w-5 h-5 text-ink-soft" />
             )}
           </button>
         </div>
@@ -217,16 +212,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   to={item.path}
                   title={isMinimized ? item.label : undefined}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-xl text-sm font-medium transition-all ${
+                    `flex items-center gap-3 rounded-xl text-sm font-sans font-medium transition-all ${
                       isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
                     } ${
                       isActive
-                        ? 'bg-red-50 text-red-700 font-semibold shadow-xs'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
+                        : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
                     }`
                   }
                 >
-                  <IconComponent className="w-5 h-5 shrink-0" />
+                  <IconComponent className="w-4 h-4 shrink-0 stroke-[1.75]" />
                   {!isMinimized && <span className="flex-1 whitespace-nowrap">{item.label}</span>}
                 </NavLink>
 
@@ -240,14 +235,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                           key={sub.path}
                           to={sub.path}
                           className={({ isActive }) =>
-                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${
                               isActive
-                                ? 'bg-red-50 text-red-700 font-semibold'
-                                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                                ? 'bg-crimson/10 text-crimson font-semibold'
+                                : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
                             }`
                           }
                         >
-                          <SubIcon className="w-3.5 h-3.5 shrink-0" />
+                          <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[1.75]" />
                           <span className="whitespace-nowrap">{sub.label}</span>
                         </NavLink>
                       );
