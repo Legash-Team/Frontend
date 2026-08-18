@@ -98,7 +98,7 @@ export const RegistrationForm: React.FC = () => {
         <div className="text-center text-sm text-gray-600">
           Already registered?{' '}
           <Link to="/login" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
-            Sign in to Hospital Portal
+            Sign in
           </Link>
         </div>
       </div>

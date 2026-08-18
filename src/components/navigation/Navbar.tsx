@@ -34,6 +34,7 @@ export const Navbar = () => {
             variant="primary" 
             size="sm" 
             className="hidden sm:flex hover:bg-crimson-dark"
+            href="/login"
           >
             Log in
           </Button>
