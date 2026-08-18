@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
-import Checkbox from '../../components/ui/Checkbox';
+import Checkbox from '@/components/ui/Checkbox';
 
 export interface TermsAgreementProps {
   agreeToTerms: boolean;

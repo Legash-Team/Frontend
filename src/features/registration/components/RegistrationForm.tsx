@@ -5,7 +5,7 @@ import HospitalDetails from './HospitalDetails';
 import PasswordFields from './PasswordFields';
 import LocationField from './LocationField';
 import TermsAgreement from './TermsAgreement';
-import Button from '../../components/ui/Button';
+import Button from '@/components/ui/Button';
 
 export const RegistrationForm: React.FC = () => {
   const {
