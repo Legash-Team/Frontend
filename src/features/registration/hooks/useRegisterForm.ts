@@ -9,7 +9,7 @@ const INITIAL_FORM_DATA: RegisterFormData = {
   password: '',
   confirmPassword: '',
   licenseNumber: '',
-  phone: '+251',
+  phone: '',
   location: null,
   agreeToTerms: false,
 };
@@ -107,16 +107,16 @@ export const useRegisterForm = () => {
       newErrors.email = 'Please enter a valid email address.';
     }
 
-    // 3. Phone (Ethiopian format starting with +251)
-    const phoneTrimmed = formData.phone ? formData.phone.trim() : '';
-    const ethiopianPhoneRegex = /^\+251[0-9]{9}$/;
-    if (!phoneTrimmed) {
-      newErrors.phone = 'Phone number is required.';
-    } else if (!phoneTrimmed.startsWith('+251')) {
-      newErrors.phone = 'Phone number must start with +251';
-    } else if (!ethiopianPhoneRegex.test(phoneTrimmed)) {
-      newErrors.phone = 'Invalid Ethiopian phone format. Example: +251911234567';
-    }
+  // 3. Phone (Ethiopian format - exactly 9 digits after the +251 prefix)
+const phoneTrimmed = formData.phone ? formData.phone.trim() : '';
+const suffixRegex = /^[0-9]{9}$/; // Only allows exactly 9 digits
+
+if (!phoneTrimmed) {
+  newErrors.phone = 'Phone number is required.';
+} else if (!suffixRegex.test(phoneTrimmed)) {
+  // This message is much better for the user
+  newErrors.phone = 'Enter the 9 digits after +251 (e.g. 911223344)';
+}
 
     // 4. License / Registration Number
     if (!formData.licenseNumber || !formData.licenseNumber.trim()) {

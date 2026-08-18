@@ -5,7 +5,7 @@ import HospitalDetails from './HospitalDetails';
 import PasswordFields from './PasswordFields';
 import LocationField from './LocationField';
 import TermsAgreement from './TermsAgreement';
-import Button from '../../components/ui/Button';
+import Button from '@/components/ui/Button';
 
 export const RegistrationForm: React.FC = () => {
   const {
@@ -98,7 +98,7 @@ export const RegistrationForm: React.FC = () => {
         <div className="text-center text-sm text-gray-600">
           Already registered?{' '}
           <Link to="/login" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
-            Sign in to Hospital Portal
+            Sign in
           </Link>
         </div>
       </div>
