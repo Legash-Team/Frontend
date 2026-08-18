@@ -1,13 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Building2, 
-  Droplets, 
-  Network, 
-  Truck, 
-  UserCircle2, 
-  LayoutDashboard 
-} from 'lucide-react';
+import bloodImage from '@/assets/images/blood.png';
 
 export const AuthVisual = () => {
   const [phase, setPhase] = useState<'dropping' | 'filling' | 'complete'>('dropping');
@@ -90,7 +83,7 @@ export const AuthVisual = () => {
     >
       <div className="relative w-full h-full overflow-hidden"> {/* Removed rounded corners and max-width */}
         <img 
-          src="src\assets\images\blood.png" 
+          src={bloodImage} 
           alt="Hospital Care"
           className="w-full h-full object-cover grayscale-[10%] brightness-90"
         />

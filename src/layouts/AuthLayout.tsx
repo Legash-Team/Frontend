@@ -1,10 +1,9 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { AuthVisual } from '@/features/auth/components/AuthVisual';
-import { ShieldCheck } from 'lucide-react';
 
 interface AuthLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   title: string;
   subtitle?: string;
 }

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/registration/components/PasswordFields.tsx
-import React, { useState, type ChangeEvent } from 'react';
-import Input from '../../components/ui/Input';
-=======
 import React, { useState, ChangeEvent } from 'react';
 import Input from '@/components/ui/Input';
->>>>>>> eeae605b7f5f9b654e40eb1def9b2d4b717e5062:src/features/registration/components/PasswordFields.tsx
 import type { RegisterFormData, FormErrors } from '../types/registration-types';
 
 export interface PasswordFieldsProps {
