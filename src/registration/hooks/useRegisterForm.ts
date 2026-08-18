@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { RegisterFormData, FormErrors, RegisterPayload } from '../types/registration-types';
 import { registerHospital } from '../api/registration-api';

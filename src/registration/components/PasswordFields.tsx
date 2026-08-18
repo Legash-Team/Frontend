@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import Input from '../../components/ui/Input';
 import type { RegisterFormData, FormErrors } from '../types/registration-types';
 

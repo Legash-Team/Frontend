@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { type ChangeEvent } from 'react';
 import Input from '../../components/ui/Input';
 import type { RegisterFormData, FormErrors } from '../types/registration-types';
 
