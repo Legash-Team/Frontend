@@ -30,6 +30,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   const navItems = [
     { label: 'Dashboard', path: '/hospital/dashboard', icon: LayoutDashboard },
+
+    { label: 'Blood Stock', path: '/hospital/blood-stock', icon: Droplets },
+    { label: 'Blood Request', path: '/hospital/blood-request', icon: PlusCircle },
+    { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
+    { label: 'Hospital Search', path: '/hospital/search', icon: Search },
     {
       label: 'Profile',
       path: '/hospital/profile',
@@ -38,10 +43,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         { label: 'Edit Profile', path: '/hospital/profile/edit', icon: Pencil },
       ],
     },
-    { label: 'Blood Stock', path: '/hospital/blood-stock', icon: Droplets },
-    { label: 'Blood Request', path: '/hospital/blood-request', icon: PlusCircle },
-    { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
-    { label: 'Hospital Search', path: '/hospital/search', icon: Search },
   ];
 
   const handleSignOut = () => {
@@ -114,10 +115,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                       to={item.path}
                       onClick={() => setMobileMenuOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-sans font-medium transition-all ${
-                          isActive
-                            ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
-                            : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
+                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-sans font-medium transition-all ${isActive
+                          ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
+                          : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
                         }`
                       }
                     >
@@ -135,10 +135,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                               to={sub.path}
                               onClick={() => setMobileMenuOpen(false)}
                               className={({ isActive }) =>
-                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${
-                                  isActive
-                                    ? 'bg-crimson/10 text-crimson font-semibold'
-                                    : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
+                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${isActive
+                                  ? 'bg-crimson/10 text-crimson font-semibold'
+                                  : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
                                 }`
                               }
                             >
@@ -170,15 +169,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Desktop Fixed Left Sidebar */}
       <aside
-        className={`hidden md:flex flex-col fixed inset-y-0 left-0 bg-white border-r border-line-soft z-30 shadow-xs transition-all duration-300 ease-in-out ${
-          isMinimized ? 'w-20' : 'w-64'
-        }`}
+        className={`hidden md:flex flex-col fixed inset-y-0 left-0 bg-white border-r border-line-soft z-30 shadow-xs transition-all duration-300 ease-in-out ${isMinimized ? 'w-20' : 'w-64'
+          }`}
       >
         {/* Brand Header & Minimize Toggle Button */}
         <div
-          className={`py-5 border-b border-line-soft flex items-center justify-between ${
-            isMinimized ? 'px-3 flex-col gap-3' : 'px-5'
-          }`}
+          className={`py-5 border-b border-line-soft flex items-center justify-between ${isMinimized ? 'px-3 flex-col gap-3' : 'px-5'
+            }`}
         >
           <div className="flex items-center gap-3">
             {!isMinimized ? (
@@ -240,12 +237,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   to={item.path}
                   title={isMinimized ? item.label : undefined}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-xl text-sm font-sans font-medium transition-all ${
-                      isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
-                    } ${
-                      isActive
-                        ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
-                        : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
+                    `flex items-center gap-3 rounded-xl text-sm font-sans font-medium transition-all ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
+                    } ${isActive
+                      ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
+                      : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
                     }`
                   }
                 >
@@ -263,10 +258,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                           key={sub.path}
                           to={sub.path}
                           className={({ isActive }) =>
-                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${
-                              isActive
-                                ? 'bg-crimson/10 text-crimson font-semibold'
-                                : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
+                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${isActive
+                              ? 'bg-crimson/10 text-crimson font-semibold'
+                              : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
                             }`
                           }
                         >
@@ -288,9 +282,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             type="button"
             onClick={handleSignOut}
             title={isMinimized ? 'Sign Out' : undefined}
-            className={`flex items-center gap-3 w-full rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors ${
-              isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
-            }`}
+            className={`flex items-center gap-3 w-full rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
+              }`}
           >
             <LogOut className="w-5 h-5 shrink-0 text-gray-500 group-hover:text-red-700" />
             {!isMinimized && <span className="whitespace-nowrap">Sign Out</span>}
@@ -300,9 +293,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Main Content Container */}
       <div
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
-          isMinimized ? 'md:pl-20' : 'md:pl-64'
-        }`}
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${isMinimized ? 'md:pl-20' : 'md:pl-64'
+          }`}
       >
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
           {children}
