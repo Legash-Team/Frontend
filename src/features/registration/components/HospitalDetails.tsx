@@ -93,7 +93,7 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
     placeholder="e.g. Bole Sub-city, Woreda 03, Addis Ababa"
     value={formData.address || ''}
     onChange={onChange}
-    className="w-full h-12 px-4 rounded-md bg-paper border border-line-soft focus:border-crimson outline-none"
+    className="w-full h-12 px-4 rounded-md bg-white border border-line-soft focus:border-crimson outline-none"
   />
 </div>
       </div>
