@@ -13,83 +13,85 @@ import BloodRequestPage from './pages/BloodRequestPage';
 import AllRequestsPage from './pages/AllRequestsPage';
 import HospitalSearchPage from './pages/HospitalSearchPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import { AuthProvider } from './features/auth/context/AuthContext';
 
 export const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <Routes>
-          {/* Public / Auth Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/terms" element={<TermsPage />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public / Auth Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/terms" element={<TermsPage />} />
 
-          {/* Protected Hospital Portal Routes */}
-          <Route
-            path="/hospital/dashboard"
-            element={
-              <ProtectedRoute>
-                <HospitalDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital/profile"
-            element={
-              <ProtectedRoute>
-                <HospitalProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital/profile/edit"
-            element={
-              <ProtectedRoute>
-                <EditProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital/blood-stock"
-            element={
-              <ProtectedRoute>
-                <BloodStockPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital/blood-request"
-            element={
-              <ProtectedRoute>
-                <BloodRequestPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital/all-requests"
-            element={
-              <ProtectedRoute>
-                <AllRequestsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital/search"
-            element={
-              <ProtectedRoute>
-                <HospitalSearchPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Hospital Portal Routes */}
+            <Route
+              path="/hospital/dashboard"
+              element={
+                <ProtectedRoute>
+                  <HospitalDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/profile"
+              element={
+                <ProtectedRoute>
+                  <HospitalProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/profile/edit"
+              element={
+                <ProtectedRoute>
+                  <EditProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/blood-stock"
+              element={
+                <ProtectedRoute>
+                  <BloodStockPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/blood-request"
+              element={
+                <ProtectedRoute>
+                  <BloodRequestPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/all-requests"
+              element={
+                <ProtectedRoute>
+                  <AllRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/search"
+              element={
+                <ProtectedRoute>
+                  <HospitalSearchPage />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Fallback Redirects */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Fallback Redirects */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ErrorBoundary>
   );
 };
 
 export default App;
-

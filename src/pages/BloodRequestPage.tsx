@@ -16,6 +16,9 @@ import {
   Clock,
   ArrowRight,
   Sparkles,
+  X,
+  Droplets,
+  ShieldAlert,
 } from 'lucide-react';
 
 export const BloodRequestPage: React.FC = () => {
@@ -29,6 +32,7 @@ export const BloodRequestPage: React.FC = () => {
   const [closingDateTime, setClosingDateTime] = useState<string>('');
 
   // UI state
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -39,6 +43,23 @@ export const BloodRequestPage: React.FC = () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     return now.toISOString().slice(0, 16);
+  };
+
+  const formatDisplayDateTime = (dateTimeStr: string): string => {
+    if (!dateTimeStr) return 'N/A';
+    try {
+      const date = new Date(dateTimeStr);
+      if (isNaN(date.getTime())) return dateTimeStr;
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return dateTimeStr;
+    }
   };
 
   const validateForm = (): boolean => {
@@ -66,7 +87,7 @@ export const BloodRequestPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleOpenConfirm = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSuccessMsg(null);
     setErrorMsg(null);
@@ -75,12 +96,18 @@ export const BloodRequestPage: React.FC = () => {
       return;
     }
 
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmSubmit = async () => {
     setSubmitting(true);
+    setErrorMsg(null);
+
     try {
       const payload: BloodRequestPayload = {
         bloodType: selectedBloodType as BloodType,
         quantity: parseInt(quantityKits.trim(), 10),
-        requestType,
+        requestType, // Sends "Normal" or "Emergency" to backend
         description: description.trim() || undefined,
         notes: description.trim() || undefined,
         closingDateTime,
@@ -88,12 +115,14 @@ export const BloodRequestPage: React.FC = () => {
 
       const response = await createBloodRequest(payload);
 
+      const displayTypeName = requestType === 'Normal' ? 'Standard' : 'Emergency';
       setSuccessMsg(
         response.message ||
-          `Blood request for ${quantityKits} kit(s) of ${selectedBloodType} (${requestType}) created successfully!`
+        `Blood request for ${quantityKits} kit(s) of ${selectedBloodType} (${displayTypeName}) created successfully!`
       );
 
-      // Reset form fields for creating subsequent requests
+      // Close modal and reset form
+      setConfirmModalOpen(false);
       setSelectedBloodType('');
       setQuantityKits('1');
       setRequestType('Normal');
@@ -109,10 +138,13 @@ export const BloodRequestPage: React.FC = () => {
         message = err.message;
       }
       setErrorMsg(message);
+      setConfirmModalOpen(false);
     } finally {
       setSubmitting(false);
     }
   };
+
+  const displayRequestType = requestType === 'Normal' ? 'Standard' : 'Emergency';
 
   return (
     <DashboardLayout>
@@ -157,7 +189,7 @@ export const BloodRequestPage: React.FC = () => {
             </span>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+          <form onSubmit={handleOpenConfirm} className="p-6 sm:p-8 space-y-6">
             {/* Feedback Messages */}
             {successMsg && (
               <div className="p-4 bg-verified/10 border border-verified/20 text-verified rounded-xl text-sm font-medium flex items-start justify-between gap-3">
@@ -185,7 +217,7 @@ export const BloodRequestPage: React.FC = () => {
               </div>
             )}
 
-            {/* Request Type (Emergency vs Normal) */}
+            {/* Request Type (Emergency vs Standard) */}
             <div className="space-y-2">
               <label className="text-xs font-mono font-bold text-ink-soft uppercase tracking-wider block">
                 1. Request Priority / Type <span className="text-crimson">*</span>
@@ -194,21 +226,19 @@ export const BloodRequestPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setRequestType('Normal')}
-                  className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3.5 ${
-                    requestType === 'Normal'
+                  className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3.5 ${requestType === 'Normal'
                       ? 'bg-paper border-ink ring-2 ring-ink/10 shadow-xs'
                       : 'bg-white border-line-soft hover:bg-paper/50'
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`p-2 rounded-lg ${
-                      requestType === 'Normal' ? 'bg-ink text-white' : 'bg-paper text-ink-soft'
-                    }`}
+                    className={`p-2 rounded-lg ${requestType === 'Normal' ? 'bg-ink text-white' : 'bg-paper text-ink-soft'
+                      }`}
                   >
                     <Clock className="w-4 h-4 stroke-[1.75]" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-serif font-bold text-ink">Normal Requisition</h3>
+                    <h3 className="text-sm font-serif font-bold text-ink">Not Urgent Requisition</h3>
                     <p className="text-xs text-ink-soft mt-0.5">
                       Standard scheduled patient procedures and non-critical buffer restock.
                     </p>
@@ -218,18 +248,16 @@ export const BloodRequestPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setRequestType('Emergency')}
-                  className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3.5 ${
-                    requestType === 'Emergency'
+                  className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3.5 ${requestType === 'Emergency'
                       ? 'bg-crimson/5 border-crimson ring-2 ring-crimson/20 shadow-xs'
                       : 'bg-white border-line-soft hover:bg-crimson/5'
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`p-2 rounded-lg ${
-                      requestType === 'Emergency'
+                    className={`p-2 rounded-lg ${requestType === 'Emergency'
                         ? 'bg-crimson text-white'
                         : 'bg-crimson/10 text-crimson'
-                    }`}
+                      }`}
                   >
                     <AlertTriangle className="w-4 h-4 stroke-[1.75]" />
                   </div>
@@ -272,11 +300,10 @@ export const BloodRequestPage: React.FC = () => {
                         setSelectedBloodType(type);
                         setErrors((prev) => ({ ...prev, bloodType: '' }));
                       }}
-                      className={`py-3 px-2 rounded-xl text-sm font-mono font-bold border transition-all ${
-                        isSelected
+                      className={`py-3 px-2 rounded-xl text-sm font-mono font-bold border transition-all ${isSelected
                           ? 'bg-crimson text-white border-crimson shadow-xs ring-2 ring-crimson/20'
                           : 'bg-paper text-ink border-line-soft hover:border-line'
-                      }`}
+                        }`}
                     >
                       {type}
                     </button>
@@ -328,10 +355,9 @@ export const BloodRequestPage: React.FC = () => {
                   disabled={submitting}
                   className={`w-full px-3.5 py-2.5 bg-white border rounded-lg text-sm text-gray-900 
                     transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-crimson/20 focus:border-crimson
-                    ${
-                      errors.closingDateTime
-                        ? 'border-crimson bg-crimson/5'
-                        : 'border-gray-300 hover:border-gray-400'
+                    ${errors.closingDateTime
+                      ? 'border-crimson bg-crimson/5'
+                      : 'border-gray-300 hover:border-gray-400'
                     }`}
                 />
                 {errors.closingDateTime ? (
@@ -371,8 +397,6 @@ export const BloodRequestPage: React.FC = () => {
 
               <Button
                 type="submit"
-                isLoading={submitting}
-                loadingText="Broadcasting Request..."
                 className="px-8 gap-2"
               >
                 <PlusCircle className="w-4 h-4" />
@@ -382,6 +406,113 @@ export const BloodRequestPage: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-line-soft rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-line-soft">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-crimson/10 text-crimson rounded-xl">
+                  <ShieldAlert className="w-5 h-5 stroke-[1.75]" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-bold text-lg text-ink">Please confirm your blood request</h3>
+                  <p className="text-xs text-ink-soft font-sans">Review details before dispatching to network</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmModalOpen(false)}
+                disabled={submitting}
+                className="p-1.5 text-ink-soft hover:text-ink rounded-md hover:bg-paper-dim"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Request Summary Card */}
+            <div className="p-5 bg-paper/70 border border-line-soft rounded-xl space-y-3.5 text-sm font-sans">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
+                  Blood Group
+                </span>
+                <span className="text-base font-mono font-bold text-white bg-crimson px-3 py-0.5 rounded-lg shadow-xs">
+                  {selectedBloodType}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
+                  Kits Requested
+                </span>
+                <span className="text-base font-serif font-bold text-ink">
+                  {quantityKits} kit{parseInt(quantityKits, 10) > 1 ? 's' : ''}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
+                  Request Type
+                </span>
+                <span
+                  className={`text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${requestType === 'Emergency'
+                      ? 'bg-crimson/10 text-crimson border border-crimson/20'
+                      : 'bg-paper text-ink-soft border border-line-soft'
+                    }`}
+                >
+                  {displayRequestType}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
+                  Closing Deadline
+                </span>
+                <span className="font-mono text-xs font-semibold text-crimson">
+                  {formatDisplayDateTime(closingDateTime)}
+                </span>
+              </div>
+
+              {description.trim() && (
+                <div className="pt-2 border-t border-line-soft space-y-1">
+                  <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider block">
+                    Clinical Notes
+                  </span>
+                  <p className="text-xs text-ink bg-white p-2.5 rounded-lg border border-line-soft leading-relaxed">
+                    {description.trim()}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmModalOpen(false)}
+                disabled={submitting}
+                className="px-5 py-2.5 border border-line-soft text-ink-soft hover:text-ink rounded-xl text-xs font-sans font-semibold hover:bg-paper transition-colors"
+              >
+                Cancel
+              </button>
+
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleConfirmSubmit}
+                isLoading={submitting}
+                loadingText="Broadcasting Request..."
+                className="px-6 text-xs gap-2"
+              >
+                <Droplets className="w-4 h-4" />
+                <span>Confirm Request</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

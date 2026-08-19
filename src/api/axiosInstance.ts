@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || '/api';
+  import.meta.env.VITE_API_BASE_URL || 'https://legash-mock.onrender.com';
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -26,5 +26,24 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export default axiosInstance;
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // If 401 Unauthorized occurs on a protected resource, don't redirect if it was a login attempt
+    if (error.response?.status === 401) {
+      const requestUrl = error.config?.url || '';
+      if (!requestUrl.includes('/login') && !requestUrl.includes('/auth/login')) {
+        // Clear expired auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('hospital_user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('auth_token');
+        sessionStorage.removeItem('hospital_user');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
+export default axiosInstance;

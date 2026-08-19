@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
-import { loginHospital, requestPasswordResetEmail } from '@/api/hospital-api';
+import { useAuth } from '@/features/auth/context/AuthContext';
+import { requestPasswordResetEmail } from '@/api/hospital-api';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,18 +29,34 @@ export const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const response = await loginHospital({ email, password });
-      const token = response.token || response.auth_token || 'authenticated_hospital_token';
-      localStorage.setItem('token', token);
-      localStorage.setItem('auth_token', token);
+      await login({ email: email.trim(), password });
 
-      const fromPath = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/hospital/dashboard';
+      const fromPath =
+        (location.state as { from?: { pathname?: string } })?.from?.pathname ||
+        '/hospital/dashboard';
+
       navigate(fromPath, { replace: true });
     } catch (err: unknown) {
-      let message = 'Failed to log in. Please check your credentials.';
+      let message = 'Failed to log in. Please check your hospital credentials.';
       if (typeof err === 'object' && err !== null && 'response' in err) {
-        const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
-        message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
+        const axiosErr = err as {
+          response?: {
+            status?: number;
+            data?: { message?: string; error?: string; detail?: string };
+          };
+        };
+        if (axiosErr.response?.status === 401) {
+          message =
+            axiosErr.response?.data?.error ||
+            axiosErr.response?.data?.message ||
+            'Invalid email or password. Please verify your credentials.';
+        } else {
+          message =
+            axiosErr.response?.data?.message ||
+            axiosErr.response?.data?.error ||
+            axiosErr.response?.data?.detail ||
+            message;
+        }
       } else if (err instanceof Error) {
         message = err.message;
       }
@@ -92,7 +111,7 @@ export const LoginForm = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="contact@hospital.org"
+              placeholder="bloodbank@stpaul.gov.et"
               className="w-full h-13 pl-12 pr-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson transition-all text-sm font-medium"
             />
           </div>
@@ -201,7 +220,7 @@ export const LoginForm = () => {
                     required
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="contact@hospital.org"
+                    placeholder="bloodbank@stpaul.gov.et"
                     className="w-full h-11 px-3.5 bg-paper border border-line-soft rounded-lg text-sm outline-none focus:border-crimson"
                   />
                 </div>
@@ -246,4 +265,4 @@ export const LoginForm = () => {
       )}
     </>
   );
-};
+};

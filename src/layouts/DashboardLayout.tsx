@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import {
   LayoutDashboard,
   User,
@@ -14,6 +15,7 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  Building2,
 } from 'lucide-react';
 
 export interface DashboardLayoutProps {
@@ -22,6 +24,7 @@ export interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
@@ -42,13 +45,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   ];
 
   const handleSignOut = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('auth_token');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('auth_token');
+    logout();
     navigate('/login', { replace: true });
   };
 
+  const hospitalDisplayName = user?.name || user?.hospitalName || 'Hospital Portal';
 
   return (
     <div className="min-h-screen bg-paper flex flex-col md:flex-row font-sans text-ink">
@@ -96,6 +97,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               >
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Hospital User Badge */}
+            <div className="px-4 py-3 bg-paper border-b border-line-soft">
+              <p className="text-xs font-serif font-bold text-ink truncate">{hospitalDisplayName}</p>
+              <p className="text-[11px] font-sans text-ink-soft truncate">{user?.email || 'Verified Facility'}</p>
             </div>
 
             <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
@@ -148,14 +155,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             </nav>
 
             <div className="p-3 border-t border-gray-200">
-              <NavLink
-                to="/login"
+              <button
+                type="button"
                 onClick={handleSignOut}
                 className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors"
               >
                 <LogOut className="w-4 h-4 shrink-0" />
                 <span>Sign Out</span>
-              </NavLink>
+              </button>
             </div>
           </div>
         </div>
@@ -210,8 +217,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           </button>
         </div>
 
+        {/* Facility Info Card (expanded state) */}
+        {!isMinimized && (
+          <div className="px-4 py-3 mx-3 mt-3 bg-paper/70 border border-line-soft rounded-xl flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-crimson/10 text-crimson flex items-center justify-center shrink-0">
+              <Building2 className="w-4 h-4" />
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-xs font-serif font-bold text-ink truncate">{hospitalDisplayName}</p>
+              <p className="text-[10px] font-mono text-ink-soft truncate">{user?.email || 'Verified Facility'}</p>
+            </div>
+          </div>
+        )}
+
         {/* Sidebar Nav Items */}
-        <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const IconComponent = item.icon;
             return (
@@ -264,21 +284,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
         {/* Footer / Sign Out Button */}
         <div className="p-3 border-t border-gray-200 bg-gray-50/50">
-          <NavLink
-            to="/login"
+          <button
+            type="button"
             onClick={handleSignOut}
             title={isMinimized ? 'Sign Out' : undefined}
-            className={`flex items-center gap-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors ${
+            className={`flex items-center gap-3 w-full rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors ${
               isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
             }`}
           >
             <LogOut className="w-5 h-5 shrink-0 text-gray-500 group-hover:text-red-700" />
             {!isMinimized && <span className="whitespace-nowrap">Sign Out</span>}
-          </NavLink>
+          </button>
         </div>
       </aside>
 
-      {/* Main Content Container (Padded dynamically based on isMinimized) */}
+      {/* Main Content Container */}
       <div
         className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
           isMinimized ? 'md:pl-20' : 'md:pl-64'

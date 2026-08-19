@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export const AllRequestsPage: React.FC = () => {
-  type FilterOption = 'All' | 'Emergency' | 'Normal';
+  type FilterOption = 'All' | 'Emergency' | 'Standard';
   const [filter, setFilter] = useState<FilterOption>('All');
   const [requests, setRequests] = useState<BloodRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -34,7 +34,9 @@ export const AllRequestsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getBloodRequests(activeFilter);
+      // Map UI "Standard" filter to backend "Normal" type
+      const backendFilter = activeFilter === 'Standard' ? 'Normal' : activeFilter === 'Emergency' ? 'Emergency' : 'All';
+      const data = await getBloodRequests(backendFilter);
       let list: BloodRequest[] = [];
       if (Array.isArray(data)) {
         list = data;
@@ -50,8 +52,8 @@ export const AllRequestsPage: React.FC = () => {
       // If backend does not filter server-side when 'All' is not selected, apply client fallback
       if (activeFilter === 'Emergency') {
         list = list.filter((r) => r.requestType === 'Emergency');
-      } else if (activeFilter === 'Normal') {
-        list = list.filter((r) => r.requestType === 'Normal');
+      } else if (activeFilter === 'Standard') {
+        list = list.filter((r) => r.requestType === 'Normal' || (r.requestType as string) === 'Standard');
       }
 
       setRequests(list);
@@ -89,6 +91,11 @@ export const AllRequestsPage: React.FC = () => {
     } catch {
       return isoString;
     }
+  };
+
+  const getDisplayRequestType = (type: string) => {
+    if (type === 'Normal') return 'Standard';
+    return type;
   };
 
   const getStatusBadge = (status: string) => {
@@ -162,17 +169,16 @@ export const AllRequestsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Exactly Three Filters: All | Emergency | Normal */}
+        {/* Exactly Three Filters: All | Emergency | Standard */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3.5 rounded-2xl border border-line-soft shadow-xs">
           <div className="flex items-center gap-1 p-1 bg-paper rounded-xl border border-line-soft">
             <button
               type="button"
               onClick={() => setFilter('All')}
-              className={`px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all ${
-                filter === 'All'
+              className={`px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all ${filter === 'All'
                   ? 'bg-ink text-white shadow-xs'
                   : 'text-ink-soft hover:text-ink hover:bg-paper-dim'
-              }`}
+                }`}
             >
               All
             </button>
@@ -180,11 +186,10 @@ export const AllRequestsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setFilter('Emergency')}
-              className={`px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
-                filter === 'Emergency'
+              className={`px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${filter === 'Emergency'
                   ? 'bg-crimson text-white shadow-xs'
                   : 'text-crimson hover:bg-crimson/10'
-              }`}
+                }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>Emergency</span>
@@ -192,14 +197,13 @@ export const AllRequestsPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => setFilter('Normal')}
-              className={`px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all ${
-                filter === 'Normal'
+              onClick={() => setFilter('Standard')}
+              className={`px-5 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all ${filter === 'Standard'
                   ? 'bg-ink-soft text-white shadow-xs'
                   : 'text-ink-soft hover:text-ink hover:bg-paper-dim'
-              }`}
+                }`}
             >
-              Normal
+              Not Urgent
             </button>
           </div>
 
@@ -266,15 +270,15 @@ export const AllRequestsPage: React.FC = () => {
             {requests.map((req, idx) => {
               const isEmergency = req.requestType === 'Emergency';
               const donorsCount = req.acceptedDonors ? req.acceptedDonors.length : 0;
+              const displayType = getDisplayRequestType(req.requestType);
 
               return (
                 <div
                   key={req.id || idx}
-                  className={`bg-white rounded-2xl border transition-all p-5 flex flex-col justify-between space-y-4 ${
-                    isEmergency
+                  className={`bg-white rounded-2xl border transition-all p-5 flex flex-col justify-between space-y-4 ${isEmergency
                       ? 'border-crimson/30 hover:border-crimson shadow-xs'
                       : 'border-line-soft hover:border-line shadow-xs'
-                  }`}
+                    }`}
                 >
                   <div className="space-y-3">
                     {/* Top Row: Blood Group Badge & Status */}
@@ -284,13 +288,12 @@ export const AllRequestsPage: React.FC = () => {
                           {req.bloodType}
                         </span>
                         <span
-                          className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                            isEmergency
+                          className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isEmergency
                               ? 'bg-crimson/10 text-crimson border border-crimson/20'
                               : 'bg-paper text-ink-soft border border-line-soft'
-                          }`}
+                            }`}
                         >
-                          {req.requestType}
+                          {displayType}
                         </span>
                       </div>
 
@@ -376,13 +379,12 @@ export const AllRequestsPage: React.FC = () => {
                     {selectedRequest.bloodType}
                   </span>
                   <span
-                    className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                      selectedRequest.requestType === 'Emergency'
+                    className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${selectedRequest.requestType === 'Emergency'
                         ? 'bg-crimson/10 text-crimson border border-crimson/20'
                         : 'bg-paper text-ink-soft border border-line-soft'
-                    }`}
+                      }`}
                   >
-                    {selectedRequest.requestType}
+                    {getDisplayRequestType(selectedRequest.requestType)}
                   </span>
                   {getStatusBadge(selectedRequest.status)}
                 </div>
@@ -416,7 +418,7 @@ export const AllRequestsPage: React.FC = () => {
                   Requisition Priority
                 </span>
                 <p className="text-base font-sans font-semibold text-ink">
-                  {selectedRequest.requestType} Requisition
+                  {getDisplayRequestType(selectedRequest.requestType)} Requisition
                 </p>
               </div>
 
