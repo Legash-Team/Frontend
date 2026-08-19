@@ -83,6 +83,19 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
           disabled={disabled}
           required={true}
         />
+        {/* Add this right after the Phone Number field */}
+<div className="flex flex-col gap-2 md:col-span-2">
+  <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+    Address <span className="text-crimson">*</span>
+  </label>
+  <input
+    name="address"
+    placeholder="e.g. Bole Sub-city, Woreda 03, Addis Ababa"
+    value={formData.address || ''}
+    onChange={onChange}
+    className="w-full h-12 px-4 rounded-md bg-paper border border-line-soft focus:border-crimson outline-none"
+  />
+</div>
       </div>
     </div>
   );
