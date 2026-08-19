@@ -30,7 +30,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   const navItems = [
     { label: 'Dashboard', path: '/hospital/dashboard', icon: LayoutDashboard },
-
     { label: 'Blood Stock', path: '/hospital/blood-stock', icon: Droplets },
     { label: 'Blood Request', path: '/hospital/blood-request', icon: PlusCircle },
     { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
@@ -115,13 +114,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                       to={item.path}
                       onClick={() => setMobileMenuOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-sans font-medium transition-all ${isActive
-                          ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
+                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all ${isActive
+                          ? 'bg-crimson/10 text-crimson shadow-xs'
                           : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
                         }`
                       }
                     >
-                      <IconComponent className="w-4 h-4 shrink-0 stroke-[1.75]" />
+                      <IconComponent className="w-4 h-4 shrink-0 stroke-[2]" />
                       <span>{item.label}</span>
                     </NavLink>
 
@@ -135,13 +134,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                               to={sub.path}
                               onClick={() => setMobileMenuOpen(false)}
                               className={({ isActive }) =>
-                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${isActive
-                                  ? 'bg-crimson/10 text-crimson font-semibold'
+                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-bold transition-colors ${isActive
+                                  ? 'bg-crimson/10 text-crimson'
                                   : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
                                 }`
                               }
                             >
-                              <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[1.75]" />
+                              <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[2]" />
                               <span>{sub.label}</span>
                             </NavLink>
                           );
@@ -157,9 +156,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors"
+                className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors"
               >
-                <LogOut className="w-4 h-4 shrink-0" />
+                <LogOut className="w-4 h-4 shrink-0 stroke-[2]" />
                 <span>Sign Out</span>
               </button>
             </div>
@@ -207,9 +206,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             aria-label={isMinimized ? 'Expand Sidebar' : 'Minimize Sidebar'}
           >
             {isMinimized ? (
-              <PanelLeftOpen className="w-5 h-5 text-ink-soft" />
+              <PanelLeftOpen className="w-5 h-5 text-ink-soft stroke-[2]" />
             ) : (
-              <PanelLeftClose className="w-5 h-5 text-ink-soft" />
+              <PanelLeftClose className="w-5 h-5 text-ink-soft stroke-[2]" />
             )}
           </button>
         </div>
@@ -218,7 +217,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         {!isMinimized && (
           <div className="px-4 py-3 mx-3 mt-3 bg-paper/70 border border-line-soft rounded-xl flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-crimson/10 text-crimson flex items-center justify-center shrink-0">
-              <Building2 className="w-4 h-4" />
+              <Building2 className="w-4 h-4 stroke-[2]" />
             </div>
             <div className="overflow-hidden">
               <p className="text-xs font-serif font-bold text-ink truncate">{hospitalDisplayName}</p>
@@ -237,14 +236,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   to={item.path}
                   title={isMinimized ? item.label : undefined}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-xl text-sm font-sans font-medium transition-all ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
+                    `flex items-center gap-3 rounded-xl text-sm font-sans font-bold transition-all ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
                     } ${isActive
-                      ? 'bg-crimson/10 text-crimson font-semibold shadow-xs'
+                      ? 'bg-crimson/10 text-crimson shadow-xs'
                       : 'text-ink-soft hover:bg-paper-dim hover:text-ink'
                     }`
                   }
                 >
-                  <IconComponent className="w-4 h-4 shrink-0 stroke-[1.75]" />
+                  <IconComponent className="w-4 h-4 shrink-0 stroke-[2]" />
                   {!isMinimized && <span className="flex-1 whitespace-nowrap">{item.label}</span>}
                 </NavLink>
 
@@ -258,13 +257,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                           key={sub.path}
                           to={sub.path}
                           className={({ isActive }) =>
-                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors ${isActive
-                              ? 'bg-crimson/10 text-crimson font-semibold'
+                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-bold transition-colors ${isActive
+                              ? 'bg-crimson/10 text-crimson'
                               : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
                             }`
                           }
                         >
-                          <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[1.75]" />
+                          <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[2]" />
                           <span className="whitespace-nowrap">{sub.label}</span>
                         </NavLink>
                       );
@@ -282,10 +281,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             type="button"
             onClick={handleSignOut}
             title={isMinimized ? 'Sign Out' : undefined}
-            className={`flex items-center gap-3 w-full rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
+            className={`flex items-center gap-3 w-full rounded-xl text-sm font-bold text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
               }`}
           >
-            <LogOut className="w-5 h-5 shrink-0 text-gray-500 group-hover:text-red-700" />
+            <LogOut className="w-4 h-4 shrink-0 stroke-[2] text-gray-500 group-hover:text-red-700" />
             {!isMinimized && <span className="whitespace-nowrap">Sign Out</span>}
           </button>
         </div>
