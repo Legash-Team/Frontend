@@ -1,16 +1,22 @@
 import axiosInstance from './axiosInstance';
-import type { RegisterPayload, RegisterResponse } from '../registration/types/registration-types';
+import type { RegisterPayload, RegisterResponse } from '@/features/registration/types/registration-types';
 import type {
   DashboardData,
   HospitalProfile,
   ProfileUpdatePayload,
   ProfileUpdateResponse,
+  ChangePasswordPayload,
+  ChangePasswordResponse,
+  VerifyPasswordResponse,
+  DeleteAccountResponse,
   BloodStock,
   BloodStockUpdateResponse,
   BloodRequestPayload,
   BloodRequestResponse,
+  BloodRequest,
   HospitalSearchResult,
   BloodType,
+  RequestType,
 } from '../types/hospital-types';
 
 /**
@@ -43,8 +49,55 @@ export const updateHospitalProfile = async (
 };
 
 /**
+ * Change Hospital Password (when logged in)
+ * PUT /hospital/change-password
+ */
+export const changeHospitalPassword = async (
+  payload: ChangePasswordPayload
+): Promise<ChangePasswordResponse> => {
+  const response = await axiosInstance.put<ChangePasswordResponse>('/hospital/change-password', payload);
+  return response.data;
+};
+
+/**
+ * Request Password Reset Email (when current password is forgotten)
+ * POST /hospital/password/forgot
+ */
+export const requestPasswordResetEmail = async (
+  email: string
+): Promise<{ message: string; success?: boolean }> => {
+  const response = await axiosInstance.post<{ message: string; success?: boolean }>(
+    '/hospital/password/forgot',
+    { email }
+  );
+  return response.data;
+};
+
+/**
+ * Delete Hospital Account Permanently
+ * DELETE /hospital/profile
+ */
+export const deleteHospitalAccount = async (): Promise<DeleteAccountResponse> => {
+  const response = await axiosInstance.delete<DeleteAccountResponse>('/hospital/profile');
+  return response.data;
+};
+
+/**
+ * Verify Hospital Password (for sensitive actions like modifying blood stock)
+ * POST /hospital/verify-password
+ */
+export const verifyHospitalPassword = async (
+  password: string
+): Promise<VerifyPasswordResponse> => {
+  const response = await axiosInstance.post<VerifyPasswordResponse>('/hospital/verify-password', {
+    password,
+  });
+  return response.data;
+};
+
+/**
  * Fetch Hospital Blood Stock
- * GET /hospital/blood-stock
+ * GET /v1/inventory or /hospital/blood-stock
  */
 export const getBloodStock = async (): Promise<BloodStock> => {
   const response = await axiosInstance.get<BloodStock>('/v1/inventory');
@@ -53,13 +106,61 @@ export const getBloodStock = async (): Promise<BloodStock> => {
 
 /**
  * Update Hospital Blood Stock
- * PUT /hospital/blood-stock
+ * PUT /v1/inventory or /hospital/blood-stock
  */
 export const updateBloodStock = async (
   stock: BloodStock
 ): Promise<BloodStockUpdateResponse> => {
   const response = await axiosInstance.put<BloodStockUpdateResponse>('/v1/inventory', stock);
   return response.data;
+};
+
+/**
+ * Fetch Blood Requests with optional type filter
+ * GET /blood-requests or /hospital/blood-requests
+ */
+export const getBloodRequests = async (
+  filter?: RequestType | 'All'
+): Promise<BloodRequest[]> => {
+  const params = filter && filter !== 'All' ? { type: filter } : undefined;
+  const response = await axiosInstance.get<BloodRequest[] | { requests: BloodRequest[] } | { data: BloodRequest[] }>(
+    '/blood-requests',
+    { params }
+  );
+
+  const data = response.data;
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && typeof data === 'object') {
+    if (Array.isArray((data as { requests?: BloodRequest[] }).requests)) {
+      return (data as { requests: BloodRequest[] }).requests;
+    }
+    if (Array.isArray((data as { data?: BloodRequest[] }).data)) {
+      return (data as { data: BloodRequest[] }).data;
+    }
+  }
+  return [];
+};
+
+/**
+ * Fetch a single Blood Request by ID
+ * GET /blood-requests/:id
+ */
+export const getBloodRequestById = async (id: string): Promise<BloodRequest> => {
+  const response = await axiosInstance.get<BloodRequest | { request: BloodRequest } | { data: BloodRequest }>(
+    `/blood-requests/${id}`
+  );
+  const data = response.data;
+  if (data && typeof data === 'object') {
+    if ('request' in data && data.request) {
+      return data.request as BloodRequest;
+    }
+    if ('data' in data && data.data) {
+      return data.data as BloodRequest;
+    }
+  }
+  return data as BloodRequest;
 };
 
 /**
@@ -74,8 +175,8 @@ export const createBloodRequest = async (
 };
 
 /** 
-* Register a new Hospital
- * POST /hospitals/register -> https://legash-mock.onrender.com/api/hospitals/register
+ * Register a new Hospital
+ * POST /hospitals/register
  */
 export const registerHospital = async (
   payload: RegisterPayload
@@ -84,6 +185,22 @@ export const registerHospital = async (
   return response.data;
 };
 
+/**
+ * Log in a Hospital
+ * POST /hospital/login or /auth/login
+ */
+export const loginHospital = async (
+  payload: { email: string; password: string }
+): Promise<{ token?: string; auth_token?: string; message?: string; hospital?: HospitalProfile; success?: boolean }> => {
+  const response = await axiosInstance.post<{
+    token?: string;
+    auth_token?: string;
+    message?: string;
+    hospital?: HospitalProfile;
+    success?: boolean;
+  }>('/hospital/login', payload);
+  return response.data;
+};
 /**
  * Search Hospitals by Blood Type
  * GET /hospitals/search?bloodType=...
@@ -97,4 +214,3 @@ export const searchHospitals = async (
   });
   return response.data;
 };
-

@@ -1,90 +1,249 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
+import { loginHospital, requestPasswordResetEmail } from '@/api/hospital-api';
 
 export const LoginForm = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Forgot Password modal state
+  const [forgotModalOpen, setForgotModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
+  const [forgotError, setForgotError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     setIsLoading(true);
-    // Logic will go here later
-    setTimeout(() => setIsLoading(false), 1500);
+
+    try {
+      const response = await loginHospital({ email, password });
+      const token = response.token || response.auth_token || 'authenticated_hospital_token';
+      localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token);
+
+      const fromPath = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/hospital/dashboard';
+      navigate(fromPath, { replace: true });
+    } catch (err: unknown) {
+      let message = 'Failed to log in. Please check your credentials.';
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
+        message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setErrorMsg(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError(null);
+    setForgotSuccess(null);
+    setForgotLoading(true);
+
+    try {
+      const res = await requestPasswordResetEmail(forgotEmail.trim());
+      setForgotSuccess(res.message || 'Password reset link sent! Check your hospital email inbox.');
+    } catch (err: unknown) {
+      let message = 'Failed to send reset link. Please verify the email address.';
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
+        message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setForgotError(message);
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      
-      {/* Email Field */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-          Email Address <span className="text-crimson">*</span>
-        </label>
-        <div className="relative group">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40 group-focus-within:text-crimson transition-colors" size={18} />
-          <input 
-            type="email" 
-            required
-            placeholder="contact@hospital.org"
-            className="w-full h-13 pl-12 pr-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson transition-all text-sm font-medium"
-          />
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {errorMsg && (
+          <div className="p-3.5 bg-crimson/10 border border-crimson/20 rounded-xl text-crimson text-xs font-medium flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 shrink-0 stroke-[1.75]" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {/* Email Field */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+            Email Address <span className="text-crimson">*</span>
+          </label>
+          <div className="relative group">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40 group-focus-within:text-crimson transition-colors" size={18} />
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="contact@hospital.org"
+              className="w-full h-13 pl-12 pr-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson transition-all text-sm font-medium"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Password Field */}
-<div className="flex flex-col gap-2">
-  <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-    Password <span className="text-crimson">*</span>
-  </label>
-  
-  <div className="relative group">
-    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40 group-focus-within:text-crimson transition-colors" size={18} />
-    <input 
-      type={showPassword ? "text" : "password"} 
-      required
-      placeholder="••••••••"
-      className="w-full h-13 pl-12 pr-12 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson transition-all text-sm font-medium"
-    />
-    <button 
-      type="button"
-      onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-soft/40 hover:text-ink transition-colors"
-    >
-      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
+        {/* Password Field */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+            Password <span className="text-crimson">*</span>
+          </label>
+          
+          <div className="relative group">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40 group-focus-within:text-crimson transition-colors" size={18} />
+            <input 
+              type={showPassword ? "text" : "password"} 
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full h-13 pl-12 pr-12 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson transition-all text-sm font-medium"
+            />
+            <button 
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-soft/40 hover:text-ink transition-colors"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
-  {/* MODIFIED: Link now sits at the bottom right */}
-  <div className="flex justify-end">
-    <button 
-      type="button" 
-      className="text-[10px] font-bold text-crimson hover:underline uppercase tracking-tighter"
-    >
-      Forgot Password?
-    </button>
-  </div>
-</div>
+          <div className="flex justify-end">
+            <button 
+              type="button" 
+              onClick={() => {
+                setForgotEmail(email);
+                setForgotModalOpen(true);
+                setForgotSuccess(null);
+                setForgotError(null);
+              }}
+              className="text-[10px] font-bold text-crimson hover:underline uppercase tracking-tighter"
+            >
+              Forgot Password?
+            </button>
+          </div>
+        </div>
 
-      {/* Action Area */}
-      <div className="pt-4 space-y-6">
-        <Button 
-          type="submit" 
-          variant="primary" 
-          isLoading={isLoading}
-          className="w-full h-14 font-bold text-base shadow-lg rounded-md"
-        >
-          Log In
-        </Button>
+        {/* Action Area */}
+        <div className="pt-4 space-y-6">
+          <Button 
+            type="submit" 
+            variant="primary" 
+            isLoading={isLoading}
+            className="w-full h-14 font-bold text-base shadow-lg rounded-md"
+          >
+            Log In
+          </Button>
 
-        <p className="text-center text-sm text-ink-soft">
-          New facility?{' '}
-          <Link to="/register" className="text-crimson font-bold hover:underline underline-offset-4">
-            Register Hospital
-          </Link>
-        </p>
-      </div>
-    </form>
+          <p className="text-center text-sm text-ink-soft">
+            New facility?{' '}
+            <Link to="/register" className="text-crimson font-bold hover:underline underline-offset-4">
+              Register Hospital
+            </Link>
+          </p>
+        </div>
+      </form>
+
+      {/* Forgot Password Modal */}
+      {forgotModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-line-soft rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-line-soft">
+              <h3 className="font-serif font-bold text-ink text-lg">Reset Hospital Password</h3>
+              <button
+                type="button"
+                onClick={() => setForgotModalOpen(false)}
+                className="text-ink-soft hover:text-ink text-sm font-mono"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs font-sans text-ink-soft">
+              Enter your registered hospital email address to receive a secure password recovery link.
+            </p>
+
+            {forgotSuccess && (
+              <div className="p-3 bg-verified/10 border border-verified/20 text-verified rounded-xl text-xs font-medium">
+                {forgotSuccess}
+              </div>
+            )}
+
+            {forgotError && (
+              <div className="p-3 bg-crimson/10 border border-crimson/20 text-crimson rounded-xl text-xs font-medium">
+                {forgotError}
+              </div>
+            )}
+
+            {!forgotSuccess && (
+              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+                    Hospital Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="contact@hospital.org"
+                    className="w-full h-11 px-3.5 bg-paper border border-line-soft rounded-lg text-sm outline-none focus:border-crimson"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotModalOpen(false)}
+                    className="px-4 py-2 border border-line-soft text-ink-soft rounded-xl text-xs font-semibold hover:bg-paper"
+                  >
+                    Cancel
+                  </button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    isLoading={forgotLoading}
+                    loadingText="Sending Link..."
+                    className="px-5 text-xs"
+                  >
+                    Send Recovery Link
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {forgotSuccess && (
+              <div className="pt-2 flex justify-end">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setForgotModalOpen(false)}
+                  className="px-5 text-xs"
+                >
+                  Done
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
-};
+};

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Lock, EyeOff, ShieldCheck, UserSearch } from 'lucide-react';
+import { useState } from 'react';
+import { Lock, EyeOff } from 'lucide-react';
 
 export const PrivacySection = () => {
   const [isAccepted, setIsAccepted] = useState(false);

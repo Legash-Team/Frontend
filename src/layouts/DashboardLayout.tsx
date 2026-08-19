@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 import {
   LayoutDashboard,
   User,
   Pencil,
   Droplets,
+  PlusCircle,
+  ClipboardList,
   Search,
   LogOut,
   Menu,
@@ -19,6 +21,7 @@ export interface DashboardLayoutProps {
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
@@ -33,6 +36,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       ],
     },
     { label: 'Blood Stock', path: '/hospital/blood-stock', icon: Droplets },
+    { label: 'Blood Request', path: '/hospital/blood-request', icon: PlusCircle },
+    { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
     { label: 'Hospital Search', path: '/hospital/search', icon: Search },
   ];
 
@@ -40,7 +45,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     localStorage.removeItem('token');
     localStorage.removeItem('auth_token');
     sessionStorage.removeItem('token');
+    sessionStorage.removeItem('auth_token');
+    navigate('/login', { replace: true });
   };
+
 
   return (
     <div className="min-h-screen bg-paper flex flex-col md:flex-row font-sans text-ink">

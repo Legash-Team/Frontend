@@ -9,7 +9,10 @@ import HospitalDashboardPage from './pages/HospitalDashboardPage';
 import HospitalProfilePage from './pages/HospitalProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
 import BloodStockPage from './pages/BloodStockPage';
+import BloodRequestPage from './pages/BloodRequestPage';
+import AllRequestsPage from './pages/AllRequestsPage';
 import HospitalSearchPage from './pages/HospitalSearchPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 export const App: React.FC = () => {
   return (
@@ -22,13 +25,63 @@ export const App: React.FC = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/terms" element={<TermsPage />} />
 
-          {/* Hospital Portal Routes */}
-          <Route path="/hospital/dashboard" element={<HospitalDashboardPage />} />
-          <Route path="/hospital/profile" element={<HospitalProfilePage />} />
-          <Route path="/hospital/profile/edit" element={<EditProfilePage />} />
-          <Route path="/hospital/blood-stock" element={<BloodStockPage />} />
-          <Route path="/hospital/search" element={<HospitalSearchPage />} />
-          <Route path="/hospital/blood-request" element={<BloodStockPage />} />
+          {/* Protected Hospital Portal Routes */}
+          <Route
+            path="/hospital/dashboard"
+            element={
+              <ProtectedRoute>
+                <HospitalDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/profile"
+            element={
+              <ProtectedRoute>
+                <HospitalProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/profile/edit"
+            element={
+              <ProtectedRoute>
+                <EditProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/blood-stock"
+            element={
+              <ProtectedRoute>
+                <BloodStockPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/blood-request"
+            element={
+              <ProtectedRoute>
+                <BloodRequestPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/all-requests"
+            element={
+              <ProtectedRoute>
+                <AllRequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/search"
+            element={
+              <ProtectedRoute>
+                <HospitalSearchPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Fallback Redirects */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -39,3 +92,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+
