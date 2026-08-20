@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import bloodImage from '@/assets/images/blood.png';
 
+const waveInitialD = "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z";
+const waveKeyframesD = [
+  "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z",
+  "M0,60 C360,110 720,10 1080,60 C1440,110 1800,10 2160,60 L2160,120 L0,120 Z",
+  "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z",
+];
+
 export const AuthVisual = () => {
   const [phase, setPhase] = useState<'dropping' | 'filling' | 'complete'>('dropping');
 
@@ -46,27 +53,29 @@ export const AuthVisual = () => {
         className="absolute inset-0 z-10"
       >
         {/* The Wave Edge */}
-        <svg 
-          className="absolute top-0 left-0 w-[200%] h-[120px] -translate-y-[98%]" 
-          viewBox="0 0 1440 120" 
-          preserveAspectRatio="none"
+        <motion.div 
+          className="absolute top-0 left-0 w-[200%] h-[120px] -translate-y-[98%]"
+          animate={{ x: ['-50%', '0%'] }}
+          transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
         >
-          <motion.path
-            animate={{ 
-              x: ['-50%', '0%'],
-              d: [
-                "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z",
-                "M0,60 C360,110 720,10 1080,60 C1440,110 1800,10 2160,60 L2160,120 L0,120 Z",
-                "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z"
-              ]
-            }}
-            transition={{ 
-              x: { repeat: Infinity, duration: 5, ease: "linear" },
-              d: { repeat: Infinity, duration: 4, ease: "easeInOut" } 
-            }}
-            fill="#C31F3B"
-          />
-        </svg>
+          <svg 
+            className="w-full h-full" 
+            viewBox="0 0 1440 120" 
+            preserveAspectRatio="none"
+          >
+            <motion.path
+              d={waveInitialD}
+              initial={{ d: waveInitialD }}
+              animate={{ d: waveKeyframesD }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 4, 
+                ease: "easeInOut" 
+              }}
+              fill="#C31F3B"
+            />
+          </svg>
+        </motion.div>
         <div className="w-full h-full bg-crimson" />
       </motion.div>
 
@@ -85,8 +94,8 @@ export const AuthVisual = () => {
               className="w-full h-full object-cover grayscale-[10%] brightness-90"
             />
             
-            {/* Keep the overlays but make them full-bleed */}
-            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            {/* Local noise overlay */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('/noise.svg')]" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           </div>
 
@@ -101,4 +110,4 @@ export const AuthVisual = () => {
     </div>
   );
 };
-
+export default AuthVisual;
