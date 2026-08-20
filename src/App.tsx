@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
-import ErrorBoundary from './components/common/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import TermsPage from './pages/TermsPage';
@@ -13,7 +13,7 @@ import BloodRequestPage from './pages/BloodRequestPage';
 import AllRequestsPage from './pages/AllRequestsPage';
 import HospitalSearchPage from './pages/HospitalSearchPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './features/auth/context/AuthContext';
 import VerifyEmailPage from './pages/VerifyOTPPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import EventPostingPage from './pages/admin/EventPostingPage';
@@ -90,19 +90,25 @@ export const App: React.FC = () => {
               }
             />
 
-            {/* Admin & Other Routes */}
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/admin/dashboard" element={<DashboardPage />} />
-            <Route path="/admin/events" element={<EventPostingPage />} />
-            <Route path="/admin/create-admin" element={<AdminCreationPage />} />
-            <Route path="/admin/feedbacks" element={<FeedbackPage />} />
-            
             {/* Fallback Redirects */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
     </ErrorBoundary>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path ="verify-email" element={<VerifyEmailPage />} />
+        <Route path="/admin/dashboard" element={<DashboardPage />} />
+        <Route path="/admin/events" element ={<EventPostingPage />} />
+        <Route path="/admin/create-admin" element ={<AdminCreationPage />} />
+        <Route path="/admin/feedbacks" element ={<FeedbackPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 

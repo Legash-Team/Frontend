@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { PhoneInput } from '@/components/ui/PhoneInput';
-import type { RegisterFormData, FormErrors } from '../../types/registration-types';
+import type { RegisterFormData, FormErrors } from '../types/registration-types';
 
 export interface HospitalDetailsProps {
   formData: RegisterFormData;
@@ -17,16 +17,16 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
 }) => {
   return (
     <div className="space-y-8">
-
+     
 
       {/* 2. Compact 2-Column Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-
+        
         {/* Hospital Name */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-            Hospital Name <span className="text-crimson">*</span>
-          </label>
+  Hospital Name <span className="text-crimson">*</span>
+</label>
           <input
             name="name"
             type="text"
@@ -42,8 +42,8 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
         {/* License Number */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-            Medical License Number <span className="text-crimson">*</span>
-          </label>
+  Medical License Number <span className="text-crimson">*</span>
+</label>
           <input
             name="licenseNumber"
             type="text"
@@ -59,8 +59,8 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
         {/* Email Address */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-            Email <span className="text-crimson">*</span>
-          </label>
+  Email <span className="text-crimson">*</span>
+</label>
           <input
             name="email"
             type="email"
