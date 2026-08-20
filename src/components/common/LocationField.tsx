@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '@/components/ui/Button';
 import { MapPin, Navigation, CheckCircle2 } from 'lucide-react';
-import type { LocationData } from '../types/registration-types';
+import type { LocationData } from '../../types/registration-types';
 
 export interface LocationFieldProps {
   location: LocationData | null;
@@ -29,7 +29,7 @@ export const LocationField: React.FC<LocationFieldProps> = ({
 
       {/* 2. Wide Action Area (2-Column Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Left: The Action Button */}
         <div className="flex flex-col gap-2">
           <Button
@@ -57,8 +57,8 @@ export const LocationField: React.FC<LocationFieldProps> = ({
 
         {/* Right: The Status/Instruction */}
         <div className={`h-12 flex items-center px-4 rounded-md border text-[11px] font-mono font-bold uppercase tracking-tight transition-all
-          ${location 
-            ? 'bg-verified/5 border-verified/20 text-verified' 
+          ${location
+            ? 'bg-verified/5 border-verified/20 text-verified'
             : 'bg-paper border-line-soft text-ink-soft/40'}`}
         >
           {location ? (
@@ -78,9 +78,9 @@ export const LocationField: React.FC<LocationFieldProps> = ({
             {locationError || error}
           </p>
         )}
-        
+
         <p className="text-[10px] text-ink-soft/50 italic leading-relaxed">
-          * Hospital coordinates are required to calculate donor proximity. 
+          * Hospital coordinates are required to calculate donor proximity.
           Please SignUp while at the facility.
         </p>
       </div>

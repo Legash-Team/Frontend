@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/features/auth/context/AuthContext';
-import { requestPasswordResetEmail } from '@/api/hospital-api';
+import { useAuth } from '@/contexts/AuthContext';
+import { requestPasswordResetEmail } from '@/services/hospitalService';
 
 export const LoginForm = () => {
   const navigate = useNavigate();

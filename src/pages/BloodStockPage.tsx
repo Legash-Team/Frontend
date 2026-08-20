@@ -4,7 +4,7 @@ import Button from '../components/ui/Button';
 import {
   getBloodStock,
   updateBloodStock,
-} from '../api/hospital-api';
+} from '../services/hospitalService';
 import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
 import type { BloodStock, BloodType } from '../types/hospital-types';
 import {

@@ -1,4 +1,4 @@
-import axiosInstance from '@/api/axiosInstance';
+import axiosInstance from '@/services/axiosInstance';
 import type { RegisterPayload, RegisterResponse } from '../types/registration-types';
 
 export const registerHospital = async (payload: RegisterPayload): Promise<RegisterResponse> => {
