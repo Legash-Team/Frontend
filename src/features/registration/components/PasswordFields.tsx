@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from 'react';
 import Input from '@/components/ui/Input';
-import type { RegisterFormData, FormErrors } from '../../types/registration-types';
+import type { RegisterFormData, FormErrors } from '../types/registration-types';
 
 export interface PasswordFieldsProps {
   formData: RegisterFormData;
@@ -19,7 +19,7 @@ export const PasswordFields: React.FC<PasswordFieldsProps> = ({
 
   return (
     <div className="space-y-4">
-
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="Password"

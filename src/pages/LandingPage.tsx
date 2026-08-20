@@ -1,9 +1,9 @@
 import { Navbar } from '@/components/navigation/Navbar';
-import { Hero } from '@/features/landing/Hero';
-import { HowItWorks } from '@/features/landing/HowItWorks';
-import { AboutUs } from '@/features/landing/AboutUs';
-import { PrivacySection } from '@/features/landing/PrivacySection';
-import { Trust } from '@/features/landing/Trust';
+import { Hero } from '@/features/landing/components/Hero';
+import { HowItWorks } from '@/features/landing/components/HowItWorks';
+import { AboutUs } from '@/features/landing/components/AboutUs';
+import { PrivacySection } from '@/features/landing/components/PrivacySection';
+import { Trust } from '@/features/landing/components/Trust';
 import { Footer } from '@/components/navigation/Footer';
 
 export default function LandingPage() {

@@ -7,7 +7,7 @@ import {
   changeHospitalPassword,
   requestPasswordResetEmail,
   deleteHospitalAccount,
-} from '../services/hospitalService';
+} from '../api/hospital-api';
 import type { HospitalProfile, LocationData } from '../types/hospital-types';
 import {
   Building2,

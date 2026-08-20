@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Mail, RefreshCcw } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { verifyHospitalOTP } from '@/features/auth/api/auth-api';
 
 const VerifyOTPPage = () => {
   const navigate = useNavigate();
@@ -54,10 +53,12 @@ const VerifyOTPPage = () => {
     setError(null);
     try {
       const code = otp.join('');
-      await verifyHospitalOTP(userEmail, code);
-      setIsVerifying(false);
-      navigate('/login');
-    } catch (_err: any) {
+      // Simulation of Backend Call
+      setTimeout(() => {
+        setIsVerifying(false);
+        navigate('/login');
+      }, 2000);
+    } catch (err: any) {
       setError("The code you entered is incorrect. Please check your email.");
       setIsVerifying(false);
     }
