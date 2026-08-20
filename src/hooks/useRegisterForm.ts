@@ -11,6 +11,7 @@ const INITIAL_FORM_DATA: RegisterFormData = {
   licenseNumber: '',
   phone: '',
   location: null,
+  address: '',
   agreeToTerms: false,
 };
 
@@ -158,58 +159,42 @@ export const useRegisterForm = () => {
   };
 
   // Submit handler
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSubmitError(null);
-    setSubmitSuccess(null);
+  // Submit handler
+ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    if (!validateForm()) {
-      return;
+  setIsSubmitting(true);
+
+  try {
+    const payload: RegisterPayload = {
+  name: formData.name.trim(),
+  email: formData.email.trim(),
+  password: formData.password,
+  phone: `+251${formData.phone.trim()}`, 
+  licenseNumber: formData.licenseNumber.trim(),
+  location: {
+    // MODIFIED: Added "as [number, number]" at the end of the array
+    coordinates: [formData.location!.lng, formData.location!.lat] as [number, number], 
+    address: formData.address.trim() || "Addis Ababa, Ethiopia"
+  },
+  agreedToTerms: formData.agreeToTerms 
+};
+    const response = await registerHospital(payload);
+
+    // If 201 success (Backend returns a string or object)
+    if (response) {
+      setSubmitSuccess("Account registered. Check your email for verification.");
+      setTimeout(() => navigate('/verify-email', { state: { email: formData.email } }), 2000);
     }
-
-    setIsSubmitting(true);
-
-    try {
-      // NOTE: confirmPassword and agreeToTerms are strictly excluded from payload sent to backend
-      const payload: RegisterPayload = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        password: formData.password,
-        licenseNumber: formData.licenseNumber.trim(),
-        phone: formData.phone.trim(),
-        location: formData.location!,
-      };
-
-      const response = await registerHospital(payload);
-
-      const successMsg =
-        response?.message ||
-        'Registration successful! Please check your email to verify your account.';
-
-      setSubmitSuccess(successMsg);
-
-      // Redirect to /login after 2.5 seconds (No auto-login per requirements)
-      setTimeout(() => {
-        navigate('/login');
-      }, 2500);
-    } catch (err: unknown) {
-      if (typeof err === 'object' && err !== null && 'response' in err) {
-        const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
-        const msg =
-          axiosErr.response?.data?.message ||
-          axiosErr.response?.data?.error ||
-          'Registration failed. Please check your information and try again.';
-        setSubmitError(msg);
-      } else if (err instanceof Error) {
-        setSubmitError(err.message);
-      } else {
-        setSubmitError('An unexpected error occurred during registration.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+  } catch (err: any) {
+    // Handle the 422 Validation Error format from the backend
+    const errorMessage = err.detail?.[0]?.msg || "Registration failed. Check your data.";
+    setSubmitError(errorMessage);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   return {
     formData,
     errors,

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Clock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { requestPasswordResetEmail } from '@/services/hospitalService';
+import { motion, AnimatePresence } from 'motion/react';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -22,6 +23,9 @@ export const LoginForm = () => {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
   const [forgotError, setForgotError] = useState<string | null>(null);
+
+  // Pending Approval Modal state
+  const [showPendingModal, setShowPendingModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +49,14 @@ export const LoginForm = () => {
             data?: { message?: string; error?: string; detail?: string };
           };
         };
-        if (axiosErr.response?.status === 401) {
+        if (
+          axiosErr.response?.status === 403 ||
+          axiosErr.response?.data?.message?.toLowerCase().includes('pending') ||
+          axiosErr.response?.data?.error?.toLowerCase().includes('pending')
+        ) {
+          setShowPendingModal(true);
+          return;
+        } else if (axiosErr.response?.status === 401) {
           message =
             axiosErr.response?.data?.error ||
             axiosErr.response?.data?.message ||
@@ -111,7 +122,7 @@ export const LoginForm = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="bloodbank@stpaul.gov.et"
+              placeholder="contact@hospital.org"
               className="w-full h-13 pl-12 pr-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson transition-all text-sm font-medium"
             />
           </div>
@@ -122,7 +133,6 @@ export const LoginForm = () => {
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
             Password <span className="text-crimson">*</span>
           </label>
-          
           <div className="relative group">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40 group-focus-within:text-crimson transition-colors" size={18} />
             <input 
@@ -141,10 +151,9 @@ export const LoginForm = () => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-
           <div className="flex justify-end">
             <button 
-              type="button" 
+              type="button"
               onClick={() => {
                 setForgotEmail(email);
                 setForgotModalOpen(true);
@@ -168,7 +177,6 @@ export const LoginForm = () => {
           >
             Log In
           </Button>
-
           <p className="text-center text-sm text-ink-soft">
             New facility?{' '}
             <Link to="/register" className="text-crimson font-bold hover:underline underline-offset-4">
@@ -220,7 +228,7 @@ export const LoginForm = () => {
                     required
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="bloodbank@stpaul.gov.et"
+                    placeholder="contact@hospital.org"
                     className="w-full h-11 px-3.5 bg-paper border border-line-soft rounded-lg text-sm outline-none focus:border-crimson"
                   />
                 </div>
@@ -263,6 +271,51 @@ export const LoginForm = () => {
           </div>
         </div>
       )}
+
+      {/* --- PENDING APPROVAL MODAL --- */}
+      <AnimatePresence>
+        {showPendingModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPendingModal(false)}
+              className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
+            />
+            
+            {/* Modal Card */}
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white rounded-[32px] p-10 max-w-sm w-full text-center shadow-2xl border border-line-soft"
+            >
+              <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-600">
+                <Clock size={40} strokeWidth={1.5} />
+              </div>
+              
+              <h3 className="text-2xl font-serif font-bold text-ink mb-4">Approval Pending</h3>
+              
+              <p className="text-ink-soft text-sm leading-relaxed mb-8">
+                Your email is verified, but your hospital account is currently under review by our Super Admin. 
+                <br /><br />
+                You will receive an official notification once your access is granted.
+              </p>
+
+              <Button 
+                onClick={() => setShowPendingModal(false)}
+                className="w-full rounded-xl h-12 text-xs font-bold uppercase tracking-widest"
+              >
+                Understood
+              </Button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
+
+export default LoginForm;
