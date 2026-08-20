@@ -2,25 +2,32 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import bloodImage from '@/assets/images/blood.png';
 
+const waveInitialD = "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z";
+const waveKeyframesD = [
+  "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z",
+  "M0,60 C360,110 720,10 1080,60 C1440,110 1800,10 2160,60 L2160,120 L0,120 Z",
+  "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z",
+];
+
 export const AuthVisual = () => {
   const [phase, setPhase] = useState<'dropping' | 'filling' | 'complete'>('dropping');
 
   return (
     <div className="relative w-full h-full bg-white overflow-hidden flex items-center justify-center">
-      
+
       {/* 1. THE NATURAL DROPLET */}
       {phase === 'dropping' && (
         <motion.div
           // Physics: Starts slow, accelerates, and stretches as it falls
           initial={{ y: -150, x: '-50%', scaleX: 0.95, scaleY: 1 }}
-          animate={{ 
-            y: '100vh', 
+          animate={{
+            y: '100vh',
             scaleY: 1.2, // Stretching as it gains speed
             scaleX: 0.85, // Narrowing as it stretches
-            opacity: 1 
+            opacity: 1
           }}
-          transition={{ 
-            duration: 1.5, 
+          transition={{
+            duration: 1.5,
             ease: [0.13, 0, 0.8, 0.15] // True gravity acceleration
           }}
           onAnimationComplete={() => setPhase('filling')}
@@ -28,8 +35,8 @@ export const AuthVisual = () => {
         >
           {/* Bigger, Organic Drop Shape */}
           <svg width="48" height="68" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path 
-              d="M15 0C15 0 0 14.5 0 27C0 35.2843 6.71573 42 15 42C23.2843 42 30 35.2843 30 27C30 14.5 15 0 15 0Z" 
+            <path
+              d="M15 0C15 0 0 14.5 0 27C0 35.2843 6.71573 42 15 42C23.2843 42 30 35.2843 30 27C30 14.5 15 0 15 0Z"
               fill="#C31F3B"
             />
             {/* Subtle light reflection for "Natural" look */}
@@ -39,35 +46,36 @@ export const AuthVisual = () => {
       )}
 
       {/* 2. THE RISING FLUID */}
-      <motion.div 
+      <motion.div
         initial={{ y: '100%' }}
         animate={phase !== 'dropping' ? { y: '0%' } : { y: '100%' }}
         transition={{ duration: 3.5, ease: [0.45, 0.05, 0.55, 0.95] }}
         className="absolute inset-0 z-10"
       >
         {/* The Wave Edge */}
-        <svg 
-          className="absolute top-0 left-0 w-[200%] h-[120px] -translate-y-[98%]" 
-          viewBox="0 0 1440 120" 
-          preserveAspectRatio="none"
+        <motion.div 
+          className="absolute top-0 left-0 w-[200%] h-[120px] -translate-y-[98%]"
+          animate={{ x: ['-50%', '0%'] }}
+          transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
         >
-          <motion.path
-            d="M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z"
-            animate={{ 
-              x: ['-50%', '0%'],
-              d: [
-                "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z",
-                "M0,60 C360,110 720,10 1080,60 C1440,110 1800,10 2160,60 L2160,120 L0,120 Z",
-                "M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z"
-              ]
-            }}
-            transition={{ 
-              x: { repeat: Infinity, duration: 5, ease: "linear" },
-              d: { repeat: Infinity, duration: 4, ease: "easeInOut" } 
-            }}
-            fill="#C31F3B"
-          />
-        </svg>
+          <svg 
+            className="w-full h-full" 
+            viewBox="0 0 1440 120" 
+            preserveAspectRatio="none"
+          >
+            <motion.path
+              d={waveInitialD}
+              initial={{ d: waveInitialD }}
+              animate={{ d: waveKeyframesD }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 4, 
+                ease: "easeInOut" 
+              }}
+              fill="#C31F3B"
+            />
+          </svg>
+        </motion.div>
         <div className="w-full h-full bg-crimson" />
       </motion.div>
 
@@ -86,8 +94,8 @@ export const AuthVisual = () => {
               className="w-full h-full object-cover grayscale-[10%] brightness-90"
             />
             
-            {/* Keep the overlays but make them full-bleed */}
-            <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
+            {/* Local noise overlay */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('/noise.svg')]" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           </div>
 
@@ -102,4 +110,4 @@ export const AuthVisual = () => {
     </div>
   );
 };
-
+export default AuthVisual;
