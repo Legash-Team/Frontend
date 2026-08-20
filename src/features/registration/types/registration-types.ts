@@ -10,7 +10,8 @@ export interface RegisterFormData {
   confirmPassword: string;
   licenseNumber: string;
   phone: string;
-  location: LocationData | null;
+  address: string;
+  location: {lat: number; lng:number} | null;
   agreeToTerms: boolean;
 }
 
@@ -20,7 +21,11 @@ export interface RegisterPayload {
   password: string;
   licenseNumber: string;
   phone: string;
-  location: LocationData;
+  location: {
+    coordinates : [number, number];
+    address: string;
+  };
+  agreedToTerms:boolean;
 }
 
 export type FormErrors = Partial<Record<keyof RegisterFormData, string>>;
