@@ -6,9 +6,7 @@ import {
   Mail, 
   ShieldCheck, 
   ShieldAlert, 
-  CheckCircle2, 
-  SendHorizontal,
-  ChevronRight
+  CheckCircle2
 } from 'lucide-react';
 
 const AdminCreationPage = () => {

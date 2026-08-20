@@ -4,13 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
   MapPin, 
-  FileText, 
   Phone, 
   Mail, 
   CheckCircle2, 
   XCircle, 
   Calendar,
-  ExternalLink,
   ChevronRight,
   ShieldCheck
 } from 'lucide-react';

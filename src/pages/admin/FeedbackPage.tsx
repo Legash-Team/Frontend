@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { 
   MessageSquare, 
@@ -6,8 +6,7 @@ import {
   CheckCircle2, 
   AlertCircle, 
   ArrowUpRight,
-  Search,
-  Filter
+  Search
 } from 'lucide-react';
 
 const FeedbackPage = () => {
