@@ -5,7 +5,6 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import TermsPage from './pages/TermsPage';
-import VerifyEmailPage from './pages/VerifyOTPPage';
 import HospitalDashboardPage from './pages/HospitalDashboardPage';
 import HospitalProfilePage from './pages/HospitalProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
@@ -13,12 +12,13 @@ import BloodStockPage from './pages/BloodStockPage';
 import BloodRequestPage from './pages/BloodRequestPage';
 import AllRequestsPage from './pages/AllRequestsPage';
 import HospitalSearchPage from './pages/HospitalSearchPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import VerifyEmailPage from './pages/VerifyOTPPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import EventPostingPage from './pages/admin/EventPostingPage';
 import AdminCreationPage from './pages/admin/AdminCreationPage';
 import FeedbackPage from './pages/admin/FeedbackPage';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
 
 export const App: React.FC = () => {
   return (
@@ -31,13 +31,6 @@ export const App: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/terms" element={<TermsPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-
-            {/* Admin Portal Routes */}
-            <Route path="/admin/dashboard" element={<DashboardPage />} />
-            <Route path="/admin/events" element={<EventPostingPage />} />
-            <Route path="/admin/create-admin" element={<AdminCreationPage />} />
-            <Route path="/admin/feedbacks" element={<FeedbackPage />} />
 
             {/* Protected Hospital Portal Routes */}
             <Route
@@ -97,6 +90,13 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* Admin & Other Routes */}
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/admin/dashboard" element={<DashboardPage />} />
+            <Route path="/admin/events" element={<EventPostingPage />} />
+            <Route path="/admin/create-admin" element={<AdminCreationPage />} />
+            <Route path="/admin/feedbacks" element={<FeedbackPage />} />
+            
             {/* Fallback Redirects */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
