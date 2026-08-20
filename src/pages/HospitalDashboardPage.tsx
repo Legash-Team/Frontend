@@ -158,7 +158,7 @@ export const HospitalDashboardPage: React.FC = () => {
               <div className="space-y-2 z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-red-100 border border-white/20">
                   <Sparkles className="w-3.5 h-3.5 text-amber-300 stroke-[1.75]" />
-                  <span>Legash Emergency Network</span>
+                  <span>Legash Emergency blood Network</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-white flex items-center gap-3">
                   <Building2 className="w-7 h-7 text-white shrink-0 stroke-[1.75]" />
@@ -283,20 +283,18 @@ export const HospitalDashboardPage: React.FC = () => {
                     return (
                       <div
                         key={type}
-                        className={`p-4 rounded-xl border transition-all ${
-                          isLow
+                        className={`p-4 rounded-xl border transition-all ${isLow
                             ? 'bg-crimson/5 border-crimson/20 shadow-xs'
                             : 'bg-paper/60 border-line-soft hover:border-line'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-mono font-bold text-ink bg-white px-2.5 py-0.5 rounded border border-line-soft">
                             {type}
                           </span>
                           <span
-                            className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                              isLow ? 'bg-crimson/10 text-crimson' : 'bg-verified/10 text-verified'
-                            }`}
+                            className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isLow ? 'bg-crimson/10 text-crimson' : 'bg-verified/10 text-verified'
+                              }`}
                           >
                             {isLow ? 'Low Stock' : 'Adequate'}
                           </span>
