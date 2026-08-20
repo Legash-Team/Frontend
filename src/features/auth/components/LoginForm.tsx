@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/features/auth/context/AuthContext';
+import { requestPasswordResetEmail } from '@/api/hospital-api';
 import { Eye, EyeOff, Lock, Mail, Clock, AlertCircle } from 'lucide-react'; // Added Clock & AlertCircle
 import { motion, AnimatePresence } from 'framer-motion'; // For the smooth popup
 
 export const LoginForm = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Forgot Password modal state
+  const [forgotModalOpen, setForgotModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
+  const [forgotError, setForgotError] = useState<string | null>(null);
   
   // --- NEW STATE ADDED HERE ---
   const [showPendingModal, setShowPendingModal] = useState(false);
@@ -14,7 +30,68 @@ export const LoginForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     setIsLoading(true);
+
+    try {
+      await login({ email: email.trim(), password });
+
+      const fromPath =
+        (location.state as { from?: { pathname?: string } })?.from?.pathname ||
+        '/hospital/dashboard';
+
+      navigate(fromPath, { replace: true });
+    } catch (err: unknown) {
+      let message = 'Failed to log in. Please check your hospital credentials.';
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        const axiosErr = err as {
+          response?: {
+            status?: number;
+            data?: { message?: string; error?: string; detail?: string };
+          };
+        };
+        if (axiosErr.response?.status === 401) {
+          message =
+            axiosErr.response?.data?.error ||
+            axiosErr.response?.data?.message ||
+            'Invalid email or password. Please verify your credentials.';
+        } else {
+          message =
+            axiosErr.response?.data?.message ||
+            axiosErr.response?.data?.error ||
+            axiosErr.response?.data?.detail ||
+            message;
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setErrorMsg(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError(null);
+    setForgotSuccess(null);
+    setForgotLoading(true);
+
+    try {
+      const res = await requestPasswordResetEmail(forgotEmail.trim());
+      setForgotSuccess(res.message || 'Password reset link sent! Check your hospital email inbox.');
+    } catch (err: unknown) {
+      let message = 'Failed to send reset link. Please verify the email address.';
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
+        message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setForgotError(message);
+    } finally {
+      setForgotLoading(false);
+    }
     setErrorMessage(null);
 
     try {
@@ -38,11 +115,10 @@ export const LoginForm = () => {
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Error Banner for standard errors (wrong password, etc) */}
-        {errorMessage && (
-          <div className="p-4 bg-crimson/5 border border-crimson/20 rounded-lg flex items-center gap-3 text-crimson text-xs font-bold uppercase">
-            <AlertCircle size={16} />
-            {errorMessage}
+        {errorMsg && (
+          <div className="p-3.5 bg-crimson/10 border border-crimson/20 rounded-xl text-crimson text-xs font-medium flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 shrink-0 stroke-[1.75]" />
+            <span>{errorMsg}</span>
           </div>
         )}
 

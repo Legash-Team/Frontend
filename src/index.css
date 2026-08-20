@@ -33,16 +33,21 @@
 }
 
 /* Global Base Styles */
-@layer base {
-  body {
-    @apply bg-paper text-ink font-sans antialiased;
-  }
-  h1, h2, h3 {
-    @apply font-serif font-semibold tracking-tight;
-  }
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Utilities for your specific Pulse Path */
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Custom Utilities for Pulse Path */
 .pulse-path {
   stroke-dasharray: 900;
   stroke-dashoffset: 900;
@@ -59,4 +64,3 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
-
