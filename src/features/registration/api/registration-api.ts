@@ -1,45 +1,29 @@
 import axios from 'axios';
 import { RegisterPayload } from '../types/registration-types';
 
-export const registerHospital = async (payload: RegisterPayload): Promise<RegisterResponse> => {
-  // Format coordinates properly for Mock API (Sprint 1 schema: [lng, lat])
-  const formattedPayload = {
-    name: payload.name,
-    email: payload.email,
-    password: payload.password,
-    licenseNumber: payload.licenseNumber,
-    phone: payload.phone.startsWith('+251') ? payload.phone : `+251${payload.phone}`,
-    location: {
-      coordinates: [payload.location.lng, payload.location.lat],
-      address: 'Addis Ababa, Ethiopia',
-    },
-  };
+// 1. Define the response type locally to fix the 'Cannot find RegisterResponse' error
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  hospitalId?: string;
+}
 
-  const response = await axiosInstance.post<RegisterResponse>(
-    '/api/hospitals/register',
-    formattedPayload
-  );
-
-  // If hospitalId returned, auto-verify email on the mock API so hospital can log in immediately
-  if (response.data?.hospitalId) {
-    try {
-      await axiosInstance.get(`/api/hospitals/verify-email/${response.data.hospitalId}`);
-    } catch {
-      // Verification notice
-    }
-  }
-
-  return response.data;
-};
-// Replace with your actual backend URL provided by the team
+// 2. Use the Base URL from your environment variables
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-export const registerHospital = async (payload: RegisterPayload) => {
+/**
+ * Sends the registration payload to the Render Mock API.
+ * The payload is already formatted by the useRegisterForm hook.
+ */
+export const registerHospital = async (payload: RegisterPayload): Promise<RegisterResponse> => {
   try {
+    // We hit the exact path from your contract: /api/hospitals/register
     const response = await axios.post(`${API_BASE_URL}/api/hospitals/register`, payload);
+    
     return response.data;
   } catch (error: any) {
-    // Throw the error response so the hook can catch it
-    throw error.response?.data || new Error('Network Error');
+    // 3. Proper Error Handling: 
+    // Passes the 422 Validation Error or other backend errors to the hook
+    throw error.response?.data || new Error('Connection to Legash API failed');
   }
 };
