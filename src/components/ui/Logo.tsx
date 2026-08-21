@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 interface LogoProps {
   isCollapsed?: boolean;
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | string;
 }
 
-export const Logo = ({ isCollapsed, className = '', size: _size }: LogoProps) => {
+export const Logo = ({ isCollapsed, className = '' }: LogoProps) => {
   return (
     <Link to="/" className={`flex items-center font-serif font-bold text-ink ${className}`}>
       <span className="shrink-0">
