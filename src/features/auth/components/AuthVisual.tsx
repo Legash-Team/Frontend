@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion , AnimatePresence} from 'framer-motion';
 import bloodImage from '@/assets/images/blood.png';
 
 export const AuthVisual = () => {

@@ -159,38 +159,41 @@ if (!phoneTrimmed) {
   };
 
   // Submit handler
-  // Submit handler
  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+  setSubmitError(null);
   if (!validateForm()) return;
 
   setIsSubmitting(true);
 
   try {
-    const payload: RegisterPayload = {
-  name: formData.name.trim(),
-  email: formData.email.trim(),
-  password: formData.password,
-  phone: `+251${formData.phone.trim()}`, 
-  licenseNumber: formData.licenseNumber.trim(),
-  location: {
-    // MODIFIED: Added "as [number, number]" at the end of the array
-    coordinates: [formData.location!.lng, formData.location!.lat] as [number, number], 
-    address: formData.address.trim() || "Addis Ababa, Ethiopia"
-  },
-  agreedToTerms: formData.agreeToTerms 
-};
+    // BRIDGE: Mapping your UI state to the official JSON contract
+    const payload = {
+      hospitalName: formData.name.trim(),      // UI 'name' -> API 'hospitalName'
+      email: formData.email.trim(),
+      password: formData.password,
+      licenseNumber: formData.licenseNumber.trim(),
+      phone: `+251${formData.phone.trim()}`,   // Ensures +251 prefix
+      location: {
+        lat: formData.location!.lat,           // API wants flat lat/lng
+        lng: formData.location!.lng,
+        address: formData.address.trim()       // Takes text address from form
+      },
+      agreedToTerms: formData.agreeToTerms      // UI 'agreeToTerms' -> API 'agreedToTerms'
+    };
+
     const response = await registerHospital(payload);
 
-    // If 201 success (Backend returns a string or object)
-    if (response) {
-      setSubmitSuccess("Account registered. Check your email for verification.");
-      setTimeout(() => navigate('/verify-email', { state: { email: formData.email } }), 2000);
+    if (response.success) {
+      setSubmitSuccess(response.message);
+      // Pass email to OTP page so it can be masked (ab***@...)
+      setTimeout(() => {
+        navigate('/verify-email', { state: { email: formData.email } });
+      }, 2500);
     }
   } catch (err: any) {
-    // Handle the 422 Validation Error format from the backend
-    const errorMessage = err.detail?.[0]?.msg || "Registration failed. Check your data.";
-    setSubmitError(errorMessage);
+    // This catches the 'error' string from our API service catch block
+    setSubmitError(err);
   } finally {
     setIsSubmitting(false);
   }

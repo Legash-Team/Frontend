@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
-import { getHospitalDashboard } from '../api/hospital-api';
+import { getHospitalDashboard } from '@/api/hospital-api';
 import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
 import type { DashboardData, LocationData } from '../types/hospital-types';
 import {

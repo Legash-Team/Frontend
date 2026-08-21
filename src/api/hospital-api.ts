@@ -16,7 +16,7 @@ import type {
   HospitalSearchResult,
   BloodType,
   RequestType,
-} from '../types/hospital-types';
+} from '../features/hospital/types/hospital-types';
 
 export interface LoginResponse {
   success?: boolean;

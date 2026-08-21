@@ -3,71 +3,98 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Mail, RefreshCcw } from 'lucide-react';
 import Button from '@/components/ui/Button';
+// 1. Ensure this points to your real API file
+import { verifyHospitalOTP, resendHospitalOTP } from '@/features/auth/api/auth-api'; 
+import axios from 'axios';
 
 const VerifyOTPPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Logic State
+   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Email Masking (e.g., ho***@hospital.com)
-  const userEmail = location.state?.email || "hospital.admin@gmail.com";
+  const userEmail = location.state?.email || "hospital@example.com";
   const maskedEmail = userEmail.replace(/^(..)(.*)(?=@)/, (_match: string, a: string, b: string) => 
     a + b.replace(/./g, '*')
   );
 
-  // 60-Second Timer Logic
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  // Handle Typing & Auto-jump
   const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Strictly numbers
+    if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1); 
     setOtp(newOtp);
 
-    // Move to next box
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  // Handle Backspace jumping back
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
+  // 2. REAL BACKEND INTEGRATION
   const handleVerify = async () => {
     setIsVerifying(true);
     setError(null);
+    const code = otp.join('');
+
     try {
-      const code = otp.join('');
-      // Simulation of Backend Call
-      setTimeout(() => {
-        setIsVerifying(false);
-        navigate('/login');
-      }, 2000);
+      // Hits POST /api/hospital/verify-email
+      const response = await verifyHospitalOTP(userEmail, code);
+
+      if (response.success) {
+        // Navigate to login so they can see the "Pending Approval" state
+        navigate('/login', { 
+          state: { message: "Email verified successfully. Please log in." } 
+        });
+      }
     } catch (err: any) {
-      setError("The code you entered is incorrect. Please check your email.");
+      // Capture the specific error from the backend contract (e.g., "Invalid request parameter")
+      setError(err || "The code is incorrect or expired.");
+    } finally {
       setIsVerifying(false);
     }
   };
 
+ 
+
+const handleResend = async () => {
+  setResendMessage(null);
+  setError(null);
+  
+  try {
+    const response = await resendHospitalOTP(userEmail);
+    
+    if (response.success) {
+      // Start the 60s cooldown timer again
+      setTimeLeft(60);
+      // Show success feedback
+      setResendMessage("A new code has been dispatched to your email.");
+      // Hide message after 5 seconds
+      setTimeout(() => setResendMessage(null), 5000);
+    }
+  } catch (err: any) {
+    // If backend returns 429 (Cooldown active)
+    setError(err);
+  }
+};
+
   return (
     <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-6">
       
-      {/* 1. Back Navigation */}
       <div className="w-full max-w-md mb-8">
         <Link to="/register" className="inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-crimson transition-colors group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
@@ -75,7 +102,6 @@ const VerifyOTPPage = () => {
         </Link>
       </div>
 
-      {/* 2. The Focused Card (Extra Rounded: 40px) */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -87,20 +113,17 @@ const VerifyOTPPage = () => {
           </div>
           <h1 className="text-3xl font-serif font-bold text-ink mb-4">Verify your email</h1>
           
-          {/* Longer, more natural description */}
           <p className="text-ink-soft text-[15px] leading-relaxed px-2">
             A 6-digit verification code has been sent to your registered email: <br/>
             <span className="text-ink font-bold font-mono tracking-tight">{maskedEmail}</span>. 
-           
           </p>
         </div>
 
-        {/* 3. The 6-Digit Smooth Inputs */}
         <div className="flex justify-between gap-2 mb-10">
           {otp.map((digit, index) => (
             <div key={index} className="relative w-12 h-16">
               <input
-                ref={(el) => { inputRefs.current[index] = el; }} // Fixed TS Ref logic
+                ref={(el) => { inputRefs.current[index] = el; }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -123,10 +146,16 @@ const VerifyOTPPage = () => {
           ))}
         </div>
 
-        {/* Error Feedback */}
         {error && <p className="text-[10px] text-crimson font-bold uppercase text-center mb-6">{error}</p>}
-
-        {/* Action Button */}
+        {resendMessage && (
+  <motion.p 
+    initial={{ opacity: 0, y: -10 }} 
+    animate={{ opacity: 1, y: 0 }} 
+    className="text-[10px] text-verified font-bold uppercase text-center mb-6"
+  >
+    {resendMessage}
+  </motion.p>
+)}
         <Button 
           onClick={handleVerify}
           isLoading={isVerifying}
@@ -136,7 +165,6 @@ const VerifyOTPPage = () => {
           Verify Account
         </Button>
 
-        {/* 4. Resend Timer Logic */}
         <div className="text-center">
           {timeLeft > 0 ? (
             <div className="flex items-center justify-center gap-2">
@@ -145,7 +173,7 @@ const VerifyOTPPage = () => {
             </div>
           ) : (
             <button 
-              onClick={() => setTimeLeft(60)}
+              onClick={handleResend}
               className="inline-flex items-center gap-2 text-xs font-bold text-crimson hover:text-crimson-dark transition-colors uppercase tracking-widest"
             >
               <RefreshCcw size={14} /> Resend Code
@@ -153,7 +181,6 @@ const VerifyOTPPage = () => {
           )}
         </div>
       </motion.div>
-
     </div>
   );
 };
