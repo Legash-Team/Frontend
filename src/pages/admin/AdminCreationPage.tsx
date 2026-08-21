@@ -1,158 +1,202 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/layouts/AdminLayout';
-import { Button } from '@/components/ui/Button';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   UserPlus, 
   Mail, 
   ShieldCheck, 
   ShieldAlert, 
   CheckCircle2, 
-  SendHorizontal,
+  Trash2,
+  Clock,
+  MoreVertical,
   ChevronRight
 } from 'lucide-react';
+import Button from '@/components/ui/Button';
+
+// 1. INITIAL MOCK DATA
+const INITIAL_ADMINS = [
+  { id: '1', name: 'Dr. Selamawit Tadesse', email: 'selam.t@legash.et', role: 'Full Access', status: 'active' },
+  { id: '2', name: 'Abebe Kebede', email: 'abebe.k@legash.et', role: 'Event Coordinator', status: 'pending' },
+];
 
 const AdminCreationPage = () => {
+  const [admins, setAdmins] = useState(INITIAL_ADMINS);
+  const [isCreating, setIsCreating] = useState(false);
+  const [successMsg, setSuccessMsg] = useState(false);
+
+  // Form State
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    permissions: {
-      approveHospitals: false,
-      postEvents: false
-    }
+    canApproveHospitals: false,
+    canPostEvents: false
   });
 
-  const [isCreated, setIsCreated] = useState(false);
-
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreateAdmin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic: Send Invite Email logic here
-    setIsCreated(true);
+    setIsCreating(true);
+
+    // Simulation of API Call and Onboarding Email
+    setTimeout(() => {
+      const newAdmin = {
+        id: Math.random().toString(),
+        name: formData.name,
+        email: formData.email,
+        role: formData.canApproveHospitals && formData.canPostEvents 
+              ? 'Full Access' 
+              : formData.canApproveHospitals ? 'Hospital Verifier' : 'Event Coordinator',
+        status: 'pending' as const
+      };
+
+      setAdmins([newAdmin, ...admins]);
+      setIsCreating(false);
+      setSuccessMsg(true);
+      
+      // Reset Form
+      setFormData({ name: '', email: '', canApproveHospitals: false, canPostEvents: false });
+      
+      // Hide success message after 4 seconds
+      setTimeout(() => setSuccessMsg(false), 4000);
+    }, 1500);
+  };
+
+  const removeAdmin = (id: string) => {
+    setAdmins(admins.filter(a => h.id !== id));
   };
 
   return (
-    <AdminLayout title="System Administration">
-      <div className="grid lg:grid-cols-12 gap-8">
+    <AdminLayout title="Staff Management">
+      <div className="space-y-8">
         
-        {/* LEFT: Provisioning Form */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white border border-line-soft rounded-[32px] p-8 md:p-12 shadow-sm">
-            
-            <div className="mb-10">
-              <h2 className="text-2xl font-serif font-bold text-ink mb-2">Provision New Admin</h2>
-              <p className="text-ink-soft text-sm">Assign credentials and access levels for system staff.</p>
+        {/* 1. CREATION BANNER (Matches Hospital Dashboard Style) */}
+        <div className="w-full bg-white border border-line-soft rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 rounded-xl bg-crimson/5 flex items-center justify-center text-crimson">
+                <UserPlus size={20} />
+              </div>
+              <div>
+                <h2 className="text-xl font-serif font-bold text-ink">Provision New Staff</h2>
+                <p className="text-xs text-ink-soft">Assign administrative roles and send system invitations.</p>
+              </div>
             </div>
 
-            <form onSubmit={handleCreate} className="space-y-8">
-              
-              {/* Identity Section */}
-              <div className="grid md:grid-cols-2 gap-6">
+            <form onSubmit={handleCreateAdmin} className="grid lg:grid-cols-3 gap-8">
+              {/* Inputs */}
+              <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">Full Name</label>
                   <input 
-                    type="text"
-                    required
-                    placeholder="Enter full name"
-                    value={formData.name}
+                    type="text" required value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson transition-all text-sm"
+                    placeholder="e.g. Elias Gebre"
+                    className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">System Email</label>
                   <input 
-                    type="email"
-                    required
-                    placeholder="staff@legash.et"
-                    value={formData.email}
+                    type="email" required value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson transition-all text-sm"
+                    placeholder="name@legash.et"
+                    className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
+                  />
+                </div>
+
+                {/* Role Toggles */}
+                <div className="md:col-span-2 flex flex-wrap gap-4">
+                  <PermissionBadge 
+                    label="Can Approve Hospitals" 
+                    active={formData.canApproveHospitals} 
+                    onClick={() => setFormData({...formData, canApproveHospitals: !formData.canApproveHospitals})} 
+                  />
+                  <PermissionBadge 
+                    label="Can Post Events" 
+                    active={formData.canPostEvents} 
+                    onClick={() => setFormData({...formData, canPostEvents: !formData.canPostEvents})} 
                   />
                 </div>
               </div>
 
-              {/* Roles & Permissions Section */}
-              <div className="space-y-4">
-                <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest block mb-4">
-                  Access Control Level (ACL)
-                </label>
-                
-                <div className="grid gap-4">
-                  {/* Permission 1 */}
-                  <PermissionToggle 
-                    title="Hospital Verifier"
-                    desc="Can approve or reject hospital registrations and view licenses."
-                    active={formData.permissions.approveHospitals}
-                    onClick={() => setFormData({
-                      ...formData, 
-                      permissions: {...formData.permissions, approveHospitals: !formData.permissions.approveHospitals}
-                    })}
-                  />
-
-                  {/* Permission 2 */}
-                  <PermissionToggle 
-                    title="Event Coordinator"
-                    desc="Can create, broadcast, and manage donor events and news."
-                    active={formData.permissions.postEvents}
-                    onClick={() => setFormData({
-                      ...formData, 
-                      permissions: {...formData.permissions, postEvents: !formData.permissions.postEvents}
-                    })}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6">
+              {/* Submit Side */}
+              <div className="flex flex-col justify-end">
                 <Button 
                   type="submit" 
-                  variant="primary" 
-                  disabled={!formData.permissions.approveHospitals && !formData.permissions.postEvents}
-                  className="w-full h-14 rounded-2xl font-bold shadow-lg flex gap-3"
+                  isLoading={isCreating}
+                  disabled={!formData.canApproveHospitals && !formData.canPostEvents}
+                  className="w-full h-14 rounded-2xl font-bold shadow-lg"
                 >
-                  <UserPlus size={18} /> Generate Invite & Provision Account
+                  Create Admin Account
                 </Button>
+                <p className="text-[10px] text-ink-soft/50 text-center mt-4 italic">
+                  An invitation link will be sent to the email above.
+                </p>
               </div>
             </form>
           </div>
         </div>
 
-        {/* RIGHT: Onboarding Lifecycle */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-ink text-paper rounded-[32px] p-8 shadow-xl relative overflow-hidden">
-            <h3 className="text-sm font-serif font-bold mb-8 relative z-10">Onboarding Lifecycle</h3>
-            
-            <div className="space-y-8 relative z-10">
-              <LifecycleStep 
-                icon={<Mail size={16} />} 
-                title="Invitation Sent" 
-                desc="An encrypted link is sent to the staff email address." 
-                completed={isCreated}
-              />
-              <LifecycleStep 
-                icon={<ShieldCheck size={16} />} 
-                title="Identity Verification" 
-                desc="Staff verifies their email and sets a secure password." 
-                completed={false}
-              />
-              <LifecycleStep 
-                icon={<CheckCircle2 size={16} />} 
-                title="Access Granted" 
-                desc="The account becomes active with the assigned roles." 
-                completed={false}
-              />
+        {/* 2. SUCCESS NOTIFICATION */}
+        <AnimatePresence>
+          {successMsg && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+              className="bg-verified/10 border border-verified/20 rounded-2xl p-4 flex items-center gap-3 text-verified"
+            >
+              <CheckCircle2 size={18} />
+              <p className="text-sm font-bold">Invitation Sent! The new admin can now verify their email and set a password.</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 3. STAFF TABLE (Mirroring Admin Dashboard logic) */}
+        <div className="bg-white border border-line-soft rounded-[32px] overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-line-soft bg-paper/30 flex justify-between items-center">
+            <h3 className="text-sm font-mono font-bold text-ink-soft uppercase tracking-widest">Active Administrative Staff</h3>
+            <div className="px-3 py-1 rounded-full bg-paper border border-line-soft text-[10px] font-bold text-ink-soft uppercase tracking-tighter">
+              {admins.length} Total
             </div>
-
-            {/* Decorative Pulse */}
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-crimson/10 blur-[80px] rounded-full" />
           </div>
-
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex gap-4">
-             <ShieldAlert className="text-amber-600 shrink-0" size={24} />
-             <p className="text-xs text-amber-900 leading-relaxed">
-               <strong>Security Note:</strong> Admin invitations expire after 24 hours. Ensure the recipient completes their setup promptly to avoid re-provisioning.
-             </p>
-          </div>
+          
+          <table className="w-full text-left">
+            <tbody className="divide-y divide-line-soft">
+              {admins.map((admin) => (
+                <tr key={admin.id} className="group hover:bg-paper/20 transition-all">
+                  <td className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-paper border border-line-soft flex items-center justify-center font-serif font-bold text-ink-soft text-xs uppercase tracking-tighter">
+                        {admin.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-ink">{admin.name}</p>
+                        <p className="text-xs text-ink-soft font-mono">{admin.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border ${
+                      admin.role === 'Full Access' ? 'bg-crimson/5 border-crimson/20 text-crimson' : 'bg-paper border-line-soft text-ink-soft'
+                    }`}>
+                      {admin.role}
+                    </span>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2">
+                       <div className={`w-1.5 h-1.5 rounded-full ${admin.status === 'active' ? 'bg-verified animate-pulse' : 'bg-amber-400'}`} />
+                       <span className="text-[10px] font-black uppercase tracking-widest text-ink-soft/40">{admin.status}</span>
+                    </div>
+                  </td>
+                  <td className="p-6 text-right">
+                    <button className="p-2 text-ink-soft/30 hover:text-crimson transition-colors">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
       </div>
     </AdminLayout>
   );
@@ -160,38 +204,19 @@ const AdminCreationPage = () => {
 
 // --- SUB-COMPONENTS ---
 
-const PermissionToggle = ({ title, desc, active, onClick }: any) => (
+const PermissionBadge = ({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`w-full p-5 rounded-2xl border text-left transition-all flex items-center justify-between group ${
-      active ? 'bg-crimson/5 border-crimson shadow-sm' : 'bg-paper border-line-soft hover:border-crimson/30'
+    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 ${
+      active 
+        ? 'bg-crimson border-crimson text-white shadow-md shadow-crimson/20' 
+        : 'bg-white border-line-soft text-ink-soft hover:border-crimson/30'
     }`}
   >
-    <div className="max-w-[85%]">
-      <h4 className={`text-sm font-bold mb-1 transition-colors ${active ? 'text-crimson' : 'text-ink'}`}>
-        {title}
-      </h4>
-      <p className="text-xs text-ink-soft leading-snug">{desc}</p>
-    </div>
-    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-      active ? 'bg-crimson border-crimson text-white' : 'border-line-soft group-hover:border-crimson/50'
-    }`}>
-      {active && <CheckCircle2 size={14} />}
-    </div>
+    {active ? <CheckCircle2 size={14} /> : <div className="w-3.5 h-3.5 rounded-full border-2 border-current opacity-20" />}
+    {label}
   </button>
-);
-
-const LifecycleStep = ({ icon, title, desc, completed }: any) => (
-  <div className={`flex gap-4 items-start transition-opacity ${completed ? 'opacity-100' : 'opacity-40'}`}>
-    <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${completed ? 'bg-crimson text-white' : 'bg-white/10 text-white/50'}`}>
-      {icon}
-    </div>
-    <div>
-      <h4 className="text-xs font-bold uppercase tracking-wider mb-1">{title}</h4>
-      <p className="text-[11px] text-paper/50 leading-relaxed">{desc}</p>
-    </div>
-  </div>
 );
 
 export default AdminCreationPage;

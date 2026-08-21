@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink , useNavigate } from 'react-router-dom';
 import { 
   Menu, 
   X, 
@@ -11,9 +11,12 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
+import {useAuth} from '@/features/auth/context/AuthContext';
 
 export const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { logout } = useAuth(); 
+  const navigate = useNavigate();
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Facilities', path: '/admin/dashboard' },
@@ -21,7 +24,19 @@ export const AdminSidebar = () => {
     { icon: CalendarPlus, label: 'Post Event', path: '/admin/events' },
     { icon: UserPlus, label: 'Create Admin', path: '/admin/create-admin' },
   ];
+  
+   const handleSignOut = () => {
+    // 1. Clear Context State & LocalStorage
+    logout(); 
+    
+    // 2. Wipe everything else just to be safe
+    localStorage.removeItem('legash_token');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('user_permissions');
 
+    // 3. Redirect to Login
+    navigate('/login', { replace: true });
+  };
   return (
     <aside className={`h-screen bg-white border-r border-line-soft transition-all duration-300 flex flex-col relative ${isCollapsed ? 'w-20' : 'w-64'}`}>
       
@@ -77,9 +92,9 @@ export const AdminSidebar = () => {
 
       {/* ADMIN PROFILE / LOGOUT AREA */}
       <div className="p-4 border-t border-line-soft">
-        <button className="flex items-center gap-4 px-4 py-3 w-full text-ink-soft hover:text-crimson transition-colors group">
+        <button onClick={handleSignOut}className="flex items-center gap-4 px-4 py-3 w-full text-ink-soft hover:text-crimson transition-colors group"  href='/login'>
           <LogOut size={20} className="shrink-0" />
-          {!isCollapsed && <span className="text-[11px] font-bold uppercase tracking-widest">Sign Out</span>}
+          {!isCollapsed && <span className="text-[11px] font-bold uppercase tracking-widest ">Sign Out</span>}
         </button>
       </div>
     </aside>
