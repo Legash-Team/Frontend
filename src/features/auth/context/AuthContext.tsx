@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { loginHospital } from '@/api/hospital-api';
+import { loginHospital } from '@/features/hospital/api/hospital-api';
 
 export interface HospitalUser {
   id?: string;

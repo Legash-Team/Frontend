@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
-import ErrorBoundary from '../components/ErrorBoundary';
-import { searchHospitals } from '../api/hospital-api';
-import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
-import type { BloodType, HospitalSearchResult } from '../types/hospital-types';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { searchHospitals } from '@/features/hospital/api/hospital-api';
+import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
+import type { BloodType, HospitalSearchResult } from '@/features/hospital/types/hospital-types';
 import {
   Search,
   AlertTriangle,

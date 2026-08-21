@@ -1,11 +1,11 @@
 import React, { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import DashboardLayout from '../layouts/DashboardLayout';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import { createBloodRequest } from '../api/hospital-api';
-import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
-import type { BloodType, RequestType, BloodRequestPayload } from '../types/hospital-types';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import { createBloodRequest } from '@/features/hospital/api/hospital-api';
+import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
+import type { BloodType, RequestType, BloodRequestPayload } from '@/features/hospital/types/hospital-types';
 import {
   PlusCircle,
   AlertCircle,

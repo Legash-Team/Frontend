@@ -1,22 +1,27 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import ErrorBoundary from './components/ErrorBoundary';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
-import TermsPage from './pages/TermsPage';
-import HospitalDashboardPage from './pages/HospitalDashboardPage';
-import HospitalProfilePage from './pages/HospitalProfilePage';
-import EditProfilePage from './pages/EditProfilePage';
-import BloodStockPage from './pages/BloodStockPage';
-import BloodRequestPage from './pages/BloodRequestPage';
-import AllRequestsPage from './pages/AllRequestsPage';
-import HospitalSearchPage from './pages/HospitalSearchPage';
+
+// --- 1. SHARED & AUTH INFRASTRUCTURE ---
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './features/auth/context/AuthContext';
-import VerifyEmailPage from './pages/VerifyOTPPage';
 
-// Admin Pages
+// --- 2. PUBLIC / AUTH PAGES (Moved to src/pages/public/) ---
+import LandingPage from './pages/public/LandingPage';
+import RegisterPage from './pages/public/RegisterPage';
+import LoginPage from './pages/public/LoginPage';
+import TermsPage from './pages/public/TermsPage';
+import VerifyEmailPage from './pages/public/VerifyOTPPage';
+
+// --- 3. HOSPITAL PORTAL PAGES (Moved to src/pages/hospital/) ---
+import HospitalDashboardPage from './pages/hospital/HospitalDashboardPage';
+import HospitalProfilePage from './pages/hospital/HospitalProfilePage';
+import EditProfilePage from './pages/hospital/EditProfilePage';
+import BloodStockPage from './pages/hospital/BloodStockPage';
+import BloodRequestPage from './pages/hospital/BloodRequestPage';
+import AllRequestsPage from './pages/hospital/AllRequestsPage';
+import HospitalSearchPage from './pages/hospital/HospitalSearchPage';
+
+// --- 4. ADMIN DASHBOARD PAGES (Ensure these paths are correct) ---
 import DashboardPage from './pages/admin/DashboardPage';
 import EventPostingPage from './pages/admin/EventPostingPage';
 import AdminCreationPage from './pages/admin/AdminCreationPage';

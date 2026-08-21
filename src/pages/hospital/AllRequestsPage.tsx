@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardLayout from '../layouts/DashboardLayout';
-import { getBloodRequests } from '../api/hospital-api';
-import type { BloodRequest, AcceptedDonor } from '../types/hospital-types';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import { getBloodRequests } from '@/features/hospital/api/hospital-api';
+import type { BloodRequest, AcceptedDonor } from '@/features/hospital/types/hospital-types';
 import {
   ClipboardList,
   AlertTriangle,

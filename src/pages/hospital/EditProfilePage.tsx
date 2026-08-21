@@ -1,10 +1,10 @@
 import React, { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import DashboardLayout from '../layouts/DashboardLayout';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
-import { getHospitalProfile, updateHospitalProfile } from '../api/hospital-api';
-import type { HospitalProfile, LocationData } from '../types/hospital-types';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { getHospitalProfile, updateHospitalProfile } from '@/features/hospital/api/hospital-api';
+import type { HospitalProfile, LocationData } from '@/features/hospital/types/hospital-types';
 import {
   Pencil,
   ArrowLeft,

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import DashboardLayout from '../layouts/DashboardLayout';
-import Button from '../components/ui/Button';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import Button from '@/components/ui/Button';
 import {
   getHospitalProfile,
   changeHospitalPassword,
   requestPasswordResetEmail,
   deleteHospitalAccount,
-} from '../api/hospital-api';
-import type { HospitalProfile, LocationData } from '../types/hospital-types';
+} from '@/features/hospital/api/hospital-api';
+import type { HospitalProfile, LocationData } from '@/features/hospital/types/hospital-types';
 import {
   Building2,
   Mail,

@@ -5,7 +5,6 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 import {
   LayoutDashboard,
   User,
-  Pencil,
   Droplets,
   PlusCircle,
   ClipboardList,
@@ -37,10 +36,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     {
       label: 'Profile',
       path: '/hospital/profile',
-      icon: User,
-      subItems: [
-        { label: 'Edit Profile', path: '/hospital/profile/edit', icon: Pencil },
-      ],
+      icon: User
     },
   ];
 
@@ -56,7 +52,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       {/* Mobile Top Header */}
       <header className="md:hidden bg-white/90 backdrop-blur-md border-b border-line-soft px-4 py-3 sticky top-0 z-30 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2">
-          <Logo size="md" />
+          <Logo  />
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
             Hospital
           </span>
@@ -85,7 +81,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white border-r border-line-soft">
             <div className="p-4 border-b border-line-soft flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Logo size="md" />
+                <Logo />
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
                   Portal
                 </span>
@@ -124,29 +120,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                       <span>{item.label}</span>
                     </NavLink>
 
-                    {item.subItems && (
-                      <div className="pl-8 space-y-1">
-                        {item.subItems.map((sub) => {
-                          const SubIcon = sub.icon;
-                          return (
-                            <NavLink
-                              key={sub.path}
-                              to={sub.path}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className={({ isActive }) =>
-                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-bold transition-colors ${isActive
-                                  ? 'bg-crimson/10 text-crimson'
-                                  : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
-                                }`
-                              }
-                            >
-                              <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[2]" />
-                              <span>{sub.label}</span>
-                            </NavLink>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -180,7 +153,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             {!isMinimized ? (
               <div className="overflow-hidden whitespace-nowrap">
                 <div className="flex items-center gap-2">
-                  <Logo size="md" />
+                  <Logo />
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
                     Hospital
                   </span>
@@ -246,30 +219,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                   <IconComponent className="w-4 h-4 shrink-0 stroke-[2]" />
                   {!isMinimized && <span className="flex-1 whitespace-nowrap">{item.label}</span>}
                 </NavLink>
-
-                {/* Sub Items (Only shown in expanded state) */}
-                {!isMinimized && item.subItems && (
-                  <div className="pl-7 space-y-1">
-                    {item.subItems.map((sub) => {
-                      const SubIcon = sub.icon;
-                      return (
-                        <NavLink
-                          key={sub.path}
-                          to={sub.path}
-                          className={({ isActive }) =>
-                            `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-sans font-bold transition-colors ${isActive
-                              ? 'bg-crimson/10 text-crimson'
-                              : 'text-ink-soft/80 hover:bg-paper-dim hover:text-ink'
-                            }`
-                          }
-                        >
-                          <SubIcon className="w-3.5 h-3.5 shrink-0 stroke-[2]" />
-                          <span className="whitespace-nowrap">{sub.label}</span>
-                        </NavLink>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             );
           })}
@@ -300,7 +249,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         </main>
 
         <footer className="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Legash Healthcare System. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Legash Blood Network. All rights reserved.</p>
         </footer>
       </div>
     </div>

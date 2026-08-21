@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import DashboardLayout from '../layouts/DashboardLayout';
-import { getHospitalDashboard } from '@/api/hospital-api';
-import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
-import type { DashboardData, LocationData } from '../types/hospital-types';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
+import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
+import type { DashboardData, LocationData } from '@/features/hospital/types/hospital-types';
 import {
   LayoutDashboard,
   Building2,
@@ -182,77 +182,6 @@ export const HospitalDashboardPage: React.FC = () => {
 
             {/* Dashboard Overview Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Hospital Information Card (Read-Only) */}
-              <div className="bg-white rounded-2xl border border-line-soft shadow-xs p-6 lg:col-span-1 space-y-4">
-                <div className="flex items-center justify-between border-b border-line-soft pb-3">
-                  <h2 className="text-base font-serif font-bold text-ink flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-crimson stroke-[1.75]" />
-                    <span>Hospital Info</span>
-                  </h2>
-                  <Link
-                    to="/hospital/profile/edit"
-                    className="text-xs font-mono font-bold uppercase tracking-wider text-crimson hover:underline flex items-center gap-1"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                    <span>Edit</span>
-                  </Link>
-                </div>
-
-                <div className="space-y-3.5 text-sm">
-                  <div>
-                    <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider block">
-                      Hospital Name
-                    </span>
-                    <p className="text-ink font-bold font-sans mt-0.5">{hospitalName}</p>
-                  </div>
-
-                  <div>
-                    <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider block">
-                      Email Address
-                    </span>
-                    <p className="text-ink font-medium font-sans mt-0.5">{hospitalEmail}</p>
-                  </div>
-
-                  <div>
-                    <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider block">
-                      Phone Number
-                    </span>
-                    <p className="text-ink font-medium font-sans mt-0.5">{hospitalPhone}</p>
-                  </div>
-
-                  <div>
-                    <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider block">
-                      License / Reg. Number
-                    </span>
-                    <p className="text-ink font-mono font-semibold mt-0.5">
-                      {hospitalLicense}
-                    </p>
-                  </div>
-
-                  {/* Location Indicator */}
-                  <div className="pt-3 border-t border-line-soft">
-                    <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider block mb-1.5">
-                      Location Pin
-                    </span>
-                    {hospitalLocation ? (
-                      <div className="p-3 bg-crimson/5 border border-crimson/15 rounded-xl flex items-start gap-2.5">
-                        <MapPin className="w-4 h-4 text-crimson shrink-0 mt-0.5 stroke-[1.75]" />
-                        <div>
-                          <p className="text-xs font-serif font-bold text-ink">Registered Geolocation</p>
-                          <p className="text-xs text-ink-soft mt-0.5 font-mono">
-                            Lat: {hospitalLocation.lat} | Lng: {hospitalLocation.lng}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-3 bg-paper border border-line-soft rounded-xl text-xs text-ink-soft flex items-center gap-2 font-sans">
-                        <MapPin className="w-4 h-4 text-ink-soft/60 stroke-[1.75]" />
-                        <span>No geographical coordinates registered.</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
 
               {/* Blood Stock Summary Card */}
               <div className="bg-white rounded-2xl border border-line-soft shadow-xs p-6 lg:col-span-2 space-y-4">

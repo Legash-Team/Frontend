@@ -1,12 +1,12 @@
 import React, { useState, useEffect, type FormEvent } from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
-import Button from '../components/ui/Button';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import Button from '@/components/ui/Button';
 import {
   getBloodStock,
   updateBloodStock,
-} from '../api/hospital-api';
-import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
-import type { BloodStock, BloodType } from '../types/hospital-types';
+} from '@/features/hospital/api/hospital-api';
+import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
+import type { BloodStock, BloodType } from '@/features/hospital/types/hospital-types';
 import {
   Droplets,
   CheckCircle2,
