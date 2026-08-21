@@ -282,8 +282,8 @@ export const BloodStockPage: React.FC = () => {
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-line-soft">
                   <div className="flex items-center gap-2 text-xs font-sans text-ink-soft">
-                    <Info className="w-4 h-4 text-ink-soft/60 shrink-0 stroke-[1.75]" />
-                    <span>Quantities cannot be negative ($\ge 0$). Adjustments are saved directly to the central registry.</span>
+                    <Info className="w-4 h-4 text-[red] shrink-0 stroke-[1.75]" />
+                    <span className= "text-[red]">Quantities cannot be negative. Adjustments are saved directly to the central registry.</span>
                   </div>
 
                   <Button

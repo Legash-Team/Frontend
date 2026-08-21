@@ -391,8 +391,7 @@ export const BloodRequestPage: React.FC = () => {
             {/* Submit Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-line-soft">
               <div className="flex items-center gap-2 text-xs font-sans text-ink-soft">
-                <Sparkles className="w-4 h-4 text-crimson shrink-0" />
-                <span>Hospitals can create multiple simultaneous blood requests.</span>
+                <span className="text-[#d2854b]">Hospitals can create multiple simultaneous blood requests.</span>
               </div>
 
               <Button

@@ -180,8 +180,7 @@ export const HospitalDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Dashboard Overview Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
 
               {/* Blood Stock Summary Card */}
               <div className="bg-white rounded-2xl border border-line-soft shadow-xs p-6 lg:col-span-2 space-y-4">
@@ -239,7 +238,6 @@ export const HospitalDashboardPage: React.FC = () => {
                   })}
                 </div>
               </div>
-            </div>
           </>
         )}
       </div>
