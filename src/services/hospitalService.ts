@@ -539,7 +539,7 @@ export const searchHospitals = async (
   try {
     const res = await axiosInstance.get<{ data?: Array<{ facilityName: string; email: string; phone: string; licenseNumber: string }> }>('/v1/admin/facilities');
     if (res.data?.data && Array.isArray(res.data.data)) {
-      return res.data.data.map((f, i) => ({
+      return res.data.data.map((f: any, i: number) => ({
         id: `fac_${i}`,
         name: f.facilityName || 'Registered Facility',
         phone: f.phone || '+251112750123',

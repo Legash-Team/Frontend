@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { RegisterFormData, FormErrors, RegisterPayload } from '../types/registration-types';
-import { registerHospital } from '../api/registration-api';
+import { registerHospital } from '@/services/registrationService';
 
 const INITIAL_FORM_DATA: RegisterFormData = {
   name: '',
@@ -108,16 +108,16 @@ export const useRegisterForm = () => {
       newErrors.email = 'Please enter a valid email address.';
     }
 
-  // 3. Phone (Ethiopian format - exactly 9 digits after the +251 prefix)
-const phoneTrimmed = formData.phone ? formData.phone.trim() : '';
-const suffixRegex = /^[0-9]{9}$/; // Only allows exactly 9 digits
+    // 3. Phone (Ethiopian format - exactly 9 digits after the +251 prefix)
+    const phoneTrimmed = formData.phone ? formData.phone.trim() : '';
+    const suffixRegex = /^[0-9]{9}$/; // Only allows exactly 9 digits
 
-if (!phoneTrimmed) {
-  newErrors.phone = 'Phone number is required.';
-} else if (!suffixRegex.test(phoneTrimmed)) {
-  // This message is much better for the user
-  newErrors.phone = 'Enter the 9 digits after +251 (e.g. 911223344)';
-}
+    if (!phoneTrimmed) {
+      newErrors.phone = 'Phone number is required.';
+    } else if (!suffixRegex.test(phoneTrimmed)) {
+      // This message is much better for the user
+      newErrors.phone = 'Enter the 9 digits after +251 (e.g. 911223344)';
+    }
 
     // 4. License / Registration Number
     if (!formData.licenseNumber || !formData.licenseNumber.trim()) {

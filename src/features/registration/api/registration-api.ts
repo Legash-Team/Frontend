@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { RegisterPayload } from '../types/registration-types';
+import { RegisterPayload } from '../types/registration-types';0
 
 // 1. Define the response type locally to fix the 'Cannot find RegisterResponse' error
 export interface RegisterResponse {

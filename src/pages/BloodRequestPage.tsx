@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { createBloodRequest } from '../api/hospital-api';
+import { createBloodRequest } from '../services/hospitalService';
 import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
 import type { BloodType, RequestType, BloodRequestPayload } from '../types/hospital-types';
 import {

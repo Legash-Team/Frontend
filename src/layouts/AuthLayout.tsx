@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/ui/Logo';
-import { AuthVisual } from '@/features/auth/components/AuthVisual';
+import { AuthVisual } from '@/features/auth/AuthVisual';
 
 interface AuthLayoutProps {
   children: ReactNode;

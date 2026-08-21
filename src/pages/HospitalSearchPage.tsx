@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import ErrorBoundary from '../components/ErrorBoundary';
-import { searchHospitals } from '../api/hospital-api';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import { searchHospitals } from '../services/hospitalService';
 import { ALLOWED_BLOOD_TYPES } from '../types/hospital-types';
 import type { BloodType, HospitalSearchResult } from '../types/hospital-types';
 import {
@@ -146,11 +146,10 @@ export const HospitalSearchPage: React.FC = () => {
                         setSelectedBloodType(type);
                         setValidationError(null);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-sm font-extrabold border transition-all duration-150 ${
-                        isSelected
+                      className={`py-2.5 px-2 rounded-xl text-sm font-extrabold border transition-all duration-150 ${isSelected
                           ? 'bg-red-600 text-white border-red-600 shadow-sm ring-2 ring-red-500/20'
                           : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       {type}
                     </button>
@@ -283,11 +282,10 @@ export const HospitalSearchPage: React.FC = () => {
                             <p className="text-xs text-gray-500 mt-0.5">{hospitalEmail}</p>
                           </div>
                           <span
-                            className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 ${
-                              hasSufficientStock
+                            className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 ${hasSufficientStock
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                                 : 'bg-amber-50 text-amber-900 border-amber-200'
-                            }`}
+                              }`}
                           >
                             <Droplets className={`w-3.5 h-3.5 ${hasSufficientStock ? 'text-emerald-600' : 'text-amber-600'}`} />
                             <span>{availableQuantityNum} units available</span>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
-import ErrorBoundary from './components/ErrorBoundary';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import TermsPage from './pages/TermsPage';
@@ -13,7 +12,6 @@ import BloodRequestPage from './pages/BloodRequestPage';
 import AllRequestsPage from './pages/AllRequestsPage';
 import HospitalSearchPage from './pages/HospitalSearchPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import { AuthProvider } from './features/auth/context/AuthContext';
 import VerifyEmailPage from './pages/VerifyOTPPage';
 
 // Admin Pages
@@ -24,8 +22,6 @@ import FeedbackPage from './pages/admin/FeedbackPage';
 
 export const App: React.FC = () => {
   return (
-    <ErrorBoundary>
-      <AuthProvider>
         <BrowserRouter>
           <Routes>
             {/* --- PUBLIC / AUTH ROUTES --- */}
@@ -104,8 +100,6 @@ export const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
-    </ErrorBoundary>
   );
 };
 

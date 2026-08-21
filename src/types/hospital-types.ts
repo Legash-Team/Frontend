@@ -1,4 +1,4 @@
-import type { LocationData } from '@/features/registration/types/registration-types';
+import type { LocationData } from '@/types/registration-types';
 export type { LocationData };
 
 export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
