@@ -83,22 +83,24 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
           disabled={disabled}
           required={true}
         />
-        {/* Add this right after the Phone Number field */}
-<div className="flex flex-col gap-2 md:col-span-2">
-  <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-    Address <span className="text-crimson">*</span>
-  </label>
-  <input
-    name="address"
-    placeholder="e.g. Bole Sub-city, Woreda 03, Addis Ababa"
-    value={formData.address || ''}
-    onChange={onChange}
-    className="w-full h-12 px-4 rounded-md bg-white border border-line-soft focus:border-crimson outline-none"
-  />
-</div>
+        {/* Address */}
+        <div className="flex flex-col gap-2 md:col-span-2">
+          <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+            Address <span className="text-crimson">*</span>
+          </label>
+          <input
+            name="address"
+            placeholder="e.g. Bole Sub-city, Woreda 03, Addis Ababa"
+            value={formData.address || ''}
+            onChange={onChange}
+            disabled={disabled}
+            className="w-full px-4 py-3 bg-white border border-line-soft rounded-xl outline-none focus:border-crimson focus:ring-1 focus:ring-crimson/10 transition-all text-sm font-medium"
+          />
+          {errors.address && <p className="text-[10px] text-crimson font-bold uppercase mt-1">{errors.address}</p>}
+        </div>
       </div>
     </div>
   );
 };
 
-export default HospitalDetails;
+export default HospitalDetails;

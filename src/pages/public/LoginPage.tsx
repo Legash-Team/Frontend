@@ -5,10 +5,11 @@ const LoginPage = () => {
   return (
     <AuthLayout 
       title="Welcome back" 
+      subtitle="Sign in to manage blood requests and donor coordinates."
     >
       <LoginForm />
     </AuthLayout>
   );
 };
 
-export default LoginPage;
+export default LoginPage;
