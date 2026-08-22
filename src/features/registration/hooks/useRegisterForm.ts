@@ -187,9 +187,7 @@ if (!phoneTrimmed) {
     if (response.success) {
       setSubmitSuccess(response.message);
       // Pass email to OTP page so it can be masked (ab***@...)
-      setTimeout(() => {
-        navigate('/verify-email', { state: { email: formData.email } });
-      }, 2500);
+      navigate('/verify-email', { state: { email: formData.email } });
     }
   } catch (err: any) {
     // This catches the 'error' string from our API service catch block
