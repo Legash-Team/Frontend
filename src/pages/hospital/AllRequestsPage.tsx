@@ -517,8 +517,33 @@ export const AllRequestsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Modal Close Button */}
-            <div className="flex justify-end pt-3 border-t border-line-soft">
+            {/* Modal Actions */}
+            <div className="flex justify-between items-center pt-3 border-t border-line-soft w-full">
+              {selectedRequest && selectedRequest.status === 'ACTIVE' ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (window.confirm('Are you sure you want to close this blood request on the network?')) {
+                      try {
+                        const { closeBloodRequest } = await import('@/features/hospital/api/hospital-api');
+                        const res = await closeBloodRequest(selectedRequest.id);
+                        if (res.success) {
+                          alert('Blood request successfully closed!');
+                          setSelectedRequest(null);
+                          fetchRequests(filter);
+                        }
+                      } catch (err: any) {
+                        alert(err || 'Failed to close blood request.');
+                      }
+                    }
+                  }}
+                  className="px-4 py-2 border border-crimson text-crimson hover:bg-crimson/5 rounded-xl text-xs font-sans font-semibold transition-all"
+                >
+                  Close Request
+                </button>
+              ) : (
+                <div />
+              )}
               <button
                 type="button"
                 onClick={() => setSelectedRequest(null)}

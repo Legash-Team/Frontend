@@ -49,14 +49,53 @@ const EventPostingPage = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.description.trim() || !formData.expiryDate) {
+      alert("Please fill in description and closing date.");
+      return;
+    }
+
     setIsPosting(true);
-    // Simulation of API Broadcast
-    setTimeout(() => {
+    try {
+      const { uploadMedia, createEvent } = await import('./api/admin-api');
+      let mediaUrl = '';
+      let mediaType = formData.mediaType;
+
+      if (selectedFile) {
+        const uploadRes = await uploadMedia(selectedFile);
+        if (uploadRes.success && uploadRes.url) {
+          mediaUrl = uploadRes.url;
+          mediaType = uploadRes.resourceType as 'image' | 'video';
+        }
+      }
+
+      const closesAt = new Date(formData.expiryDate).toISOString();
+
+      const res = await createEvent({
+        mediaUrl: mediaUrl || undefined,
+        mediaType: mediaUrl ? mediaType : undefined,
+        description: formData.description.trim(),
+        applyLink: formData.applyLink.trim() || undefined,
+        closesAt,
+      });
+
+      if (res.success) {
+        alert(res.message || "Event broadcasted to the mobile network!");
+        // Reset form
+        setFormData({
+          description: '',
+          applyLink: '',
+          expiryDate: '',
+          mediaType: 'image'
+        });
+        removeFile();
+      }
+    } catch (err: any) {
+      alert(err || "Failed to broadcast event.");
+    } finally {
       setIsPosting(false);
-      alert("Event broadcasted to the mobile network!");
-    }, 2000);
+    }
   };
 
   return (

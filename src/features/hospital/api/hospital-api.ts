@@ -16,6 +16,7 @@ import type {
   HospitalSearchResult,
   BloodType,
   RequestType,
+  AcceptedDonor,
 } from '@/features/hospital/types/hospital-types';
 
 export interface LoginResponse {
@@ -44,7 +45,7 @@ export const loginHospital = async (
   payload: { email: string; password: string }
 ): Promise<LoginResponse> => {
   try {
-    // Attempt Sprint 1 login first
+    // Attempt Sprint 1/3 login first
     const response = await axiosInstance.post<{
       success: boolean;
       token?: string;
@@ -63,7 +64,7 @@ export const loginHospital = async (
         message: response.data.message || 'Login successful',
       };
     }
-  } catch (err: unknown) {
+  } catch (err: any) {
     // If Sprint 1 login fails with 401 or invalid, fall back to /v1/auth/login
     try {
       const v1Response = await axiosInstance.post<{
@@ -92,7 +93,7 @@ export const loginHospital = async (
           message: 'Login successful',
         };
       }
-    } catch (v1Err: unknown) {
+    } catch (v1Err: any) {
       // Re-throw original or v1 error
       if (typeof v1Err === 'object' && v1Err !== null && 'response' in v1Err) {
         throw v1Err;
@@ -107,18 +108,9 @@ export const loginHospital = async (
 
 /**
  * Fetch Hospital Blood Stock
- * GET /v1/inventory
+ * GET /api/hospital/blood-stock
  */
 export const getBloodStock = async (): Promise<BloodStock> => {
-  const response = await axiosInstance.get<{
-    success?: boolean;
-    data?: Array<{
-      bloodType: string;
-      availableUnits: number;
-      reservedUnits?: number;
-    }>;
-  }>('/v1/inventory');
-
   const stockMap: BloodStock = {
     'A+': 0,
     'A-': 0,
@@ -130,13 +122,31 @@ export const getBloodStock = async (): Promise<BloodStock> => {
     'O-': 0,
   };
 
-  const items = response.data?.data || (Array.isArray(response.data) ? response.data : []);
-  if (Array.isArray(items)) {
-    items.forEach((item) => {
-      if (item.bloodType && item.bloodType in stockMap) {
-        stockMap[item.bloodType as BloodType] = item.availableUnits ?? 0;
-      }
-    });
+  try {
+    const response = await axiosInstance.get<{
+      success?: boolean;
+      stock?: BloodStock;
+      bloodStock?: Array<{
+        bloodType: string;
+        availableUnits: number;
+        reservedUnits?: number;
+      }>;
+    }>('/api/hospital/blood-stock');
+
+    if (response.data?.stock) {
+      return { ...stockMap, ...response.data.stock };
+    }
+
+    const items = response.data?.bloodStock;
+    if (Array.isArray(items)) {
+      items.forEach((item) => {
+        if (item.bloodType && item.bloodType in stockMap) {
+          stockMap[item.bloodType as BloodType] = item.availableUnits ?? 0;
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('Failed to fetch blood stock from server, using local defaults', err);
   }
 
   return stockMap;
@@ -144,28 +154,18 @@ export const getBloodStock = async (): Promise<BloodStock> => {
 
 /**
  * Update Hospital Blood Stock
- * PUT /v1/inventory/{blood_type}
+ * PUT /api/hospital/blood-stock/{bloodType}
  */
 export const updateBloodStock = async (
   stock: BloodStock
 ): Promise<BloodStockUpdateResponse> => {
   const bloodTypes = Object.keys(stock) as BloodType[];
 
-  // Update each blood type line in inventory
+  // Update each blood type line in backend blood-stock
   const updatePromises = bloodTypes.map(async (type) => {
-    try {
-      return await axiosInstance.put(`/v1/inventory/${encodeURIComponent(type)}`, {
-        availableUnits: stock[type] ?? 0,
-        reservedUnits: 0,
-      });
-    } catch {
-      // If PUT returns 404 (not yet created), attempt POST to create it
-      return await axiosInstance.post('/v1/inventory', {
-        bloodType: type,
-        availableUnits: stock[type] ?? 0,
-        reservedUnits: 0,
-      });
-    }
+    return await axiosInstance.put(`/api/hospital/blood-stock/${encodeURIComponent(type)}`, {
+      availableUnits: stock[type] ?? 0,
+    });
   });
 
   await Promise.allSettled(updatePromises);
@@ -179,146 +179,201 @@ export const updateBloodStock = async (
 
 /**
  * Fetch Hospital Dashboard Data
- * Combines authenticated user profile and live inventory from GET /v1/inventory
+ * Combines authenticated user profile and live inventory from GET /api/hospital/blood-stock
  */
 export const getHospitalDashboard = async (): Promise<DashboardData> => {
-  const storedUserRaw =
-    localStorage.getItem('hospital_user') || sessionStorage.getItem('hospital_user');
-  let user: {
-    id?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    licenseNumber?: string;
-    location?: { lat: number; lng: number } | null;
-  } = {};
-
-  if (storedUserRaw) {
-    try {
-      user = JSON.parse(storedUserRaw);
-    } catch {
-      user = {};
-    }
-  }
-
-  const isDevBypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
-
-  const defaultName = isDevBypass ? 'Semera General Hospital' : 'St. Paul Hospital Millennium Medical College';
-  const defaultEmail = isDevBypass ? 'demo@hospital.test' : 'bloodbank@stpaul.gov.et';
-  const defaultPhone = isDevBypass ? '+251336660123' : '+251112750123';
-  const defaultLicense = isDevBypass ? 'MOH-HOSP-SEM-001' : 'MOH-HOSP-2026-0891';
-  const defaultLocation = isDevBypass ? { lat: 11.792, lng: 41.008 } : { lat: 9.0108, lng: 38.7613 };
-
-  let bloodStock: BloodStock = {
-    'A+': 14,
-    'A-': 4,
-    'B+': 18,
-    'B-': 2,
-    'AB+': 8,
-    'AB-': 1,
-    'O+': 26,
-    'O-': 5,
+  let profile: HospitalProfile = {
+    name: 'St. Paul Hospital Millennium Medical College',
+    email: 'bloodbank@stpaul.gov.et',
+    phone: '+251112750123',
+    licenseNumber: 'MOH-HOSP-2026-0891',
+    location: { lat: 9.0108, lng: 38.7613, address: 'Gulele, Addis Ababa' },
   };
 
   try {
-    const liveStock = await getBloodStock();
-    if (liveStock) {
-      bloodStock = liveStock;
-    }
-  } catch {
-    // If backend is unavailable or unauthenticated, use current stock
+    profile = await getHospitalProfile();
+  } catch (err) {
+    console.warn('Failed to load live hospital profile for dashboard:', err);
   }
 
+  const bloodStock = await getBloodStock();
+
   return {
-    hospital: {
-      id: user.id || (isDevBypass ? 'dev_semera_hosp' : 'hosp_st_paul'),
-      name: user.name || defaultName,
-      email: user.email || defaultEmail,
-      phone: user.phone || defaultPhone,
-      licenseNumber: user.licenseNumber || defaultLicense,
-      location: user.location || defaultLocation,
-    },
+    hospital: profile,
     bloodStock,
   };
 };
 
 /**
  * Fetch Hospital Profile Data
+ * GET /api/hospital/profile
  */
 export const getHospitalProfile = async (): Promise<HospitalProfile> => {
-  const isDevBypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
-  const storedUserRaw =
-    localStorage.getItem('hospital_user') || sessionStorage.getItem('hospital_user');
-  let user: {
-    id?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    licenseNumber?: string;
-    location?: { lat: number; lng: number } | null;
-  } = {};
+  try {
+    const response = await axiosInstance.get<{
+      success: boolean;
+      profile: {
+        id: string;
+        hospitalName: string;
+        email: string;
+        phone: string;
+        licenseNumber: string;
+        location?: {
+          lat?: number;
+          lng?: number;
+          address?: string;
+        } | null;
+      };
+    }>('/api/hospital/profile');
 
-  if (storedUserRaw) {
-    try {
-      user = JSON.parse(storedUserRaw);
-    } catch {
-      user = {};
+    if (response.data?.profile) {
+      const p = response.data.profile;
+      const profileData: HospitalProfile = {
+        id: p.id,
+        name: p.hospitalName,
+        email: p.email,
+        phone: p.phone,
+        licenseNumber: p.licenseNumber,
+        location: p.location ? {
+          lat: p.location.lat ?? 9.0108,
+          lng: p.location.lng ?? 38.7613,
+          address: p.location.address || '',
+        } : null,
+      };
+      localStorage.setItem('hospital_user', JSON.stringify(profileData));
+      return profileData;
     }
+  } catch (err) {
+    console.warn('Failed to fetch profile from server, checking local storage:', err);
   }
 
-  const defaultName = isDevBypass ? 'Semera General Hospital' : 'St. Paul Hospital Millennium Medical College';
-  const defaultEmail = isDevBypass ? 'demo@hospital.test' : 'bloodbank@stpaul.gov.et';
-  const defaultPhone = isDevBypass ? '+251336660123' : '+251112750123';
-  const defaultLicense = isDevBypass ? 'MOH-HOSP-SEM-001' : 'MOH-HOSP-2026-0891';
-  const defaultLocation = isDevBypass ? { lat: 11.792, lng: 41.008 } : { lat: 9.0108, lng: 38.7613 };
+  const storedUserRaw =
+    localStorage.getItem('hospital_user') || sessionStorage.getItem('hospital_user');
+  if (storedUserRaw) {
+    return JSON.parse(storedUserRaw);
+  }
 
-  return {
-    id: user.id || (isDevBypass ? 'dev_semera_hosp' : 'hosp_st_paul'),
-    name: user.name || defaultName,
-    email: user.email || defaultEmail,
-    phone: user.phone || defaultPhone,
-    licenseNumber: user.licenseNumber || defaultLicense,
-    location: user.location || defaultLocation,
-  };
+  throw new Error('Could not retrieve hospital profile.');
 };
 
 /**
- * Update Hospital Profile (Editable: name, phone, email)
+ * Update Hospital Profile (Editable: name, phone)
+ * PUT /api/hospital/profile
+ * Request Email Change: POST /api/hospital/profile/change-email/request
  */
 export const updateHospitalProfile = async (
   payload: ProfileUpdatePayload
 ): Promise<ProfileUpdateResponse> => {
-  const storedUserRaw =
-    localStorage.getItem('hospital_user') || sessionStorage.getItem('hospital_user');
-  let user = storedUserRaw ? JSON.parse(storedUserRaw) : {};
-
-  const updatedHospital: HospitalProfile = {
-    ...user,
-    name: payload.name ?? user.name,
-    phone: payload.phone ?? user.phone,
-    email: payload.email ?? user.email,
+  let user: HospitalProfile = {
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone,
+    licenseNumber: '',
+    location: null,
   };
 
-  localStorage.setItem('hospital_user', JSON.stringify(updatedHospital));
-  sessionStorage.setItem('hospital_user', JSON.stringify(updatedHospital));
+  const storedUserRaw =
+    localStorage.getItem('hospital_user') || sessionStorage.getItem('hospital_user');
+  if (storedUserRaw) {
+    try {
+      user = JSON.parse(storedUserRaw);
+    } catch {}
+  }
+
+  let verificationRequired = false;
+  let emailChangeMessage = '';
+
+  try {
+    // 1. If email has changed, trigger request email change endpoint
+    if (payload.email && payload.email.trim().toLowerCase() !== user.email.trim().toLowerCase()) {
+      await axiosInstance.post('/api/hospital/profile/change-email/request', {
+        newEmail: payload.email.trim(),
+      });
+      verificationRequired = true;
+      emailChangeMessage = 'A verification code has been sent to your new email. Confirm verification to apply email changes.';
+    }
+
+    // 2. Update name and phone
+    const response = await axiosInstance.put<{
+      success: boolean;
+      message?: string;
+      profile: {
+        id: string;
+        hospitalName: string;
+        email: string;
+        phone: string;
+        licenseNumber: string;
+        location?: {
+          lat?: number;
+          lng?: number;
+          address?: string;
+        } | null;
+      };
+    }>('/api/hospital/profile', {
+      name: payload.name.trim(),
+      phone: payload.phone.trim(),
+    });
+
+    if (response.data?.success && response.data.profile) {
+      const p = response.data.profile;
+      const updatedHospital: HospitalProfile = {
+        id: p.id,
+        name: p.hospitalName || payload.name,
+        email: user.email, // Keep old email locally until verification confirm succeeds!
+        phone: p.phone || payload.phone,
+        licenseNumber: p.licenseNumber || user.licenseNumber,
+        location: p.location ? {
+          lat: p.location.lat ?? 9.0108,
+          lng: p.location.lng ?? 38.7613,
+          address: p.location.address || '',
+        } : user.location,
+      };
+
+      localStorage.setItem('hospital_user', JSON.stringify(updatedHospital));
+      sessionStorage.setItem('hospital_user', JSON.stringify(updatedHospital));
+
+      return {
+        success: true,
+        verificationRequired,
+        message: verificationRequired ? emailChangeMessage : 'Hospital profile updated successfully!',
+        hospital: updatedHospital,
+      };
+    }
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to update hospital profile.';
+  }
 
   return {
     success: true,
-    message: 'Hospital profile updated successfully!',
-    hospital: updatedHospital,
+    message: 'Profile updated locally only.',
+    hospital: user,
   };
 };
 
 /**
  * Change Hospital Password
+ * POST /api/hospital/profile/change-password
  */
 export const changeHospitalPassword = async (
-  _payload: ChangePasswordPayload
+  payload: ChangePasswordPayload
 ): Promise<ChangePasswordResponse> => {
-  return {
-    success: true,
-    message: 'Hospital password updated successfully!',
-  };
+  try {
+    const response = await axiosInstance.post<{
+      success: boolean;
+      message?: string;
+    }>('/api/hospital/profile/change-password', {
+      currentPassword: payload.currentPassword,
+      newPassword: payload.newPassword,
+      confirmPassword: payload.confirmPassword || payload.newPassword,
+    });
+
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Hospital password updated successfully!',
+    };
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to change password.';
+  }
 };
 
 /**
@@ -328,24 +383,73 @@ export const requestPasswordResetEmail = async (
   email: string
 ): Promise<{ message: string; success?: boolean }> => {
   try {
-    await axiosInstance.post('/v1/donor/forgot-password', { phone: email });
-  } catch {
-    // Return friendly notification
+    const response = await axiosInstance.post<{ success: boolean; message?: string }>(
+      '/api/auth/forgot-password',
+      { email }
+    );
+    return {
+      success: response.data.success,
+      message: response.data.message || `Password reset instructions sent to ${email}`,
+    };
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to request password reset.';
   }
-  return {
-    success: true,
-    message: `Password reset instructions sent to ${email}`,
-  };
 };
 
 /**
- * Delete Hospital Account Permanently
+ * Confirm Email Change Verification Code
+ * POST /api/hospital/profile/change-email/confirm
+ */
+export const confirmHospitalEmailChange = async (
+  code: string
+): Promise<{ success: boolean; message?: string; email?: string }> => {
+  try {
+    const response = await axiosInstance.post<{
+      success: boolean;
+      message?: string;
+      email?: string;
+    }>('/api/hospital/profile/change-email/confirm', { code });
+
+    if (response.data.success && response.data.email) {
+      const storedUserRaw = localStorage.getItem('hospital_user');
+      if (storedUserRaw) {
+        const u = JSON.parse(storedUserRaw);
+        u.email = response.data.email;
+        localStorage.setItem('hospital_user', JSON.stringify(u));
+      }
+    }
+
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Email verified and updated.',
+      email: response.data.email,
+    };
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Verification failed.';
+  }
+};
+
+/**
+ * Delete Hospital Account
+ * DELETE /api/hospital/profile
  */
 export const deleteHospitalAccount = async (): Promise<DeleteAccountResponse> => {
-  return {
-    success: true,
-    message: 'Hospital account deleted successfully.',
-  };
+  try {
+    const response = await axiosInstance.delete<{
+      success: boolean;
+      message?: string;
+    }>('/api/hospital/profile');
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Hospital account deleted successfully.',
+    };
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to delete hospital account.';
+  }
 };
 
 /**
@@ -370,153 +474,134 @@ export const verifyHospitalPassword = async (
 
 /**
  * Create a new Blood Request
- * POST /v2/requests
+ * POST /api/hospital/blood-requests
  */
 export const createBloodRequest = async (
   payload: BloodRequestPayload
 ): Promise<BloodRequestResponse> => {
   const isEmergency = payload.requestType === 'Emergency';
 
-  // Calculate timeLimitHours from closingDateTime if specified
-  let timeLimitHours = 4;
+  // Calculate closing time limit
+  let closesAt: string;
   if (payload.closingDateTime) {
-    const diffMs = new Date(payload.closingDateTime).getTime() - Date.now();
-    if (diffMs > 0) {
-      timeLimitHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
-    }
+    closesAt = new Date(payload.closingDateTime).toISOString();
+  } else {
+    // Default closes in 24 hours
+    closesAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   }
 
-  const backendBody = {
-    bloodType: payload.bloodType,
-    quantityRequested: payload.quantity,
-    targetScope: 'HYBRID_ALL',
-    urgencyLevel: isEmergency ? 'CRITICAL_TRAUMA' : 'STANDARD',
-    urgencyNote: payload.description || payload.notes || (isEmergency ? 'Urgent emergency transfusion request' : 'Routine hospital stock request'),
-    timeLimitHours,
-    radiusKm: 25,
-  };
-
-  const response = await axiosInstance.post<{
-    success?: boolean;
-    data?: {
-      requestId?: string;
-      bloodType?: string;
-      quantityRequested?: number;
-      urgencyLevel?: string;
-      urgencyNote?: string;
-      status?: string;
-      createdAt?: string;
-    };
-  }>('/v2/requests', backendBody);
-
-  const newRequest: BloodRequest = {
-    id: response.data?.data?.requestId || `req_${Date.now()}`,
-    bloodType: payload.bloodType,
-    quantity: payload.quantity,
-    requestType: payload.requestType,
-    description: payload.description,
-    status: isEmergency ? 'ACTIVE' : 'PENDING',
-    createdAt: response.data?.data?.createdAt || new Date().toISOString(),
-    closingDateTime: payload.closingDateTime,
-    acceptedDonors: [],
-  };
-
-  // Cache hospital requests in local storage for AllRequestsPage
   try {
-    const stored = localStorage.getItem(LOCAL_REQUESTS_KEY);
-    const list: BloodRequest[] = stored ? JSON.parse(stored) : [];
-    list.unshift(newRequest);
-    localStorage.setItem(LOCAL_REQUESTS_KEY, JSON.stringify(list));
-  } catch (e) {
-    console.warn('Failed to cache blood request locally:', e);
-  }
+    const response = await axiosInstance.post<{
+      success?: boolean;
+      message?: string;
+      requestId?: string;
+    }>('/api/hospital/blood-requests', {
+      bloodType: payload.bloodType,
+      quantityNeeded: payload.quantity,
+      isEmergency,
+      description: payload.description || 'Blood request',
+      closesAt,
+    });
 
-  return {
-    success: true,
-    message: `Blood request for ${payload.quantity} kit(s) of ${payload.bloodType} created successfully on the network!`,
-    request: newRequest,
-  };
+    const newRequest: BloodRequest = {
+      id: response.data?.requestId || `req_${Date.now()}`,
+      bloodType: payload.bloodType,
+      quantity: payload.quantity,
+      requestType: payload.requestType,
+      description: payload.description,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      closingDateTime: closesAt,
+      acceptedDonors: [],
+    };
+
+    return {
+      success: true,
+      message: response.data?.message || 'Blood request created successfully!',
+      request: newRequest,
+    };
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to create blood request.';
+  }
 };
 
 /**
  * Fetch Blood Requests with optional type filter
+ * GET /api/hospital/blood-requests
  */
 export const getBloodRequests = async (
   filter?: RequestType | 'All'
 ): Promise<BloodRequest[]> => {
-  let list: BloodRequest[] = [];
-
   try {
-    const stored = localStorage.getItem(LOCAL_REQUESTS_KEY);
-    if (stored) {
-      list = JSON.parse(stored);
+    const urgency = filter === 'Emergency' ? 'emergency' : filter === 'Normal' ? 'notUrgent' : undefined;
+
+    const res = await axiosInstance.get<{
+      success: boolean;
+      requests: Array<{
+        id: string;
+        bloodType: BloodType;
+        quantityNeeded: number;
+        isEmergency: boolean;
+        description: string;
+        status: string;
+        createdAt: string;
+        closesAt: string;
+        acceptedCount: number;
+      }>;
+    }>('/api/hospital/blood-requests', {
+      params: { urgency },
+    });
+
+    if (res.data?.success && Array.isArray(res.data.requests)) {
+      const populatedRequests = await Promise.all(
+        res.data.requests.map(async (r) => {
+          let acceptedDonors: AcceptedDonor[] = [];
+
+          try {
+            // Populate donor responses
+            const respRes = await axiosInstance.get<{
+              success: boolean;
+              accepted: Array<{
+                id: string;
+                name: string;
+                gender: string;
+                bloodType: BloodType;
+                phone: string;
+              }>;
+            }>(`/api/hospital/blood-requests/${r.id}/responses`);
+
+            if (respRes.data?.success && Array.isArray(respRes.data.accepted)) {
+              acceptedDonors = respRes.data.accepted.map((d) => ({
+                id: d.id,
+                name: d.name,
+                bloodType: d.bloodType,
+                phone: d.phone,
+                acceptedAt: new Date().toISOString(),
+              }));
+            }
+          } catch {}
+
+          return {
+            id: r.id,
+            bloodType: r.bloodType,
+            quantity: r.quantityNeeded,
+            requestType: r.isEmergency ? ('Emergency' as const) : ('Normal' as const),
+            description: r.description,
+            status: r.status.toUpperCase() as any,
+            createdAt: r.createdAt,
+            closingDateTime: r.closesAt,
+            acceptedDonors,
+          };
+        })
+      );
+
+      return populatedRequests;
     }
-  } catch {
-    list = [];
+  } catch (err) {
+    console.warn('Failed to load live requests from server, returning empty:', err);
   }
 
-  // Seed default sample requests if none exist yet
-  if (list.length === 0) {
-    list = [
-      {
-        id: 'REQ-2026-001',
-        bloodType: 'O-',
-        quantity: 3,
-        requestType: 'Emergency',
-        description: 'Urgent emergency transfusion required for incoming trauma patient at ER Ward.',
-        status: 'ACTIVE',
-        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-        closingDateTime: new Date(Date.now() + 3600000 * 4).toISOString(),
-        acceptedDonors: [
-          {
-            id: 'DON-01',
-            name: 'Yared Tadesse',
-            bloodType: 'O-',
-            phone: '+251911234567',
-            email: 'yared@gmail.com',
-            acceptedAt: new Date(Date.now() - 1800000).toISOString(),
-          },
-        ],
-      },
-      {
-        id: 'REQ-2026-002',
-        bloodType: 'A+',
-        quantity: 2,
-        requestType: 'Normal',
-        description: 'Scheduled orthopedic surgery scheduled for tomorrow morning.',
-        status: 'ACTIVE',
-        createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
-        closingDateTime: new Date(Date.now() + 3600000 * 24).toISOString(),
-        acceptedDonors: [],
-      },
-      {
-        id: 'REQ-2026-003',
-        bloodType: 'B+',
-        quantity: 4,
-        requestType: 'Normal',
-        description: 'Standard inventory replenishment for surgical ward buffer.',
-        status: 'FULFILLED',
-        createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-        closingDateTime: new Date(Date.now() - 3600000 * 12).toISOString(),
-        acceptedDonors: [
-          {
-            id: 'DON-02',
-            name: 'Abebe Bikila',
-            bloodType: 'B+',
-            phone: '+251912345678',
-            email: 'abebe@gmail.com',
-            acceptedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-          },
-        ],
-      },
-    ];
-    localStorage.setItem(LOCAL_REQUESTS_KEY, JSON.stringify(list));
-  }
-
-  if (filter && filter !== 'All') {
-    return list.filter((r) => r.requestType === filter);
-  }
-  return list;
+  return [];
 };
 
 /**
@@ -530,47 +615,73 @@ export const getBloodRequestById = async (id: string): Promise<BloodRequest> => 
 };
 
 /**
+ * Close a Blood Request
+ * PATCH /api/hospital/blood-requests/{id}/close
+ */
+export const closeBloodRequest = async (id: string): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await axiosInstance.patch<{
+      success: boolean;
+      message?: string;
+    }>(`/api/hospital/blood-requests/${id}/close`);
+
+    return {
+      success: response.data.success,
+      message: response.data.message || 'Request closed.',
+    };
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to close request.';
+  }
+};
+
+/**
  * Search Hospitals by Blood Type
+ * GET /api/hospital/search?bloodType={bloodType}&quantity={quantity}
  */
 export const searchHospitals = async (
-  _bloodType: BloodType,
-  _quantity: number = 1
+  bloodType: BloodType,
+  quantity: number = 1
 ): Promise<HospitalSearchResult[]> => {
   try {
-    const res = await axiosInstance.get<{ data?: Array<{ facilityName: string; email: string; phone: string; licenseNumber: string }> }>('/v1/admin/facilities');
-    if (res.data?.data && Array.isArray(res.data.data)) {
-      return res.data.data.map((f, i) => ({
-        id: `fac_${i}`,
-        name: f.facilityName || 'Registered Facility',
-        phone: f.phone || '+251112750123',
-        email: f.email || 'facility@hospital.org',
-        licenseNumber: f.licenseNumber || 'MOH-HOSP-2026-0891',
-        location: { lat: 9.01 + i * 0.01, lng: 38.75 + i * 0.01 },
-        stockQuantity: Math.floor(Math.random() * 10) + 1,
+    const res = await axiosInstance.get<{
+      success: boolean;
+      results: Array<{
+        id: string;
+        name: string;
+        email: string;
+        phone: string;
+        licenseNumber: string;
+        location?: {
+          lat?: number;
+          lng?: number;
+          address?: string;
+        };
+      }>;
+    }>('/api/hospital/search', {
+      params: {
+        bloodType,
+        quantity,
+      },
+    });
+
+    if (res.data?.success && Array.isArray(res.data.results)) {
+      return res.data.results.map((h) => ({
+        id: h.id,
+        name: h.name,
+        phone: h.phone,
+        email: h.email,
+        licenseNumber: h.licenseNumber,
+        location: h.location ? {
+          lat: h.location.lat ?? 9.0108,
+          lng: h.location.lng ?? 38.7613,
+          address: h.location.address || '',
+        } : null,
+        stockQuantity: quantity, // Render a visual feedback indicator matching input quantity
       }));
     }
-  } catch {
-    // fallback
+  } catch (err) {
+    console.warn('Failed to search hospitals from server:', err);
   }
 
-  return [
-    {
-      id: 'hosp_st_paul',
-      name: 'St. Paul Hospital Millennium Medical College',
-      phone: '+251112750123',
-      email: 'bloodbank@stpaul.gov.et',
-      licenseNumber: 'MOH-HOSP-2026-0891',
-      location: { lat: 9.04, lng: 38.74 },
-      stockQuantity: 12,
-    },
-    {
-      id: 'hosp_tikur',
-      name: 'Tikur Anbessa Specialized Hospital',
-      phone: '+251115511211',
-      email: 'contact@tikuranbessa.edu.et',
-      licenseNumber: 'MOH-HOSP-2026-0992',
-      location: { lat: 9.02, lng: 38.75 },
-      stockQuantity: 8,
-    },
-  ];
+  return [];
 };
