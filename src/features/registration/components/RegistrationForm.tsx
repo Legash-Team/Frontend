@@ -6,6 +6,7 @@ import PasswordFields from './PasswordFields';
 import LocationField from './LocationField';
 import TermsAgreement from './TermsAgreement';
 import Button from '@/components/ui/Button';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const RegistrationForm: React.FC = () => {
   const {
@@ -25,13 +26,13 @@ export const RegistrationForm: React.FC = () => {
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
       {/* Success Notification Banner */}
       {submitSuccess && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-medium flex items-start gap-3">
-          
+        <div className="p-3.5 bg-verified/10 border border-verified/20 rounded-xl text-verified text-xs font-medium flex items-center gap-2.5">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
           <div className="flex-1">
-            <p className="font-semibold text-emerald-950">Registration Successful!</p>
+            <p className="font-bold">Registration Successful!</p>
             <p className="mt-0.5">{submitSuccess}</p>
-            <p className="mt-2 text-xs text-emerald-800 font-normal">
-              Redirecting to login page...
+            <p className="mt-1 text-[11px] text-verified/80">
+              Redirecting to verification page...
             </p>
           </div>
         </div>
@@ -39,10 +40,10 @@ export const RegistrationForm: React.FC = () => {
 
       {/* Error Notification Banner */}
       {submitError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium flex items-start gap-3">
-          
+        <div className="p-3.5 bg-crimson/10 border border-crimson/20 rounded-xl text-crimson text-xs font-medium flex items-center gap-2.5">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <div className="flex-1">
-            <p className="font-semibold text-red-950">Registration Error</p>
+            <p className="font-bold">Registration Error</p>
             <p className="mt-0.5">{submitError}</p>
           </div>
         </div>
@@ -90,14 +91,14 @@ export const RegistrationForm: React.FC = () => {
           isLoading={isSubmitting}
           loadingText="Registering Hospital..."
           disabled={isSubmitting || !!submitSuccess}
-          className="w-full py-3 text-base font-semibold shadow-md"
+          className="w-full h-14 bg-crimson hover:bg-crimson/90 text-white font-bold rounded-2xl shadow-lg text-base"
         >
           Register Hospital Account
         </Button>
 
-        <div className="text-center text-sm text-gray-600">
+        <div className="text-center text-sm text-ink-soft">
           Already registered?{' '}
-          <Link to="/login" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
+          <Link to="/login" className="text-crimson font-bold hover:underline">
             Sign in
           </Link>
         </div>
