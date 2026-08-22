@@ -1,11 +1,9 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '@/api/axiosInstance';
 
 export const registerHospital = async (payload: any) => {
   try {
     // Exact path from contract: /api/hospital/register
-    const response = await axios.post(`${API_BASE_URL}/api/hospital/register`, payload);
+    const response = await axiosInstance.post('/api/hospital/register', payload);
     return response.data;
   } catch (error: any) {
     // The backend sends { success: false, error: "..." }

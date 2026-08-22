@@ -9,23 +9,64 @@ import { verifyHospitalOTP, resendHospitalOTP } from '@/features/auth/api/auth-a
 const VerifyOTPPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-   const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const userEmail = location.state?.email || "hospital@example.com";
-  const maskedEmail = userEmail.replace(/^(..)(.*)(?=@)/, (_match: string, a: string, b: string) => 
-    a + b.replace(/./g, '*')
-  );
+  // Resolve user email from state, URL query parameter, or browser storage
+  const queryParams = new URLSearchParams(location.search);
+  const urlEmail = queryParams.get('email')?.trim() || '';
+  const urlCode = queryParams.get('code')?.trim() || queryParams.get('token')?.trim() || '';
+
+  const initialEmail =
+    location.state?.email ||
+    urlEmail ||
+    sessionStorage.getItem('pending_verification_email') ||
+    localStorage.getItem('pending_verification_email') ||
+    '';
+
+  const [userEmail, setUserEmail] = useState(initialEmail);
+  const [inputEmail, setInputEmail] = useState(initialEmail);
+
+  // Auto-fill OTP from URL query parameter if available
+  useEffect(() => {
+    if (urlCode && /^\d{6}$/.test(urlCode)) {
+      setOtp(urlCode.split(''));
+    }
+  }, [urlCode]);
+
+  // Synchronize storage whenever userEmail changes
+  useEffect(() => {
+    if (userEmail && userEmail.includes('@')) {
+      sessionStorage.setItem('pending_verification_email', userEmail);
+      localStorage.setItem('pending_verification_email', userEmail);
+    }
+  }, [userEmail]);
+
+  const maskedEmail = userEmail && userEmail.includes('@')
+    ? userEmail.replace(/^(..)(.*)(?=@)/, (_match: string, a: string, b: string) =>
+        a + b.replace(/./g, '*')
+      )
+    : userEmail || 'No email specified';
 
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pastedData)) {
+      setOtp(pastedData.split(''));
+      inputRefs.current[5]?.focus();
+    }
+  };
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -44,8 +85,25 @@ const VerifyOTPPage = () => {
     }
   };
 
+  const handleSaveEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputEmail || !inputEmail.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    setUserEmail(inputEmail.trim());
+    setIsEditingEmail(false);
+    setError(null);
+  };
+
   // 2. REAL BACKEND INTEGRATION
   const handleVerify = async () => {
+    if (!userEmail || !userEmail.includes('@')) {
+      setError('Please provide your registered email address.');
+      setIsEditingEmail(true);
+      return;
+    }
+
     setIsVerifying(true);
     setError(null);
     const code = otp.join('');
@@ -55,13 +113,13 @@ const VerifyOTPPage = () => {
       const response = await verifyHospitalOTP(userEmail, code);
 
       if (response.success) {
-        // Navigate to login so they can see the "Pending Approval" state
+        sessionStorage.removeItem('pending_verification_email');
+        localStorage.removeItem('pending_verification_email');
         navigate('/login', { 
           state: { message: "Email verified successfully. Please log in." } 
         });
       }
     } catch (err: any) {
-      // Capture the specific error from the backend contract (e.g., "Invalid request parameter")
       setError(err || "The code is incorrect or expired.");
     } finally {
       setIsVerifying(false);
@@ -114,8 +172,45 @@ const handleResend = async () => {
           
           <p className="text-ink-soft text-sm sm:text-[15px] leading-relaxed px-1 sm:px-2">
             A 6-digit verification code has been sent to your registered email: <br/>
-            <span className="text-ink font-bold font-mono tracking-tight">{maskedEmail}</span>. 
+            <span className="text-ink font-bold font-mono tracking-tight">{maskedEmail}</span>.
+            {!isEditingEmail && (
+              <button
+                type="button"
+                onClick={() => {
+                  setInputEmail(userEmail);
+                  setIsEditingEmail(true);
+                }}
+                className="ml-2 text-xs text-crimson font-medium hover:underline inline-block"
+              >
+                (Change)
+              </button>
+            )}
           </p>
+
+          {isEditingEmail && (
+            <form onSubmit={handleSaveEmail} className="mt-4 flex gap-2 justify-center">
+              <input
+                type="email"
+                value={inputEmail}
+                onChange={(e) => setInputEmail(e.target.value)}
+                placeholder="Enter your registered email"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-soft focus:border-crimson outline-none w-64 font-mono"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1.5 text-xs bg-crimson text-white font-bold rounded-lg hover:bg-crimson/90"
+              >
+                Set
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditingEmail(false)}
+                className="px-2 py-1.5 text-xs text-ink-soft hover:text-ink"
+              >
+                Cancel
+              </button>
+            </form>
+          )}
         </div>
 
         <div className="flex justify-center sm:justify-between gap-1.5 sm:gap-2 mb-8 sm:mb-10">
@@ -127,6 +222,7 @@ const handleResend = async () => {
                 inputMode="numeric"
                 maxLength={1}
                 value={digit}
+                onPaste={handlePaste}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 className={`w-full h-full text-center text-xl sm:text-2xl font-serif font-bold bg-paper border-2 rounded-xl outline-none transition-all duration-300

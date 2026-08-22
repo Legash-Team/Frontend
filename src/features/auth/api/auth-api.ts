@@ -1,11 +1,9 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from '@/api/axiosInstance';
 
 export const verifyHospitalOTP = async (email: string, code: string) => {
   try {
     // Exact path from contract: /api/hospital/verify-email
-    const response = await axios.post(`${API_BASE_URL}/api/hospital/verify-email`, {
+    const response = await axiosInstance.post('/api/hospital/verify-email', {
       email,
       code
     });
@@ -15,7 +13,6 @@ export const verifyHospitalOTP = async (email: string, code: string) => {
     throw error.response?.data?.error || "Verification failed. Please try again.";
   }
 };
-// ... existing imports
 
 /**
  * Resends the 6-digit OTP to the hospital's email.
@@ -23,7 +20,7 @@ export const verifyHospitalOTP = async (email: string, code: string) => {
  */
 export const resendHospitalOTP = async (email: string) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/hospital/resend-email-code`, { 
+    const response = await axiosInstance.post('/api/hospital/resend-email-code', { 
       email 
     });
     return response.data;
@@ -32,9 +29,10 @@ export const resendHospitalOTP = async (email: string) => {
     throw error.response?.data?.error || "Failed to resend code.";
   }
 };
+
 export const loginUser = async (credentials: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
+    const response = await axiosInstance.post('/api/auth/login', credentials);
     // This returns the token, role, permissions, and user object
     return response.data; 
   } catch (error: any) {
@@ -42,13 +40,14 @@ export const loginUser = async (credentials: any) => {
     throw error.response?.data?.error || "Login failed.";
   }
 };
+
 /**
  * Requests a password reset OTP/link for Hospitals or Admins
  * POST /api/auth/forgot-password
  */
 export const requestPasswordResetEmail = async (email: string) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { 
+    const response = await axiosInstance.post('/api/auth/forgot-password', { 
       email 
     });
     return response.data; // Returns { success: true, message: "..." }
@@ -57,25 +56,27 @@ export const requestPasswordResetEmail = async (email: string) => {
     throw error.response?.data?.error || "Failed to process request.";
   }
 };
+
 /**
  * Resets the password using the code received via email
  * POST /api/auth/reset-password
  */
 export const resetPassword = async (payload: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, payload);
+    const response = await axiosInstance.post('/api/auth/reset-password', payload);
     return response.data; // { success: true, message: "..." }
   } catch (error: any) {
     throw error.response?.data?.error || "Failed to reset password.";
   }
 };
+
 /**
  * Establishes the password for a newly invited Admin
  * POST /api/auth/admin/setup
  */
 export const setupAdminPassword = async (payload: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/auth/admin/setup`, payload);
+    const response = await axiosInstance.post('/api/auth/admin/setup', payload);
     return response.data;
   } catch (error: any) {
     throw error.response?.data?.error || "Failed to set password. Link may be expired.";
@@ -88,7 +89,7 @@ export const setupAdminPassword = async (payload: any) => {
  */
 export const submitHospitalFeedback = async (payload: { email: string; hospitalName?: string; message: string }) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/hospital/feedback`, payload);
+    const response = await axiosInstance.post('/api/hospital/feedback', payload);
     return response.data;
   } catch (error: any) {
     throw error.response?.data?.error || "Failed to submit appeal. Please try again.";

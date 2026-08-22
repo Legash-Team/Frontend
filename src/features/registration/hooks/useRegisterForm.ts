@@ -186,8 +186,10 @@ if (!phoneTrimmed) {
 
     if (response.success) {
       setSubmitSuccess(response.message);
-      // Pass email to OTP page so it can be masked (ab***@...)
-      navigate('/verify-email', { state: { email: formData.email } });
+      const cleanEmail = formData.email.trim();
+      sessionStorage.setItem('pending_verification_email', cleanEmail);
+      localStorage.setItem('pending_verification_email', cleanEmail);
+      navigate(`/verify-email?email=${encodeURIComponent(cleanEmail)}`, { state: { email: cleanEmail } });
     }
   } catch (err: any) {
     // This catches the 'error' string from our API service catch block
