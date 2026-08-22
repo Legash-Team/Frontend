@@ -19,15 +19,15 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
       </header>
 
       {/* 2. THE MIDDLE CONTENT (SPLIT SCREEN) */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden min-h-0">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden min-h-0 no-scrollbar">
         {/* LEFT: Form Side (Scrollable) */}
-        <div className="w-full lg:w-1/2 flex-1 lg:h-full lg:overflow-y-auto p-4 sm:p-6 md:p-10 bg-paper flex flex-col items-center">
-          <div className="w-full max-w-[580px] my-auto py-6 sm:py-8">
+        <div className="w-full lg:w-1/2 flex-1 lg:h-full lg:overflow-y-auto no-scrollbar px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 pb-12 bg-paper flex flex-col items-center">
+          <div className="w-full max-w-[620px]">
             {/* Header Section */}
-            <div className="mb-6 text-center">
+            <div className="mb-5 text-center">
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink">{title}</h1>
               {subtitle && (
-                <p className="mt-2 text-sm text-ink-soft/80">{subtitle}</p>
+                <p className="mt-1.5 text-xs sm:text-sm text-ink-soft/80">{subtitle}</p>
               )}
             </div>
             {/* The Form Container */}
