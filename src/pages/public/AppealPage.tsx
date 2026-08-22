@@ -63,8 +63,8 @@ const AppealPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-lg mb-8">
+    <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-lg mb-6 sm:mb-8">
         <Link
           to="/login"
           className="inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-crimson transition-colors group"
@@ -77,14 +77,14 @@ const AppealPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-lg bg-white border border-line-soft rounded-[40px] p-10 md:p-12 shadow-2xl shadow-ink/5"
+        className="w-full max-w-lg bg-white border border-line-soft rounded-3xl sm:rounded-[40px] p-6 sm:p-10 md:p-12 shadow-2xl shadow-ink/5"
       >
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-crimson">
-            <MessageSquare size={32} strokeWidth={1.5} />
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-crimson">
+            <MessageSquare size={28} strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl font-serif font-bold text-ink mb-4">Registration Appeal</h1>
-          <p className="text-ink-soft text-[15px] leading-relaxed">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink mb-3 sm:mb-4">Registration Appeal</h1>
+          <p className="text-ink-soft text-sm sm:text-[15px] leading-relaxed">
             If your hospital registration request was rejected, you can submit an appeal or inquiry here for Super Admin review.
           </p>
         </div>

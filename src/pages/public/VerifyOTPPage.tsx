@@ -92,9 +92,9 @@ const handleResend = async () => {
 };
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-4 sm:p-6">
       
-      <div className="w-full max-w-md mb-8">
+      <div className="w-full max-w-md mb-6 sm:mb-8">
         <Link to="/register" className="inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-crimson transition-colors group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           Back to registration
@@ -104,23 +104,23 @@ const handleResend = async () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white border border-line-soft rounded-[40px] p-10 md:p-12 shadow-2xl shadow-ink/5"
+        className="w-full max-w-md bg-white border border-line-soft rounded-3xl sm:rounded-[40px] p-6 sm:p-10 md:p-12 shadow-2xl shadow-ink/5"
       >
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-crimson">
-            <Mail size={32} strokeWidth={1.5} />
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-crimson">
+            <Mail size={28} strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl font-serif font-bold text-ink mb-4">Verify your email</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink mb-3 sm:mb-4">Verify your email</h1>
           
-          <p className="text-ink-soft text-[15px] leading-relaxed px-2">
+          <p className="text-ink-soft text-sm sm:text-[15px] leading-relaxed px-1 sm:px-2">
             A 6-digit verification code has been sent to your registered email: <br/>
             <span className="text-ink font-bold font-mono tracking-tight">{maskedEmail}</span>. 
           </p>
         </div>
 
-        <div className="flex justify-between gap-2 mb-10">
+        <div className="flex justify-center sm:justify-between gap-1.5 sm:gap-2 mb-8 sm:mb-10">
           {otp.map((digit, index) => (
-            <div key={index} className="relative w-12 h-16">
+            <div key={index} className="relative w-10 sm:w-12 h-14 sm:h-16">
               <input
                 ref={(el) => { inputRefs.current[index] = el; }}
                 type="text"
@@ -129,7 +129,7 @@ const handleResend = async () => {
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`w-full h-full text-center text-2xl font-serif font-bold bg-paper border-2 rounded-xl outline-none transition-all duration-300
+                className={`w-full h-full text-center text-xl sm:text-2xl font-serif font-bold bg-paper border-2 rounded-xl outline-none transition-all duration-300
                   ${digit ? 'border-crimson bg-white' : 'border-line-soft focus:border-crimson/50'}`}
               />
               <AnimatePresence>

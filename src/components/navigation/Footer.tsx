@@ -3,22 +3,22 @@ import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
-    <footer className="bg-ink pt-20 pb-10 text-paper border-t border-white/5">
-      <div className="max-w-[1180px] mx-auto px-8">
+    <footer className="bg-ink pt-12 sm:pt-20 pb-8 sm:pb-10 text-paper border-t border-white/5">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
         
         {/* Top Section: Brand and Links */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-16 mb-12 sm:mb-20">
           
           {/* Column 1: Brand & Description */}
           <div className="lg:col-span-6 flex flex-col items-start">
-            <Logo className="text-paper mb-6" />
-            <p className="text-paper/50 text-[0.95rem] max-w-sm leading-relaxed">
+            <Logo className="text-paper mb-5 sm:mb-6" />
+            <p className="text-paper/50 text-sm sm:text-[0.95rem] max-w-sm leading-relaxed">
               The professional digital link between Ethiopia's medical facilities and a verified network of donors. Optimized for speed, privacy, and precision.
             </p>
           </div>
 
           {/* Column 2: Navigation Links */}
-          <div className="lg:col-span-6 grid grid-cols-2 gap-12">
+          <div className="lg:col-span-6 grid grid-cols-2 gap-8 sm:gap-12">
             <FooterGroup 
               title="Network" 
               links={[
@@ -40,7 +40,7 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar: Tagline and Contact */}
-        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="pt-8 sm:pt-10 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6 text-center sm:text-left">
           <div className="text-[10px] font-mono font-bold tracking-[0.15em] text-paper/30 uppercase">
             © {new Date().getFullYear()} LEGASH WEB. ETHIOPIA’S DIGITAL BLOOD INFRASTRUCTURE.
           </div>

@@ -9,6 +9,10 @@ export interface HospitalUser {
   phone?: string;
   licenseNumber?: string;
   role?: string;
+  permissions?: {
+    canApproveHospitals?: boolean;
+    canPostEvents?: boolean;
+  } | null;
   verificationStatus?: string;
   location?: {
     lat: number;
@@ -120,6 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         phone: res.hospital?.phone || '',
         licenseNumber: res.hospital?.licenseNumber || '',
         role: res.role || 'hospital',
+        permissions: (res as any).permissions || (res.user as any)?.permissions || null,
         verificationStatus: res.verificationStatus || 'approved',
         location: res.hospital?.location || null,
       };

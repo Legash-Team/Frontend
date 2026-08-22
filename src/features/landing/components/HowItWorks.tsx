@@ -6,27 +6,27 @@ export const HowItWorks = () => {
   const [activeTab, setActiveTab] = useState<Role>('donor');
 
   return (
-    <section className="py-24 bg-paper-dim" id="how">
-      <div className="max-w-1180px mx-auto px-8">
+    <section className="py-16 sm:py-24 bg-paper-dim" id="how">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
         
         {/* Section Header */}
-        <div className="max-w-640px mb-14">
+        <div className="max-w-[640px] mb-10 sm:mb-14">
           <span className="font-mono text-[0.76rem] font-bold text-crimson-dark uppercase tracking-widest block mb-3.5">
             How it works
           </span>
-          <h2 className="text-[clamp(1.9rem,3vw,2.6rem)] font-serif font-bold text-ink leading-[1.12]">
+          <h2 className="text-[clamp(1.75rem,3vw,2.6rem)] font-serif font-bold text-ink leading-[1.15]">
             Two roles, one moment where they meet.
           </h2>
-          <p className="mt-4 text-[1.03rem] text-ink-soft leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-sm sm:text-[1.03rem] text-ink-soft leading-relaxed">
             Donors and hospitals use LEGASH differently — but every path leads to the same handoff: a request, a match, a call.
           </p>
         </div>
 
         {/* The Original Track Toggle */}
-        <div className="inline-flex bg-sand rounded-full p-1 mb-11">
+        <div className="inline-flex bg-sand rounded-full p-1 mb-8 sm:mb-11">
           <button
             onClick={() => setActiveTab('donor')}
-            className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${
+            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all ${
               activeTab === 'donor' 
                 ? 'bg-ink text-paper shadow-sm' 
                 : 'text-ink-soft hover:text-ink'
@@ -36,7 +36,7 @@ export const HowItWorks = () => {
           </button>
           <button
             onClick={() => setActiveTab('hospital')}
-            className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${
+            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all ${
               activeTab === 'hospital' 
                 ? 'bg-ink text-paper shadow-sm' 
                 : 'text-ink-soft hover:text-ink'

@@ -3,18 +3,18 @@ import { ShieldCheck, Activity, Zap } from 'lucide-react';
 
 export const Trust = () => {
   return (
-    <section className="py-[100px] bg-white border-y border-line-soft" id="hospitals">
-      <div className="max-w-[1180px] mx-auto px-8">
+    <section className="py-16 sm:py-24 bg-white border-y border-line-soft" id="hospitals">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
         
-        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-16 items-center">
+        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 sm:gap-16 items-center">
           
           {/* Left: Minimal Heading */}
           <div>
-            <div className="inline-flex items-center gap-2 mb-4">
+            <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
                <ShieldCheck size={16} className="text-verified" />
                <span className="font-mono text-[10px] font-bold text-ink-soft uppercase tracking-[0.2em]">Verified Network</span>
             </div>
-            <h2 className="text-4xl font-serif font-bold text-ink leading-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-ink leading-tight mb-3 sm:mb-4">
               Institutional grade <br/>
               <span className="text-crimson">security.</span>
             </h2>
@@ -24,7 +24,7 @@ export const Trust = () => {
           </div>
 
           {/* Right: The Strip (Low Profile) */}
-          <div className="grid sm:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
             <SmallFeature 
               icon={<ShieldCheck size={20} />} 
               title="Vetted Identity" 
@@ -45,7 +45,7 @@ export const Trust = () => {
         </div>
 
         {/* Minimalist Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-line-soft flex items-center justify-between">
+        <div className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-line-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
            <div className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">
              Trusted by 85+ Ethiopian Medical Centers
            </div>

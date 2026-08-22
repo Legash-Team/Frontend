@@ -64,3 +64,91 @@ h1, h2, h3 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Rich Text Editor & Content Styles */
+.rich-editor-content,
+.rich-content {
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+.rich-editor-content h1,
+.rich-editor-content h2,
+.rich-editor-content h3,
+.rich-content h1,
+.rich-content h2,
+.rich-content h3 {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin-top: 0.6em;
+  margin-bottom: 0.3em;
+  color: var(--color-ink);
+}
+
+.rich-editor-content h4,
+.rich-editor-content h5,
+.rich-content h4,
+.rich-content h5 {
+  font-size: 1.05em;
+  font-weight: 600;
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+  color: var(--color-ink);
+}
+
+.rich-editor-content p,
+.rich-content p {
+  margin-bottom: 0.5em;
+}
+
+.rich-editor-content p:last-child,
+.rich-content p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-editor-content ul,
+.rich-content ul {
+  list-style-type: disc;
+  padding-left: 1.25em;
+  margin: 0.4em 0;
+}
+
+.rich-editor-content ol,
+.rich-content ol {
+  list-style-type: decimal;
+  padding-left: 1.25em;
+  margin: 0.4em 0;
+}
+
+.rich-editor-content li,
+.rich-content li {
+  margin-bottom: 0.2em;
+}
+
+.rich-editor-content blockquote,
+.rich-content blockquote {
+  border-left: 3px solid var(--color-crimson);
+  padding-left: 0.75em;
+  margin: 0.6em 0;
+  color: var(--color-ink-soft);
+  font-style: italic;
+  background: rgba(195, 31, 59, 0.04);
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  border-radius: 0 8px 8px 0;
+}
+
+.rich-editor-content a,
+.rich-content a {
+  color: var(--color-crimson);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+}
+
+.rich-editor-content hr,
+.rich-content hr {
+  border: 0;
+  border-top: 1px solid var(--color-line-soft);
+  margin: 0.8em 0;
+}

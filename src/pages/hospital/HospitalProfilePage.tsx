@@ -550,7 +550,7 @@ export const HospitalProfilePage: React.FC = () => {
                 onClick={() => setForgotModalOpen(false)}
                 className="text-ink-soft hover:text-ink text-sm font-mono"
               >
-                ✕
+                X
               </button>
             </div>
 

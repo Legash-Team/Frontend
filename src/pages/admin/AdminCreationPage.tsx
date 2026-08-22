@@ -244,69 +244,71 @@ const AdminCreationPage = () => {
               <p className="text-ink-soft font-serif italic">No admin staff found. Create the first one above.</p>
             </div>
           ) : (
-            <table className="w-full text-left">
-              <tbody className="divide-y divide-line-soft">
-                {admins.map((admin) => (
-                  <tr key={admin.id} className="group hover:bg-paper/20 transition-all">
-                    <td className="p-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-paper border border-line-soft flex items-center justify-center font-serif font-bold text-ink-soft text-xs uppercase tracking-tighter">
-                          {admin.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left min-w-[540px]">
+                <tbody className="divide-y divide-line-soft">
+                  {admins.map((admin) => (
+                    <tr key={admin.id} className="group hover:bg-paper/20 transition-all">
+                      <td className="p-4 sm:p-6">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-paper border border-line-soft flex items-center justify-center font-serif font-bold text-ink-soft text-xs uppercase tracking-tighter shrink-0">
+                            {admin.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-ink truncate">{admin.name}</p>
+                            <p className="text-xs text-ink-soft font-mono truncate">{admin.email}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-ink">{admin.name}</p>
-                          <p className="text-xs text-ink-soft font-mono">{admin.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-6">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border ${
-                        getRoleLabel(admin.permissions) === 'Full Access' 
-                          ? 'bg-crimson/5 border-crimson/20 text-crimson' 
-                          : 'bg-paper border-line-soft text-ink-soft'
-                      }`}>
-                        {getRoleLabel(admin.permissions)}
-                      </span>
-                    </td>
-                    <td className="p-6">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full ${admin.emailVerified ? 'bg-verified animate-pulse' : 'bg-amber-400'}`} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-ink-soft/40">
-                          {admin.emailVerified ? 'Verified' : 'Pending OTP'}
+                      </td>
+                      <td className="p-4 sm:p-6">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border whitespace-nowrap ${
+                          getRoleLabel(admin.permissions) === 'Full Access' 
+                            ? 'bg-crimson/5 border-crimson/20 text-crimson' 
+                            : 'bg-paper border-line-soft text-ink-soft'
+                        }`}>
+                          {getRoleLabel(admin.permissions)}
                         </span>
-                      </div>
-                    </td>
-                    <td className="p-6 text-right">
-                      {confirmDeleteId === admin.id ? (
-                        <div className="flex items-center justify-end gap-2 animate-in fade-in zoom-in duration-200">
-                          <span className="text-[10px] font-bold text-crimson uppercase mr-2 tracking-widest">Are you sure?</span>
-                          <button 
-                            onClick={() => setConfirmDeleteId(null)}
-                            className="px-3 py-1.5 text-xs font-bold text-ink-soft hover:bg-paper rounded-md transition-colors border border-line-soft"
-                          >
-                            Cancel
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(admin.id)}
-                            className="px-3 py-1.5 text-xs font-bold text-white bg-crimson hover:bg-crimson-dark rounded-md transition-colors"
-                          >
-                            Delete
-                          </button>
+                      </td>
+                      <td className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 whitespace-nowrap">
+                          <div className={`w-1.5 h-1.5 rounded-full ${admin.emailVerified ? 'bg-verified animate-pulse' : 'bg-amber-400'}`} />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-ink-soft/40">
+                            {admin.emailVerified ? 'Verified' : 'Pending OTP'}
+                          </span>
                         </div>
-                      ) : (
-                        <button 
-                          onClick={() => setConfirmDeleteId(admin.id)}
-                          className="p-2 text-ink-soft hover:text-crimson hover:bg-crimson/5 rounded-lg transition-colors"
-                          title="Delete Admin"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="p-4 sm:p-6 text-right whitespace-nowrap">
+                        {confirmDeleteId === admin.id ? (
+                          <div className="flex items-center justify-end gap-2 animate-in fade-in zoom-in duration-200">
+                            <span className="text-[10px] font-bold text-crimson uppercase mr-1 tracking-widest">Are you sure?</span>
+                            <button 
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="px-2.5 py-1 text-xs font-bold text-ink-soft hover:bg-paper rounded-md transition-colors border border-line-soft"
+                            >
+                              Cancel
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(admin.id)}
+                              className="px-2.5 py-1 text-xs font-bold text-white bg-crimson hover:bg-crimson-dark rounded-md transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => setConfirmDeleteId(admin.id)}
+                            className="p-2 text-ink-soft hover:text-crimson hover:bg-crimson/5 rounded-lg transition-colors"
+                            title="Delete Admin"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

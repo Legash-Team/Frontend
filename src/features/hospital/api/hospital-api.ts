@@ -24,8 +24,11 @@ import type {
 export interface LoginResponse {
   success?: boolean;
   token?: string;
+  auth_token?: string;
   role?: string;
   message?: string;
+  verificationStatus?: string;
+  refreshToken?: string;
   user?: {
     id?: string;
     name?: string;

@@ -10,6 +10,7 @@ import {
   Info
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import { uploadMedia, createEvent } from './api/admin-api';
 
 const EventPostingPage = () => {
@@ -96,16 +97,16 @@ const EventPostingPage = () => {
 
   return (
     <AdminLayout title="Event Broadcast">
-      <div className="grid lg:grid-cols-[1fr_400px] gap-12 items-start">
+      <div className="grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 lg:gap-12 items-start">
         
         {/* LEFT: THE FORM */}
-        <div className="space-y-8">
-          <div className="bg-white border border-line-soft rounded-[32px] p-8 md:p-12 shadow-sm">
-            <form onSubmit={handleSubmit} className="space-y-10">
+        <div className="space-y-8 min-w-0">
+          <div className="bg-white border border-line-soft rounded-[28px] sm:rounded-[32px] p-6 sm:p-8 md:p-10 lg:p-12 shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
               
               {/* 1. MEDIA UPLOAD */}
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-wrap justify-between items-center gap-2">
                    <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">Visual Content</label>
                    <div className="flex bg-paper p-1 rounded-lg border border-line-soft">
                       <button 
@@ -128,11 +129,11 @@ const EventPostingPage = () => {
                 {!previewUrl ? (
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="group border-2 border-dashed border-line-soft rounded-2xl p-16 flex flex-col items-center justify-center bg-paper/30 hover:bg-paper/50 hover:border-crimson/30 transition-all cursor-pointer"
+                    className="group border-2 border-dashed border-line-soft rounded-2xl p-8 sm:p-14 flex flex-col items-center justify-center bg-paper/30 hover:bg-paper/50 hover:border-crimson/30 transition-all cursor-pointer text-center"
                   >
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} hidden accept={formData.mediaType === 'image' ? "image/*" : "video/*"} />
-                    <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center text-ink-soft group-hover:text-crimson transition-colors mb-4">
-                      <Upload size={24} />
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white shadow-sm flex items-center justify-center text-ink-soft group-hover:text-crimson transition-colors mb-3 sm:mb-4">
+                      <Upload size={22} />
                     </div>
                     <p className="text-sm font-bold text-ink">Click to upload media</p>
                     <p className="text-xs text-ink-soft mt-1">High resolution {formData.mediaType} recommended</p>
@@ -142,46 +143,51 @@ const EventPostingPage = () => {
                     {formData.mediaType === 'image' ? (
                       <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
                     ) : (
-                      <video src={previewUrl} className="w-full h-full object-cover" />
+                      <video src={previewUrl} className="w-full h-full object-cover" controls />
                     )}
                     <button 
+                      type="button"
                       onClick={removeFile}
-                      className="absolute top-4 right-4 w-10 h-10 bg-crimson text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
+                      className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 bg-crimson text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
                     >
-                      <X size={20} />
+                      <X size={18} />
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* 2. DESCRIPTION */}
+              {/* 2. RICH TEXT DETAILED DESCRIPTION */}
               <div className="space-y-3">
-                <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">Detailed Description</label>
-                <textarea 
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">
+                    Detailed Description <span className="text-crimson">*</span>
+                  </label>
+                  <span className="text-[10px] font-mono text-ink-soft/50 uppercase">Rich Text & Newlines</span>
+                </div>
+                <RichTextEditor 
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  required
-                  placeholder="Tell the donors what's happening..."
-                  className="w-full h-32 p-5 bg-paper border border-line-soft rounded-2xl outline-none focus:border-crimson transition-all text-sm resize-none"
+                  onChange={(val) => setFormData({ ...formData, description: val })}
+                  placeholder="Describe the campaign, locations, eligible blood types, and donation guidelines..."
+                  minHeight="180px"
                 />
               </div>
 
               {/* 3. SETTINGS GRID */}
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-3">
+              <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
+                <div className="space-y-2.5">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest flex items-center gap-2">
-                    <LinkIcon size={14} /> Action Link
+                    <LinkIcon size={14} /> Action Link <span className="text-ink-soft/40">(Optional)</span>
                   </label>
                   <input 
                     type="url" value={formData.applyLink}
                     onChange={(e) => setFormData({...formData, applyLink: e.target.value})}
-                    placeholder="https://..."
+                    placeholder="https://registration.org"
                     className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                   />
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest flex items-center gap-2">
-                    <Calendar size={14} /> Expiry Date
+                    <Calendar size={14} /> Expiry Date <span className="text-crimson">*</span>
                   </label>
                   <input 
                     type="datetime-local" value={formData.expiryDate}
@@ -197,7 +203,7 @@ const EventPostingPage = () => {
                 variant="primary" 
                 disabled={!formData.description || !formData.expiryDate}
                 isLoading={isPosting}
-                className="w-full h-14 rounded-2xl font-bold text-lg shadow-xl"
+                className="w-full h-14 rounded-2xl font-bold text-base sm:text-lg shadow-xl"
               >
                 Launch Broadcast
               </Button>
@@ -206,15 +212,15 @@ const EventPostingPage = () => {
         </div>
 
         {/* RIGHT: LIVE MOBILE PREVIEW */}
-        <div className="sticky top-8 space-y-6">
-           <div className="flex items-center gap-3 text-ink opacity-40 mb-4 px-2">
+        <div className="lg:sticky lg:top-8 space-y-6 w-full flex flex-col items-center lg:items-stretch">
+           <div className="flex items-center gap-3 text-ink opacity-40 mb-2 px-2 self-start">
               <Smartphone size={20} />
-              <span className="text-xs font-black uppercase tracking-widest">Mobile Preview</span>
+              <span className="text-xs font-black uppercase tracking-widest">Mobile Live Preview</span>
            </div>
 
            {/* SMARTPHONE FRAME */}
-           <div className="relative w-[320px] h-[640px] bg-ink rounded-[50px] border-[8px] border-gray-900 shadow-2xl mx-auto overflow-hidden">
-              <div className="absolute top-0 w-full h-6 bg-black flex justify-center items-end pb-1">
+           <div className="relative w-full max-w-[320px] sm:max-w-[340px] h-[580px] sm:h-[640px] bg-ink rounded-[44px] sm:rounded-[50px] border-[6px] sm:border-[8px] border-gray-900 shadow-2xl mx-auto overflow-hidden">
+              <div className="absolute top-0 w-full h-6 bg-black flex justify-center items-end pb-1 z-20">
                  <div className="w-16 h-4 bg-gray-900 rounded-full" /> {/* Notch */}
               </div>
 
@@ -229,21 +235,33 @@ const EventPostingPage = () => {
                  {/* Simulated Content */}
                  <div className="flex-1 overflow-y-auto no-scrollbar">
                     {previewUrl ? (
-                      <img src={previewUrl} className="w-full aspect-video object-cover" />
+                      formData.mediaType === 'image' ? (
+                        <img src={previewUrl} className="w-full aspect-video object-cover" alt="Event preview" />
+                      ) : (
+                        <video src={previewUrl} className="w-full aspect-video object-cover" controls />
+                      )
                     ) : (
                       <div className="w-full aspect-video bg-gray-200 flex items-center justify-center text-gray-400">
                         <ImageIcon size={32} />
                       </div>
                     )}
                     
-                    <div className="p-4 space-y-4">
-                       <div className="h-2 w-1/2 bg-crimson/20 rounded" />
-                       <p className="text-[11px] text-ink-soft leading-relaxed break-words">
-                          {formData.description || "The event description will appear here as soon as you start typing on the left..."}
-                       </p>
+                    <div className="p-4 space-y-3">
+                       <div className="h-1.5 w-1/3 bg-crimson/30 rounded-full" />
+                       
+                       {formData.description ? (
+                         <div 
+                           className="text-[11px] text-ink-soft leading-relaxed break-words rich-content"
+                           dangerouslySetInnerHTML={{ __html: formData.description }}
+                         />
+                       ) : (
+                         <p className="text-[11px] text-ink-soft/40 italic leading-relaxed break-words">
+                           The formatted event description will appear here with headings, lists, and line breaks as you type...
+                         </p>
+                       )}
                        
                        {formData.applyLink && (
-                         <div className="w-full h-10 bg-crimson rounded-lg flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-widest">
+                         <div className="w-full h-9 bg-crimson rounded-lg flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-widest mt-3 shadow-xs">
                            Register Now
                          </div>
                        )}
@@ -252,10 +270,10 @@ const EventPostingPage = () => {
               </div>
            </div>
 
-           <div className="p-5 bg-paper rounded-2xl border border-line-soft flex gap-3">
-              <Info size={20} className="text-crimson shrink-0" />
+           <div className="p-4 sm:p-5 bg-paper rounded-2xl border border-line-soft flex gap-3 max-w-[340px] mx-auto lg:max-w-none">
+              <Info size={18} className="text-crimson shrink-0 mt-0.5" />
               <p className="text-[10px] text-ink-soft leading-relaxed italic">
-                This preview approximates how donors in Addis Ababa will view the event on their Legash Mobile application.
+                This preview approximates how donors across Ethiopia will view the formatted event on their Legash Mobile application.
               </p>
            </div>
         </div>

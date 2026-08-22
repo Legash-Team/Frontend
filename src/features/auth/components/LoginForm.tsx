@@ -22,6 +22,7 @@ export const LoginForm = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [isRejected, setIsRejected] = useState(false);
 
   // Forgot/Reset Modal State
   const [forgotModalOpen, setForgotModalOpen] = useState(false);
@@ -38,6 +39,7 @@ export const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setIsRejected(false);
     setIsLoading(true);
     try {
       const data = await login({ email: email.trim(), password });
@@ -51,6 +53,9 @@ export const LoginForm = () => {
       const backendError = err.response?.data?.error || err.message || "";
       if (backendError.includes("pending Super Admin approval")) {
         setShowPendingModal(true);
+      } else if (backendError.toLowerCase().includes("not approved") || backendError.toLowerCase().includes("rejected")) {
+        setIsRejected(true);
+        setErrorMsg(backendError || 'Your registration was not approved. Check your email for details.');
       } else {
         setErrorMsg(backendError || 'Invalid email or password.');
       }
@@ -110,9 +115,19 @@ export const LoginForm = () => {
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
         {errorMsg && (
-          <div className="p-3.5 bg-crimson/10 border border-crimson/20 rounded-xl text-crimson text-xs font-medium flex items-center gap-2.5">
-            <AlertCircle className="w-4 h-4" />
-            <span>{errorMsg}</span>
+          <div className="p-3.5 bg-crimson/10 border border-crimson/20 rounded-xl text-crimson text-xs font-medium flex flex-col gap-1.5">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+            {isRejected && (
+              <Link 
+                to={`/appeal?email=${encodeURIComponent(email.trim())}`}
+                className="font-bold underline hover:text-crimson/80 ml-6 text-[11px]"
+              >
+                Click here to submit an appeal or inquiry →
+              </Link>
+            )}
           </div>
         )}
 
