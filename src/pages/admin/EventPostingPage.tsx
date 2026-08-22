@@ -1,19 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { AdminLayout } from '@/layouts/AdminLayout';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Upload, 
   ImageIcon, 
-  Video, 
   Link as LinkIcon, 
   Calendar, 
-  CheckCircle2, 
-  Clock, 
   X,
   Smartphone,
   Info
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { uploadMedia, createEvent } from './api/admin-api';
 
 const EventPostingPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +55,6 @@ const EventPostingPage = () => {
 
     setIsPosting(true);
     try {
-      const { uploadMedia, createEvent } = await import('./api/admin-api');
       let mediaUrl = '';
       let mediaType = formData.mediaType;
 
@@ -199,7 +195,7 @@ const EventPostingPage = () => {
               <Button 
                 type="submit" 
                 variant="primary" 
-                disabled={!selectedFile || !formData.description || !formData.expiryDate}
+                disabled={!formData.description || !formData.expiryDate}
                 isLoading={isPosting}
                 className="w-full h-14 rounded-2xl font-bold text-lg shadow-xl"
               >

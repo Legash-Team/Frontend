@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { RegisterFormData, FormErrors, RegisterPayload } from '../types/registration-types';
+import type { RegisterFormData, FormErrors } from '../types/registration-types';
 import { registerHospital } from '../api/registration-api';
 
 const INITIAL_FORM_DATA: RegisterFormData = {

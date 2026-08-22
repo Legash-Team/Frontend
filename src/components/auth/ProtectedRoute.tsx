@@ -4,26 +4,23 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: 'superadmin' | 'admin' | 'hospital';
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
   const location = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
-  const isDevBypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-paper flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent"></div>
-          <p className="text-sm font-sans text-ink-soft font-medium">Verifying authentication session...</p>
-        </div>
-      </div>
-    );
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!isDevBypass && !isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (requiredRole && user?.role !== requiredRole) {
+    // If they don't have the right role, bounce them to their default dashboard
+    const redirectPath = user?.role === 'superadmin' || user?.role === 'admin' 
+      ? '/admin/dashboard' 
+      : '/hospital/dashboard';
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <>{children}</>;

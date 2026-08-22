@@ -1,7 +1,10 @@
 import React from 'react';
 import { AdminSidebar } from '@/features/admin/components/AdminSidebar';
+import { useAuth } from '@/features/auth/context/AuthContext';
 
 export const AdminLayout = ({ children, title }: { children: React.ReactNode, title: string }) => {
+  const { user } = useAuth();
+  
   return (
     <div className="flex h-screen bg-paper overflow-hidden">
       <AdminSidebar />
@@ -11,7 +14,9 @@ export const AdminLayout = ({ children, title }: { children: React.ReactNode, ti
         <header className="h-[76px] bg-white border-b border-line-soft px-8 flex items-center justify-between shrink-0">
           <h1 className="text-xl font-serif font-bold text-ink uppercase tracking-tight">{title}</h1>
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-mono font-bold px-3 py-1 bg-crimson/10 text-crimson rounded-full uppercase">Super Admin</span>
+            <span className="text-[10px] font-mono font-bold px-3 py-1 bg-crimson/10 text-crimson rounded-full uppercase">
+              {user?.role === 'superadmin' ? 'Super Admin' : 'Admin'}
+            </span>
           </div>
         </header>
 

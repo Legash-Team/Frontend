@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MessageSquare, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { submitHospitalFeedback } from '@/features/auth/api/auth-api';
 
 const AppealPage = () => {
-  const navigate = useNavigate();
   const location = useLocation();
 
   // Parse email from query parameter if present

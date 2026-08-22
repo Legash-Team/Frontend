@@ -40,52 +40,34 @@ const AUTH_TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'hospital_user';
 
-// Temporary development hospital user for dev bypass
-export const DEV_HOSPITAL_USER: HospitalUser = {
-  id: 'dev_semera_hospital',
-  name: 'Semera General Hospital',
-  email: 'demo@hospital.test',
-  phone: '+251336660123',
-  licenseNumber: 'MOH-HOSP-SEM-001',
-  role: 'hospital',
-  verificationStatus: 'verified',
-  location: {
-    lat: 11.792,
-    lng: 41.008,
-  },
-};
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const isDevBypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
-
   const [token, setToken] = useState<string | null>(() => {
-    const stored =
+    return (
       localStorage.getItem(TOKEN_KEY) ||
       localStorage.getItem(AUTH_TOKEN_KEY) ||
       sessionStorage.getItem(TOKEN_KEY) ||
-      sessionStorage.getItem(AUTH_TOKEN_KEY);
-    if (stored) return stored;
-    return isDevBypass ? 'dev_bypass_mock_token' : null;
+      sessionStorage.getItem(AUTH_TOKEN_KEY)
+    );
   });
 
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(() => {
+    return localStorage.getItem(REFRESH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY);
+  });
 
   const [user, setUser] = useState<HospitalUser | null>(() => {
-    const storedUser =
-      localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
+    const storedUser = localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
     if (storedUser) {
       try {
         return JSON.parse(storedUser);
       } catch {
-        // fallback
+        return null;
       }
     }
-    return isDevBypass ? DEV_HOSPITAL_USER : null;
+    return null;
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Initialize and validate auth session
   useEffect(() => {
     try {
       const storedToken =
@@ -110,19 +92,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           try {
             setUser(JSON.parse(storedUser));
           } catch {
-            setUser(isDevBypass ? DEV_HOSPITAL_USER : null);
+            setUser(null);
           }
         }
-      } else if (isDevBypass) {
-        setToken('dev_bypass_mock_token');
-        setUser(DEV_HOSPITAL_USER);
       }
     } catch (err) {
       console.error('Failed to restore auth session:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [isDevBypass]);
+  }, []);
 
   const login = async (credentials: { email: string; password: string }) => {
     setIsLoading(true);
@@ -135,17 +114,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const resolvedUser: HospitalUser = {
-        id: res.user?.id || (res.hospital as unknown as HospitalUser)?.id || 'hospital_user',
-        name:
-          res.user?.name ||
-          res.hospital?.name ||
-          'St. Paul Hospital Millennium Medical College',
+        id: res.user?.id || (res.hospital as any)?.id || 'hospital_user',
+        name: res.user?.name || res.hospital?.name || '',
         email: res.user?.email || res.hospital?.email || credentials.email,
-        phone: res.hospital?.phone || '+251112750123',
-        licenseNumber: res.hospital?.licenseNumber || 'MOH-HOSP-2026-0891',
+        phone: res.hospital?.phone || '',
+        licenseNumber: res.hospital?.licenseNumber || '',
         role: res.role || 'hospital',
-        verificationStatus: res.verificationStatus || 'verified',
-        location: res.hospital?.location || { lat: 9.0108, lng: 38.7613 },
+        verificationStatus: res.verificationStatus || 'approved',
+        location: res.hospital?.location || null,
       };
 
       // Store in localStorage & sessionStorage for token persistence
@@ -189,31 +165,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
     sessionStorage.removeItem(USER_KEY);
 
-    if (isDevBypass) {
-      setToken(null);
-      setUser(null);
-    } else {
-      setToken(null);
-      setRefreshToken(null);
-      setUser(null);
-    }
+    setToken(null);
+    setRefreshToken(null);
+    setUser(null);
   };
 
   const updateUser = (updatedUser: Partial<HospitalUser>) => {
     setUser((prev) => {
-      const merged = { ...(prev || (isDevBypass ? DEV_HOSPITAL_USER : {})), ...updatedUser };
+      const merged = { ...(prev || {}), ...updatedUser };
       localStorage.setItem(USER_KEY, JSON.stringify(merged));
       sessionStorage.setItem(USER_KEY, JSON.stringify(merged));
       return merged;
     });
   };
 
-  const isAuthenticated = isDevBypass || Boolean(token);
+  const isAuthenticated = Boolean(token);
 
   return (
     <AuthContext.Provider
       value={{
-        user: user || (isDevBypass ? DEV_HOSPITAL_USER : null),
+        user,
         token,
         refreshToken,
         isAuthenticated,
@@ -231,17 +202,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    const isDevBypass = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true';
-    return {
-      user: isDevBypass ? DEV_HOSPITAL_USER : null,
-      token: isDevBypass ? 'dev_bypass_mock_token' : null,
-      refreshToken: null,
-      isAuthenticated: isDevBypass,
-      isLoading: false,
-      login: async () => ({ success: true }),
-      logout: () => {},
-      updateUser: () => {},
-    };
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

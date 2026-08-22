@@ -105,3 +105,66 @@ export const createEvent = async (payload: {
     throw error.response?.data?.error || "Failed to create event.";
   }
 };
+
+/**
+ * POST /api/superadmin/admins
+ */
+export const createAdmin = async (payload: {
+  name: string;
+  email: string;
+  permissions: {
+    canApproveHospitals: boolean;
+    canPostEvents: boolean;
+  };
+}) => {
+  try {
+    const response = await axiosInstance.post<{
+      success: boolean;
+      message?: string;
+      admin?: {
+        id: string;
+        name: string;
+        email: string;
+        permissions: { canApproveHospitals: boolean; canPostEvents: boolean };
+        emailVerified: boolean;
+        createdAt: string;
+      };
+    }>('/api/superadmin/admins', payload);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to create admin.';
+  }
+};
+
+/**
+ * GET /api/superadmin/admins
+ */
+export const listAdmins = async () => {
+  try {
+    const response = await axiosInstance.get<{
+      success: boolean;
+      admins: Array<{
+        id: string;
+        name: string;
+        email: string;
+        permissions: { canApproveHospitals: boolean; canPostEvents: boolean };
+        emailVerified: boolean;
+        createdAt: string;
+      }>;
+    }>('/api/superadmin/admins');
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to fetch admins.';
+  }
+};
+/**
+ * DELETE /api/superadmin/admins/:id
+ */
+export const deleteAdmin = async (id: string) => {
+  try {
+    const response = await axiosInstance.delete<{ success: boolean; message?: string }>(`/api/superadmin/admins/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to delete admin.';
+  }
+};

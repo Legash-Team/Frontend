@@ -4,8 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Mail, RefreshCcw } from 'lucide-react';
 import Button from '@/components/ui/Button';
 // 1. Ensure this points to your real API file
-import { verifyHospitalOTP, resendHospitalOTP } from '@/features/auth/api/auth-api'; 
-import axios from 'axios';
+import { verifyHospitalOTP, resendHospitalOTP } from '@/features/auth/api/auth-api';
 
 const VerifyOTPPage = () => {
   const navigate = useNavigate();

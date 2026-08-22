@@ -102,11 +102,43 @@ export const App: React.FC = () => {
 
             {/* --- ADMIN DASHBOARD ROUTES --- */}
           
-            <Route path="/admin/dashboard" element={<DashboardPage />} />
-            <Route path="/admin/events" element={<EventPostingPage />} />
-            <Route path="/admin/create-admin" element={<AdminCreationPage />} />
-            <Route path="/admin/feedbacks" element={<FeedbackPage />} />
+            {/* --- PROTECTED ADMIN/SUPERADMIN ROUTES --- */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/events"
+              element={
+                <ProtectedRoute>
+                  <EventPostingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/create-admin"
+              element={
+                <ProtectedRoute requiredRole="superadmin">
+                  <AdminCreationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/feedbacks"
+              element={
+                <ProtectedRoute>
+                  <FeedbackPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            {/* Setup doesn't need to be protected (uses token in URL) */}
             <Route path="/admin/setup" element={<AdminSetupPage />} />
+            
             {/* --- FALLBACK REDIRECT --- */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

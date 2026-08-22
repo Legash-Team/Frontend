@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,10 +8,8 @@ import {
   AlertCircle, 
   ArrowUpRight,
   Search,
-  History,
-  Trash2
+  History
 } from 'lucide-react';
-import Button from '@/components/ui/Button';
 import { fetchFeedbacks, markFeedbackReviewed } from './api/admin-api';
 
 const FeedbackPage = () => {
@@ -64,7 +62,7 @@ const FeedbackPage = () => {
     }
   };
 
-  const handleViewApplication = (hospitalId?: string) => {
+  const handleViewApplication = () => {
     // Navigate back to dashboard to verify the facility
     navigate('/admin/dashboard');
   };
@@ -227,7 +225,7 @@ const FeedbackPage = () => {
 
                             <button 
                               disabled={actionLoading}
-                              onClick={() => handleViewApplication(item.hospital)}
+                              onClick={handleViewApplication}
                               className="px-6 py-2.5 rounded-xl bg-ink text-white text-[11px] font-bold hover:bg-crimson transition-all flex items-center gap-2 group uppercase tracking-widest shadow-lg shadow-ink/10"
                             >
                               Verify Facility <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-crimson" />

@@ -3,16 +3,14 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
 import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
-import type { DashboardData, LocationData } from '@/features/hospital/types/hospital-types';
+import type { DashboardData } from '@/features/hospital/types/hospital-types';
 import {
   LayoutDashboard,
   Building2,
   Droplets,
-  MapPin,
   AlertTriangle,
   RefreshCw,
   Eye,
-  Pencil,
   Sparkles,
 } from 'lucide-react';
 
@@ -57,28 +55,6 @@ export const HospitalDashboardPage: React.FC = () => {
     (rawData.name as string) ||
     (rawData.hospitalName as string) ||
     'Medical Facility';
-
-  const hospitalEmail =
-    (rawHospital.email as string) ||
-    (rawData.email as string) ||
-    'N/A';
-
-  const hospitalPhone =
-    (rawHospital.phone as string) ||
-    (rawData.phone as string) ||
-    'N/A';
-
-  const hospitalLicense =
-    (rawHospital.licenseNumber as string) ||
-    (rawHospital.license_number as string) ||
-    (rawData.licenseNumber as string) ||
-    (rawData.license_number as string) ||
-    'N/A';
-
-  const hospitalLocation =
-    (rawHospital.location as LocationData | null) ||
-    (rawData.location as LocationData | null) ||
-    null;
 
   const bloodStockMap =
     (rawData.bloodStock as Record<string, number>) ||

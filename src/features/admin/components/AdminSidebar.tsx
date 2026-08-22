@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink , useNavigate } from 'react-router-dom';
 import { 
   Menu, 
-  X, 
   LayoutDashboard, 
   MessageSquare, 
   CalendarPlus, 
@@ -15,15 +14,19 @@ import {useAuth} from '@/features/auth/context/AuthContext';
 
 export const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { logout } = useAuth(); 
+  const { logout, user } = useAuth(); 
   const navigate = useNavigate();
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Facilities', path: '/admin/dashboard' },
     { icon: MessageSquare, label: 'Feedbacks', path: '/admin/feedbacks' },
     { icon: CalendarPlus, label: 'Post Event', path: '/admin/events' },
-    { icon: UserPlus, label: 'Create Admin', path: '/admin/create-admin' },
   ];
+
+  // Only show "Create Admin" if the user is a superadmin
+  if (user?.role === 'superadmin') {
+    menuItems.push({ icon: UserPlus, label: 'Create Admin', path: '/admin/create-admin' });
+  }
   
    const handleSignOut = () => {
     // 1. Clear Context State & LocalStorage
@@ -92,7 +95,7 @@ export const AdminSidebar = () => {
 
       {/* ADMIN PROFILE / LOGOUT AREA */}
       <div className="p-4 border-t border-line-soft">
-        <button onClick={handleSignOut}className="flex items-center gap-4 px-4 py-3 w-full text-ink-soft hover:text-crimson transition-colors group"  href='/login'>
+        <button onClick={handleSignOut} className="flex items-center gap-4 px-4 py-3 w-full text-ink-soft hover:text-crimson transition-colors group">
           <LogOut size={20} className="shrink-0" />
           {!isCollapsed && <span className="text-[11px] font-bold uppercase tracking-widest ">Sign Out</span>}
         </button>

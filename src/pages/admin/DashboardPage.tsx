@@ -291,7 +291,7 @@ const DashboardPage = () => {
 // --- HELPERS ---
 const AdminStatCard = ({ label, value, icon, color }: any) => (
   <div className="bg-white border border-line-soft rounded-3xl p-6 shadow-sm flex items-center gap-5">
-    <div className={`w-12 h-12 rounded-2xl bg-paper flex items-center justify-center ${color}`}>{React.cloneElement(icon as React.ReactElement, { size: 24 })}</div>
+    <div className={`w-12 h-12 rounded-2xl bg-paper flex items-center justify-center ${color}`}>{React.cloneElement(icon as React.ReactElement<any>, { size: 24 })}</div>
     <div>
       <p className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">{label}</p>
       <p className="text-2xl font-serif font-bold text-ink">{value}</p>
@@ -301,7 +301,7 @@ const AdminStatCard = ({ label, value, icon, color }: any) => (
 
 const DetailItem = ({ label, value, icon }: any) => (
   <div className="flex gap-4 items-start">
-    <div className="text-crimson mt-1">{React.cloneElement(icon as React.ReactElement, { size: 18 })}</div>
+    <div className="text-crimson mt-1">{React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}</div>
     <div>
       <p className="text-[9px] font-mono font-bold text-ink-soft/50 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-sm font-bold text-ink leading-tight">{value}</p>
