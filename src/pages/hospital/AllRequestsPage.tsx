@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { getBloodRequests } from '@/features/hospital/api/hospital-api';
+import { getBloodRequests, getBloodRequestResponses } from '@/features/hospital/api/hospital-api';
 import type { BloodRequest, AcceptedDonor } from '@/features/hospital/types/hospital-types';
 import {
   ClipboardList,
@@ -29,6 +29,18 @@ export const AllRequestsPage: React.FC = () => {
 
   // Details Modal State
   const [selectedRequest, setSelectedRequest] = useState<BloodRequest | null>(null);
+
+  const handleSelectRequest = async (req: BloodRequest) => {
+    setSelectedRequest(req); // Show modal immediately
+    try {
+      const res = await getBloodRequestResponses(req.id);
+      setSelectedRequest((prev) => 
+        prev && prev.id === req.id ? { ...prev, acceptedDonors: res.accepted } : prev
+      );
+    } catch (err) {
+      console.warn('Failed to fetch accepted donors:', err);
+    }
+  };
 
   const fetchRequests = async (activeFilter: FilterOption) => {
     setLoading(true);
@@ -269,7 +281,7 @@ export const AllRequestsPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {requests.map((req, idx) => {
               const isEmergency = req.requestType === 'Emergency';
-              const donorsCount = req.acceptedDonors ? req.acceptedDonors.length : 0;
+              const donorsCount = req.acceptedCount ?? (req.acceptedDonors ? req.acceptedDonors.length : 0);
               const displayType = getDisplayRequestType(req.requestType);
 
               return (
@@ -353,7 +365,7 @@ export const AllRequestsPage: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => setSelectedRequest(req)}
+                      onClick={() => handleSelectRequest(req)}
                       className="w-full mt-2 py-2 px-3 bg-paper hover:bg-paper-dim border border-line-soft text-ink rounded-xl font-sans font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <Eye className="w-3.5 h-3.5 text-crimson" />
@@ -517,8 +529,33 @@ export const AllRequestsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Modal Close Button */}
-            <div className="flex justify-end pt-3 border-t border-line-soft">
+            {/* Modal Actions */}
+            <div className="flex justify-between items-center pt-3 border-t border-line-soft w-full">
+              {selectedRequest && selectedRequest.status === 'ACTIVE' ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (window.confirm('Are you sure you want to close this blood request on the network?')) {
+                      try {
+                        const { closeBloodRequest } = await import('@/features/hospital/api/hospital-api');
+                        const res = await closeBloodRequest(selectedRequest.id);
+                        if (res.success) {
+                          alert('Blood request successfully closed!');
+                          setSelectedRequest(null);
+                          fetchRequests(filter);
+                        }
+                      } catch (err: any) {
+                        alert(err || 'Failed to close blood request.');
+                      }
+                    }
+                  }}
+                  className="px-4 py-2 border border-crimson text-crimson hover:bg-crimson/5 rounded-xl text-xs font-sans font-semibold transition-all"
+                >
+                  Close Request
+                </button>
+              ) : (
+                <div />
+              )}
               <button
                 type="button"
                 onClick={() => setSelectedRequest(null)}

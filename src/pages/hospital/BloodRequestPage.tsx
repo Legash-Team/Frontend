@@ -15,7 +15,6 @@ import {
   FileText,
   Clock,
   ArrowRight,
-  Sparkles,
   X,
   Droplets,
   ShieldAlert,

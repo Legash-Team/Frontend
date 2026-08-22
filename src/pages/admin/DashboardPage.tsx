@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -15,49 +15,88 @@ import {
   Activity
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
-
-// 1. INITIAL MOCK DATA
-const INITIAL_HOSPITALS = [
-  {
-    id: 'hosp_001',
-    hospitalName: 'St. Paul Millennium Medical Center',
-    email: 'registry@stpaul.et',
-    phone: '+251 911 332 211',
-    licenseNumber: 'HOSP-LIC-ADDIS-2026',
-    location: { lat: 9.0305, lng: 38.7402, address: 'Gulele Sub-City, Addis Ababa' },
-    submittedAt: '2 hours ago',
-  },
-  {
-    id: 'hosp_002',
-    hospitalName: 'Tikur Anbessa Specialized Hospital',
-    email: 'admin@tikuranbessa.edu.et',
-    phone: '+251 115 511 211',
-    licenseNumber: 'HOSP-MOH-882-2025',
-    location: { lat: 9.0200, lng: 38.7500, address: 'Kirkos Sub-City, Addis Ababa' },
-    submittedAt: 'Yesterday',
-  }
-];
+import { fetchPendingHospitals, approveHospital, rejectHospital } from './api/admin-api';
 
 const DashboardPage = () => {
-  // --- STATE FOR MOCK FUNCTIONALITY ---
-  const [hospitals, setHospitals] = useState(INITIAL_HOSPITALS);
+  // --- STATE FOR INTEGRATED FUNCTIONALITY ---
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [selectedHosp, setSelectedHosp] = useState<any | null>(null);
   const [showRejectStep, setShowRejectStep] = useState(false);
   const [rejectionReason, setReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
-  // --- ACTIONS ---
-  const handleApprove = (id: string) => {
-    // Remove from the list (Simulation of DB update)
-    setHospitals(prev => prev.filter(h => h.id !== id));
-    setSelectedHosp(null);
+  // --- API CALL: FETCH PENDING ---
+  const loadPendingHospitals = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetchPendingHospitals();
+      if (res.success && Array.isArray(res.hospitals)) {
+        setHospitals(res.hospitals);
+      } else {
+        setHospitals([]);
+      }
+    } catch (err: any) {
+      setError(err || 'Failed to fetch pending list.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleConfirmReject = (id: string) => {
-    // Remove from the list (Simulation of DB update)
-    setHospitals(prev => prev.filter(h => h.id !== id));
-    setSelectedHosp(null);
-    setShowRejectStep(false);
-    setReason('');
+  useEffect(() => {
+    loadPendingHospitals();
+  }, []);
+
+  // --- ACTIONS ---
+  const handleApprove = async (id: string) => {
+    setActionLoading(true);
+    try {
+      const res = await approveHospital(id);
+      if (res.success) {
+        setHospitals(prev => prev.filter(h => h.id !== id));
+        setSelectedHosp(null);
+        alert('Hospital approved successfully!');
+      }
+    } catch (err: any) {
+      alert(err || 'Failed to approve hospital.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleConfirmReject = async (id: string) => {
+    if (!rejectionReason.trim()) {
+      alert('Please provide a rejection reason.');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const res = await rejectHospital(id, rejectionReason.trim());
+      if (res.success) {
+        setHospitals(prev => prev.filter(h => h.id !== id));
+        setSelectedHosp(null);
+        setShowRejectStep(false);
+        setReason('');
+        alert('Hospital rejected successfully.');
+      }
+    } catch (err: any) {
+      alert(err || 'Failed to reject hospital.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const getDisplayTime = (isoString?: string) => {
+    if (!isoString) return 'New Case';
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      return 'New Case';
+    }
   };
 
   return (
@@ -75,9 +114,9 @@ const DashboardPage = () => {
 
         {/* STATS STRIP */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <AdminStatCard label="Pending Approval" value={hospitals.length} icon={<Clock />} color="text-amber-500" />
-           <AdminStatCard label="Unread Feedbacks" value="12" icon={<Mail />} color="text-crimson" />
-           <AdminStatCard label="Live Events" value="4" icon={<ShieldCheck />} color="text-verified" />
+           <AdminStatCard label="Pending Approval" value={loading ? '...' : hospitals.length} icon={<Clock />} color="text-amber-500" />
+           <AdminStatCard label="System Integrity" value="Active" icon={<ShieldCheck />} color="text-verified" />
+           <AdminStatCard label="Portal Status" value="Online" icon={<Activity />} color="text-crimson" />
         </div>
 
         {/* LIST HEADER */}
@@ -87,8 +126,25 @@ const DashboardPage = () => {
            </h3>
         </div>
 
-        {/* HOSPITAL CARDS GRID */}
-        {hospitals.length > 0 ? (
+        {/* LOADING & ERROR STATES */}
+        {loading ? (
+          <div className="py-20 text-center bg-white rounded-[32px] border border-line-soft shadow-xs">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent" />
+            <p className="mt-4 text-sm text-ink-soft font-medium">Loading verification queue...</p>
+          </div>
+        ) : error ? (
+          <div className="p-6 bg-crimson/5 border border-crimson/25 rounded-3xl text-crimson text-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertCircle size={24} />
+              <div>
+                <p className="font-bold">Failed to load queue</p>
+                <p className="text-xs opacity-75 mt-0.5">{error}</p>
+              </div>
+            </div>
+            <button onClick={loadPendingHospitals} className="px-4 py-2 bg-crimson text-white rounded-xl text-xs font-bold uppercase">Retry</button>
+          </div>
+        ) : hospitals.length > 0 ? (
+          /* HOSPITAL CARDS GRID */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {hospitals.map((hosp) => (
               <motion.div
@@ -102,7 +158,7 @@ const DashboardPage = () => {
                     <Building2 size={20} />
                   </div>
                   <span className="text-[9px] font-black uppercase tracking-widest text-ink-soft/40 bg-paper px-2 py-1 rounded">
-                    {hosp.submittedAt}
+                    {getDisplayTime(hosp.createdAt)}
                   </span>
                 </div>
                 <h4 className="text-lg font-serif font-bold text-ink mb-1">{hosp.hospitalName}</h4>
@@ -123,11 +179,11 @@ const DashboardPage = () => {
       {/* --- CENTERED INSPECTION MODAL --- */}
       <AnimatePresence>
         {selectedHosp && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => { setSelectedHosp(null); setShowRejectStep(false); }}
+              onClick={() => { if (!actionLoading) { setSelectedHosp(null); setShowRejectStep(false); } }}
               className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
             />
             
@@ -136,55 +192,59 @@ const DashboardPage = () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white rounded-[40px] shadow-2xl border border-line-soft w-full max-w-2xl overflow-hidden"
+              className="relative bg-white rounded-3xl sm:rounded-[40px] shadow-2xl border border-line-soft w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="p-8 border-b border-line-soft flex justify-between items-center bg-paper/30">
+              <div className="p-5 sm:p-8 border-b border-line-soft flex justify-between items-center bg-paper/30 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-crimson/10 flex items-center justify-center text-crimson">
+                  <div className="w-10 h-10 rounded-xl bg-crimson/10 flex items-center justify-center text-crimson shrink-0">
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-serif font-bold text-ink leading-none">Verification Review</h3>
+                    <h3 className="text-lg sm:text-xl font-serif font-bold text-ink leading-none">Verification Review</h3>
                     <p className="text-[10px] font-mono font-bold text-ink-soft/50 uppercase mt-1 tracking-widest">Case ID: {selectedHosp.id.toUpperCase()}</p>
                   </div>
                 </div>
-                <button onClick={() => { setSelectedHosp(null); setShowRejectStep(false); }} className="p-2 hover:bg-white rounded-full text-ink-soft transition-colors"><X size={20} /></button>
+                <button disabled={actionLoading} onClick={() => { setSelectedHosp(null); setShowRejectStep(false); }} className="p-2 hover:bg-white rounded-full text-ink-soft transition-colors"><X size={20} /></button>
               </div>
 
               {/* Modal Content */}
-              <div className="p-8 md:p-12">
+              <div className="p-6 sm:p-8 md:p-12 overflow-y-auto no-scrollbar flex-1">
                 {!showRejectStep ? (
                   <>
-                    <div className="grid md:grid-cols-2 gap-10">
-                      <div className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6 sm:gap-10">
+                      <div className="space-y-5 sm:space-y-6">
                         <DetailItem label="Legal Entity" value={selectedHosp.hospitalName} icon={<Building2 />} />
                         <DetailItem label="Medical License" value={selectedHosp.licenseNumber} icon={<Activity />} />
                         <DetailItem label="Contact Email" value={selectedHosp.email} icon={<Mail />} />
                       </div>
-                      <div className="space-y-6">
+                      <div className="space-y-5 sm:space-y-6">
                         <DetailItem label="Phone Line" value={selectedHosp.phone} icon={<Phone />} />
-                        <DetailItem label="Facility Address" value={selectedHosp.location.address} icon={<MapPin />} />
-                        <div className="p-4 bg-paper rounded-2xl border border-line-soft">
-                          <p className="text-[9px] font-mono font-bold text-ink-soft/40 uppercase mb-1">Geolocation</p>
-                          <p className="text-xs font-bold text-ink">{selectedHosp.location.lat}, {selectedHosp.location.lng}</p>
-                        </div>
+                        <DetailItem label="Facility Address" value={selectedHosp.location?.address || 'N/A'} icon={<MapPin />} />
+                        {selectedHosp.location && (
+                          <div className="p-3.5 sm:p-4 bg-paper rounded-2xl border border-line-soft">
+                            <p className="text-[9px] font-mono font-bold text-ink-soft/40 uppercase mb-1">Geolocation</p>
+                            <p className="text-xs font-bold text-ink font-mono">{selectedHosp.location.lat}, {selectedHosp.location.lng}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Action Footer */}
-                    <div className="mt-12 flex gap-4">
+                    <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4">
                       <Button 
                         variant="ghost" 
+                        disabled={actionLoading}
                         onClick={() => setShowRejectStep(true)}
-                        className="flex-1 border-line-soft text-crimson hover:bg-crimson/5 text-xs font-bold uppercase tracking-widest h-14 rounded-2xl"
+                        className="flex-1 border border-crimson/20 text-crimson hover:bg-crimson/5 text-xs font-bold uppercase tracking-widest h-12 sm:h-14 rounded-2xl"
                       >
                         Decline Application
                       </Button>
                       <Button 
                         variant="primary" 
+                        disabled={actionLoading}
                         onClick={() => handleApprove(selectedHosp.id)}
-                        className="flex-1 h-14 rounded-2xl font-bold flex gap-2 items-center"
+                        className="flex-1 h-12 sm:h-14 rounded-2xl font-bold flex gap-2 items-center justify-center text-xs uppercase tracking-wider"
                       >
                         <CheckCircle2 size={18} /> Approve Facility
                       </Button>
@@ -195,23 +255,24 @@ const DashboardPage = () => {
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                     <div className="flex items-center gap-3 text-crimson">
                       <AlertCircle size={24} />
-                      <h3 className="text-xl font-serif font-bold">Reason for Rejection</h3>
+                      <h3 className="text-lg sm:text-xl font-serif font-bold">Reason for Rejection</h3>
                     </div>
-                    <p className="text-sm text-ink-soft">This message will be sent to the hospital. Please be specific (e.g., "License document is blurry").</p>
+                    <p className="text-xs sm:text-sm text-ink-soft">This message will be sent to the hospital. Please be specific (e.g., "License document is blurry").</p>
                     <textarea 
                       autoFocus
-                      className="w-full h-40 p-5 bg-paper border border-line-soft rounded-[24px] outline-none focus:border-crimson text-sm resize-none"
+                      disabled={actionLoading}
+                      className="w-full h-36 sm:h-40 p-4 sm:p-5 bg-paper border border-line-soft rounded-2xl sm:rounded-[24px] outline-none focus:border-crimson text-sm resize-none"
                       placeholder="Write your reason here..."
                       value={rejectionReason}
                       onChange={(e) => setReason(e.target.value)}
                     />
-                    <div className="flex gap-4">
-                      <Button variant="ghost" onClick={() => setShowRejectStep(false)} className="flex-1 h-12 rounded-xl">Back</Button>
+                    <div className="flex gap-3 sm:gap-4">
+                      <Button variant="ghost" disabled={actionLoading} onClick={() => setShowRejectStep(false)} className="flex-1 h-12 rounded-xl">Back</Button>
                       <Button 
                         variant="primary" 
-                        disabled={!rejectionReason}
+                        disabled={!rejectionReason || actionLoading}
                         onClick={() => handleConfirmReject(selectedHosp.id)}
-                        className="flex-1 h-12 rounded-xl font-bold"
+                        className="flex-1 h-12 rounded-xl font-bold justify-center text-xs"
                       >
                         Confirm Rejection
                       </Button>
@@ -230,7 +291,7 @@ const DashboardPage = () => {
 // --- HELPERS ---
 const AdminStatCard = ({ label, value, icon, color }: any) => (
   <div className="bg-white border border-line-soft rounded-3xl p-6 shadow-sm flex items-center gap-5">
-    <div className={`w-12 h-12 rounded-2xl bg-paper flex items-center justify-center ${color}`}>{React.cloneElement(icon as React.ReactElement, { size: 24 })}</div>
+    <div className={`w-12 h-12 rounded-2xl bg-paper flex items-center justify-center ${color}`}>{React.cloneElement(icon as React.ReactElement<any>, { size: 24 })}</div>
     <div>
       <p className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">{label}</p>
       <p className="text-2xl font-serif font-bold text-ink">{value}</p>
@@ -240,7 +301,7 @@ const AdminStatCard = ({ label, value, icon, color }: any) => (
 
 const DetailItem = ({ label, value, icon }: any) => (
   <div className="flex gap-4 items-start">
-    <div className="text-crimson mt-1">{React.cloneElement(icon as React.ReactElement, { size: 18 })}</div>
+    <div className="text-crimson mt-1">{React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}</div>
     <div>
       <p className="text-[9px] font-mono font-bold text-ink-soft/50 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-sm font-bold text-ink leading-tight">{value}</p>

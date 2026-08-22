@@ -5,23 +5,23 @@ export const PrivacySection = () => {
   const [isAccepted, setIsAccepted] = useState(false);
 
   return (
-    <section className="py-[120px] bg-paper-dim" id="privacy">
-      <div className="max-w-[1180px] mx-auto px-8">
-        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-20 items-center">
+    <section className="py-16 sm:py-24 lg:py-[120px] bg-paper-dim" id="privacy">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
+        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 sm:gap-16 lg:gap-20 items-center">
           
           {/* Left Side: Content */}
           <div>
-            <span className="font-mono text-[10px] font-bold text-crimson uppercase tracking-[0.3em] block mb-6">
+            <span className="font-mono text-[10px] font-bold text-crimson uppercase tracking-[0.3em] block mb-4 sm:mb-6">
               Privacy Protocol
             </span>
-            <h2 className="text-5xl font-serif font-bold text-ink leading-[1.1] mb-8">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-ink leading-[1.15] mb-6 sm:mb-8">
               Your identity is <span className="text-crimson">protected</span> until you say yes.
             </h2>
-            <p className="text-lg text-ink-soft leading-relaxed mb-10">
+            <p className="text-base sm:text-lg text-ink-soft leading-relaxed mb-8 sm:mb-10">
               We designed Legash to be "Private by Default." Hospitals can see that a matching donor exists nearby, but they cannot see who you are, where exactly you live, or how to contact you until you formally accept their request.
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <PrivacyFeat 
                 icon={<Lock size={18} />} 
                 title="End-to-End Anonymity" 
@@ -37,13 +37,13 @@ export const PrivacySection = () => {
 
           {/* Right Side: The "Live Disclosure" Card */}
           <div className="relative">
-            <div className="bg-white border border-line-soft rounded-[32px] p-10 shadow-xl relative z-10">
+            <div className="bg-white border border-line-soft rounded-2xl sm:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-xl relative z-10">
               
               {/* Card Header */}
-              <div className="flex justify-between items-center mb-10 pb-6 border-b border-line-soft">
-                <div className="flex items-center gap-3">
+              <div className="flex justify-between items-center mb-6 sm:mb-10 pb-4 sm:pb-6 border-b border-line-soft">
+                <div className="flex items-center gap-2.5 sm:gap-3">
                   <div className={`w-2.5 h-2.5 rounded-full ${isAccepted ? 'bg-verified animate-pulse' : 'bg-amber-500'}`} />
-                  <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-ink-soft">
+                  <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-ink-soft">
                     {isAccepted ? 'HOSPITAL VIEW: CONNECTED' : 'HOSPITAL VIEW: ANONYMOUS'}
                   </span>
                 </div>
@@ -57,7 +57,7 @@ export const PrivacySection = () => {
               </div>
 
               {/* Data Table */}
-              <div className="space-y-5">
+              <div className="space-y-4 sm:space-y-5">
                 <DataRow label="Blood Type" value="O Negative" status="Always Visible" isVisible={true} />
                 <DataRow label="Distance" value="~2.4 km away" status="Always Visible" isVisible={true} />
                 <DataRow label="Full Name" value="Abebe Bikila" status="Hidden" isVisible={isAccepted} />
@@ -66,17 +66,17 @@ export const PrivacySection = () => {
               </div>
 
               {/* Status Message */}
-              <div className={`mt-10 p-4 rounded-xl text-center text-xs font-bold transition-all ${
+              <div className={`mt-6 sm:mt-10 p-3 sm:p-4 rounded-xl text-center text-xs font-bold transition-all ${
                 isAccepted ? 'bg-verified/5 text-verified border border-verified/10' : 'bg-sand/30 text-ink-soft border border-line-soft'
               }`}>
                 {isAccepted 
-                  ? "✓ DONOR HAS ACCEPTED. CONTACT INFO REVEALED." 
-                  : "⚠ REQUEST PENDING. DONOR IDENTITY IS MASKED."}
+                  ? "DONOR HAS ACCEPTED. CONTACT INFO REVEALED." 
+                  : "REQUEST PENDING. DONOR IDENTITY IS MASKED."}
               </div>
             </div>
 
             {/* Background Decorative Element */}
-            <div className="absolute -bottom-6 -right-6 w-full h-full border-2 border-line-soft rounded-[32px] -z-0" />
+            <div className="hidden sm:block absolute -bottom-6 -right-6 w-full h-full border-2 border-line-soft rounded-[32px] -z-0" />
           </div>
 
         </div>

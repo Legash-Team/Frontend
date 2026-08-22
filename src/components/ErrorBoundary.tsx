@@ -43,7 +43,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return (
         <div className="min-h-[300px] flex items-center justify-center p-6 bg-red-50/80 border border-red-200 rounded-2xl m-4 text-center">
           <div className="space-y-4 max-w-md">
-            <div className="text-4xl">⚠️</div>
+            <div className="text-4xl">!</div>
             <h2 className="text-lg font-bold text-red-900">Something went wrong</h2>
             <p className="text-xs text-red-700 font-medium">
               {this.state.error?.message || 'An unexpected rendering error occurred in this view.'}
@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               onClick={this.handleReset}
               className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
             >
-              🔄 Reload Page
+              Reload Page
             </button>
           </div>
         </div>

@@ -107,6 +107,7 @@ export interface BloodRequest {
   createdAt: string;
   status: BloodRequestStatus;
   acceptedDonors?: AcceptedDonor[];
+  acceptedCount?: number;
   [key: string]: unknown;
 }
 

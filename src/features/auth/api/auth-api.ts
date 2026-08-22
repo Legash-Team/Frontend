@@ -81,3 +81,16 @@ export const setupAdminPassword = async (payload: any) => {
     throw error.response?.data?.error || "Failed to set password. Link may be expired.";
   }
 };
+
+/**
+ * Submit feedback/appeal for rejected hospital
+ * POST /api/hospital/feedback
+ */
+export const submitHospitalFeedback = async (payload: { email: string; hospitalName?: string; message: string }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/hospital/feedback`, payload);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || "Failed to submit appeal. Please try again.";
+  }
+};

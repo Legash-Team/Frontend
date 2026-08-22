@@ -26,7 +26,7 @@ export const RegistrationForm: React.FC = () => {
       {/* Success Notification Banner */}
       {submitSuccess && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-medium flex items-start gap-3">
-          <span className="text-xl">✅</span>
+          
           <div className="flex-1">
             <p className="font-semibold text-emerald-950">Registration Successful!</p>
             <p className="mt-0.5">{submitSuccess}</p>
@@ -40,7 +40,7 @@ export const RegistrationForm: React.FC = () => {
       {/* Error Notification Banner */}
       {submitError && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium flex items-start gap-3">
-          <span className="text-xl">⚠️</span>
+          
           <div className="flex-1">
             <p className="font-semibold text-red-950">Registration Error</p>
             <p className="mt-0.5">{submitError}</p>
