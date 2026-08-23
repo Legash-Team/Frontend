@@ -19,8 +19,10 @@ import {
   Eye,
   CheckCircle2,
 } from 'lucide-react';
+import { useDialog } from '@/context/DialogContext';
 
 export const AllRequestsPage: React.FC = () => {
+  const { confirm, toast } = useDialog();
   type FilterOption = 'All' | 'Emergency' | 'Standard';
   const [filter, setFilter] = useState<FilterOption>('All');
   const [requests, setRequests] = useState<BloodRequest[]>([]);
@@ -535,21 +537,27 @@ export const AllRequestsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={async () => {
-                    if (window.confirm('Are you sure you want to close this blood request on the network?')) {
+                    const ok = await confirm({
+                      title: 'Close Blood Request',
+                      message: 'Are you sure you want to close this blood request on the network? Once closed, nearby matching donors will no longer be alerted.',
+                      type: 'danger',
+                      confirmText: 'Yes, Close Request',
+                    });
+                    if (ok) {
                       try {
                         const { closeBloodRequest } = await import('@/features/hospital/api/hospital-api');
                         const res = await closeBloodRequest(selectedRequest.id);
                         if (res.success) {
-                          alert('Blood request successfully closed!');
+                          toast.success('Blood request successfully closed!');
                           setSelectedRequest(null);
                           fetchRequests(filter);
                         }
                       } catch (err: any) {
-                        alert(err || 'Failed to close blood request.');
+                        toast.error(err || 'Failed to close blood request.');
                       }
                     }
                   }}
-                  className="px-4 py-2 border border-crimson text-crimson hover:bg-crimson/5 rounded-xl text-xs font-sans font-semibold transition-all"
+                  className="px-4 py-2 border border-crimson text-crimson hover:bg-crimson/5 rounded-xl text-xs font-sans font-semibold transition-all cursor-pointer"
                 >
                   Close Request
                 </button>

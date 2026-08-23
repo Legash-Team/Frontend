@@ -12,8 +12,10 @@ import {
 import Button from '@/components/ui/Button';
 import RichTextEditor from '@/components/ui/RichTextEditor';
 import { uploadMedia, createEvent } from './api/admin-api';
+import { useDialog } from '@/context/DialogContext';
 
 const EventPostingPage = () => {
+  const { toast } = useDialog();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // --- FORM STATE ---
@@ -50,7 +52,7 @@ const EventPostingPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.description.trim() || !formData.expiryDate) {
-      alert("Please fill in description and closing date.");
+      toast.warning("Please fill in description and closing date.");
       return;
     }
 
@@ -78,7 +80,7 @@ const EventPostingPage = () => {
       });
 
       if (res.success) {
-        alert(res.message || "Event broadcasted to the mobile network!");
+        toast.success(res.message || "Event broadcasted to the mobile network!");
         // Reset form
         setFormData({
           description: '',
@@ -89,7 +91,7 @@ const EventPostingPage = () => {
         removeFile();
       }
     } catch (err: any) {
-      alert(err || "Failed to broadcast event.");
+      toast.error(err || "Failed to broadcast event.");
     } finally {
       setIsPosting(false);
     }

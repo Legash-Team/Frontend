@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // --- 1. SHARED & AUTH INFRASTRUCTURE ---
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './features/auth/context/AuthContext';
+import { DialogProvider } from './context/DialogContext';
 
 // --- 2. PUBLIC / AUTH PAGES (Moved to src/pages/public/) ---
 import LandingPage from './pages/public/LandingPage';
@@ -32,6 +33,7 @@ import AdminSetupPage from './pages/admin/AdminSetupPage';
 export const App: React.FC = () => {
   return (
     <AuthProvider>
+      <DialogProvider>
         <BrowserRouter>
           <Routes>
             {/* --- PUBLIC / AUTH ROUTES --- */}
@@ -143,6 +145,7 @@ export const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
+      </DialogProvider>
     </AuthProvider>
   );
 };

@@ -16,8 +16,10 @@ import {
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { fetchPendingHospitals, approveHospital, rejectHospital } from './api/admin-api';
+import { useDialog } from '@/context/DialogContext';
 
 const DashboardPage = () => {
+  const { toast } = useDialog();
   // --- STATE FOR INTEGRATED FUNCTIONALITY ---
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ const DashboardPage = () => {
         setHospitals([]);
       }
     } catch (err: any) {
-      setError(err || 'Failed to fetch pending list.');
+      setError(err || 'Failed to fetch pending applications.');
     } finally {
       setLoading(false);
     }
@@ -58,10 +60,10 @@ const DashboardPage = () => {
       if (res.success) {
         setHospitals(prev => prev.filter(h => h.id !== id));
         setSelectedHosp(null);
-        alert('Hospital approved successfully!');
+        toast.success('Hospital approved successfully! An approval email has been sent.');
       }
     } catch (err: any) {
-      alert(err || 'Failed to approve hospital.');
+      toast.error(err || 'Failed to approve hospital.');
     } finally {
       setActionLoading(false);
     }
@@ -69,7 +71,7 @@ const DashboardPage = () => {
 
   const handleConfirmReject = async (id: string) => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a rejection reason.');
+      toast.warning('Please provide a rejection reason.');
       return;
     }
     setActionLoading(true);
@@ -80,10 +82,10 @@ const DashboardPage = () => {
         setSelectedHosp(null);
         setShowRejectStep(false);
         setReason('');
-        alert('Hospital rejected successfully.');
+        toast.success('Hospital registration declined.');
       }
     } catch (err: any) {
-      alert(err || 'Failed to reject hospital.');
+      toast.error(err || 'Failed to reject hospital.');
     } finally {
       setActionLoading(false);
     }

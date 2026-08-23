@@ -18,6 +18,7 @@ import {
   Code,
   Eye,
 } from 'lucide-react';
+import { useDialog } from '@/context/DialogContext';
 
 interface RichTextEditorProps {
   value: string;
@@ -36,7 +37,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   minHeight = '180px',
   className = '',
 }) => {
+  const { prompt } = useDialog();
   const editorRef = useRef<HTMLDivElement>(null);
+  const savedSelectionRange = useRef<Range | null>(null);
   const [activeMode, setActiveMode] = useState<'visual' | 'code'>('visual');
   const [codeValue, setCodeValue] = useState<string>(value);
   const isUpdatingFromProp = useRef(false);
@@ -96,11 +99,40 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     handleInput();
   };
 
-  const handleInsertLink = () => {
+  const handleInsertLink = async () => {
     if (disabled || activeMode !== 'visual') return;
-    const url = window.prompt('Enter link URL (e.g. https://legash.org):', 'https://');
+    
+    // Save current text selection before dialog opens
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      savedSelectionRange.current = sel.getRangeAt(0).cloneRange();
+    }
+
+    const url = await prompt({
+      title: 'Insert Link',
+      message: 'Enter the destination URL (e.g. https://legash.org):',
+      defaultValue: 'https://',
+      placeholder: 'https://example.com',
+      confirmText: 'Insert Link',
+      validate: (val) => {
+        const clean = val.trim();
+        if (!clean || clean === 'https://' || clean === 'http://') {
+          return 'Please provide a valid URL.';
+        }
+        return null;
+      },
+    });
+
     if (url && url.trim().length > 0 && url !== 'https://') {
-      executeCommand('createLink', url.trim());
+      if (editorRef.current) {
+        editorRef.current.focus();
+        if (savedSelectionRange.current && sel) {
+          sel.removeAllRanges();
+          sel.addRange(savedSelectionRange.current);
+        }
+      }
+      document.execCommand('createLink', false, url.trim());
+      handleInput();
     }
   };
 

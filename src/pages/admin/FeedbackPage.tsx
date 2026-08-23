@@ -18,8 +18,10 @@ import {
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { fetchFeedbacks, markFeedbackReviewed, approveHospital } from './api/admin-api';
+import { useDialog } from '@/context/DialogContext';
 
 const FeedbackPage = () => {
+  const { confirm, toast } = useDialog();
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,10 +65,10 @@ const FeedbackPage = () => {
         if (selectedFeedback && (selectedFeedback.id === id || selectedFeedback._id === id)) {
           setSelectedFeedback((prev: any) => ({ ...prev, status: 'reviewed' }));
         }
-        alert('Appeal marked as reviewed.');
+        toast.success('Appeal marked as reviewed.');
       }
     } catch (err: any) {
-      alert(err || 'Failed to resolve appeal.');
+      toast.error(err || 'Failed to resolve appeal.');
     } finally {
       setActionLoading(false);
     }
@@ -77,11 +79,17 @@ const FeedbackPage = () => {
     const feedbackId = feedbackItem._id || feedbackItem.id;
 
     if (!hospitalId) {
-      alert('Hospital record ID not found. The facility may not exist.');
+      toast.error('Hospital record ID not found. The facility may not exist.');
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to approve "${feedbackItem.hospitalName || feedbackItem.hospital?.hospitalName}" and grant them access to Legash?`)) {
+    const ok = await confirm({
+      title: 'Approve Hospital Facility',
+      message: `Are you sure you want to approve "${feedbackItem.hospitalName || feedbackItem.hospital?.hospitalName}" and grant them access to Legash?`,
+      type: 'info',
+      confirmText: 'Approve Facility',
+    });
+    if (!ok) {
       return;
     }
 
@@ -107,10 +115,10 @@ const FeedbackPage = () => {
         }));
 
         setSelectedFeedback(null);
-        alert('Hospital approved successfully! An approval email has been sent to them.');
+        toast.success('Hospital approved successfully! An approval email has been sent to them.');
       }
     } catch (err: any) {
-      alert(err || 'Failed to approve hospital.');
+      toast.error(err || 'Failed to approve hospital.');
     } finally {
       setActionLoading(false);
     }
