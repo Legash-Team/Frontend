@@ -159,38 +159,43 @@ export const getBloodStock = async (): Promise<BloodStock> => {
 };
 
 /**
- * Update Hospital Blood Stock — sends one PUT per blood type.
- * PUT /api/hospital/blood-stock/{bloodType}
- *
- * Throws if ANY update fails so the caller can surface the error.
+ * Update Hospital Blood Stock — sends an atomic bulk update for all blood types.
+ * PUT /api/hospital/blood-stock
  */
 export const updateBloodStock = async (
   stock: BloodStock
 ): Promise<BloodStockUpdateResponse> => {
-  const bloodTypes = Object.keys(stock) as BloodType[];
+  try {
+    const response = await axiosInstance.put<{
+      success: boolean;
+      message?: string;
+      stock?: Partial<BloodStock>;
+      bloodStock?: Partial<BloodStock> | Array<{ bloodType: string; availableUnits: number }>;
+    }>('/api/hospital/blood-stock', {
+      bloodStock: stock,
+    });
 
-  const results = await Promise.allSettled(
-    bloodTypes.map((type) =>
-      axiosInstance.put(`/api/hospital/blood-stock/${encodeURIComponent(type)}`, {
-        availableUnits: stock[type] ?? 0,
-      })
-    )
-  );
+    let updatedStock: BloodStock = { ...stock };
 
-  const failed = results.filter((r) => r.status === 'rejected');
-  if (failed.length > 0) {
-    const firstReason = (failed[0] as PromiseRejectedResult).reason;
-    throw (
-      firstReason?.response?.data?.error ||
-      `${failed.length} blood type update(s) failed. Please try again.`
-    );
+    if (response.data?.stock && typeof response.data.stock === 'object') {
+      updatedStock = { ...updatedStock, ...response.data.stock };
+    } else if (response.data?.bloodStock && !Array.isArray(response.data.bloodStock)) {
+      updatedStock = { ...updatedStock, ...(response.data.bloodStock as BloodStock) };
+    }
+
+    return {
+      success: true,
+      message: response.data?.message || 'Blood stock inventory updated successfully!',
+      bloodStock: updatedStock,
+    };
+  } catch (err: any) {
+    const backendError =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      'Failed to update blood stock inventory.';
+    throw new Error(backendError);
   }
-
-  return {
-    success: true,
-    message: 'Blood stock inventory updated successfully!',
-    bloodStock: stock,
-  };
 };
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
