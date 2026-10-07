@@ -6,7 +6,7 @@ interface PhoneInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   disabled?: boolean;
-  required?: boolean; // Add this
+  required?: boolean;
 }
 
 export const PhoneInput = ({ label, value, name, onChange, error, disabled, required }: PhoneInputProps) => {
