@@ -15,6 +15,8 @@ import {
   Activity
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { fetchPendingHospitals, approveHospital, rejectHospital } from './api/admin-api';
 import { useDialog } from '@/context/DialogContext';
 
@@ -130,21 +132,15 @@ const DashboardPage = () => {
 
         {/* LOADING & ERROR STATES */}
         {loading ? (
-          <div className="py-20 text-center bg-white rounded-[32px] border border-line-soft shadow-xs">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent" />
-            <p className="mt-4 text-sm text-ink-soft font-medium">Loading verification queue...</p>
+          <div className="bg-white rounded-[32px] border border-line-soft shadow-xs">
+            <LoadingState text="Loading verification queue..." />
           </div>
         ) : error ? (
-          <div className="p-6 bg-crimson/5 border border-crimson/25 rounded-3xl text-crimson text-sm flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={24} />
-              <div>
-                <p className="font-bold">Failed to load queue</p>
-                <p className="text-xs opacity-75 mt-0.5">{error}</p>
-              </div>
-            </div>
-            <button onClick={loadPendingHospitals} className="px-4 py-2 bg-crimson text-white rounded-xl text-xs font-bold uppercase">Retry</button>
-          </div>
+          <ErrorState
+            title="Failed to load queue"
+            message={error}
+            onRetry={loadPendingHospitals}
+          />
         ) : hospitals.length > 0 ? (
           /* HOSPITAL CARDS GRID */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, type FormEvent } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Button from '@/components/ui/Button';
+import { LoadingState } from '@/components/ui/LoadingState';
 import {
   getBloodStock,
   updateBloodStock,
@@ -257,10 +258,7 @@ export const BloodStockPage: React.FC = () => {
 
           <div className="p-6 sm:p-8 space-y-6">
             {stockLoading ? (
-              <div className="py-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent"></div>
-                <p className="mt-3 text-sm font-sans text-ink-soft font-medium">Loading inventory data...</p>
-              </div>
+              <LoadingState text="Loading inventory data..." />
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {stockSuccessMsg && (
