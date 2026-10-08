@@ -3,6 +3,7 @@ import { AdminSidebar } from '@/features/admin/components/AdminSidebar';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { Menu } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export const AdminLayout = ({ children, title }: { children: React.ReactNode; title: string }) => {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ export const AdminLayout = ({ children, title }: { children: React.ReactNode; ti
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher />
             <span className="text-[10px] font-mono font-bold px-2.5 py-1 bg-crimson/10 text-crimson rounded-full uppercase whitespace-nowrap">
               {user?.role === 'superadmin' ? 'Super Admin' : 'Admin'}
             </span>
