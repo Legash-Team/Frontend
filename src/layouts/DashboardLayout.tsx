@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import {
   LayoutDashboard,
   User,
@@ -58,14 +59,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen((prev) => !prev)}
-          className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
-          aria-label="Toggle Navigation Menu"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </header>
 
       {/* Mobile Sidebar Overlay Drawer */}
@@ -226,6 +230,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
         {/* Footer / Sign Out Button */}
         <div className="p-3 border-t border-gray-200 bg-gray-50/50">
+          <div className={isMinimized ? 'flex justify-center' : ''}>
+            <LanguageSwitcher />
+          </div>
           <button
             type="button"
             onClick={handleSignOut}
