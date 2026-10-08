@@ -201,7 +201,11 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       {children}
 
       {/* --- TOAST NOTIFICATIONS STACK --- */}
-      <div className="fixed top-5 right-5 z-[10000] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full sm:w-auto">
+      <div
+        aria-live="polite"
+        aria-atomic="false"
+        className="fixed top-5 right-5 z-[10000] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full sm:w-auto"
+      >
         {toasts.map((t) => {
           const isError = t.type === 'error';
           const isWarning = t.type === 'warning';
@@ -210,17 +214,18 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           return (
             <div
               key={t.id}
+              role="status"
               className={`pointer-events-auto flex items-start gap-3 p-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-line-soft text-ink transition-all transform animate-in slide-in-from-top-3 fade-in duration-200 ${
                 isError ? 'border-l-4 border-l-crimson' :
                 isWarning ? 'border-l-4 border-l-amber-500' :
-                isSuccess ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-blue-500'
+                isSuccess ? 'border-l-4 border-l-verified' : 'border-l-4 border-l-ink-soft'
               }`}
             >
               <div className="shrink-0 mt-0.5">
                 {isError && <AlertCircle className="w-5 h-5 text-crimson" />}
                 {isWarning && <AlertTriangle className="w-5 h-5 text-amber-500" />}
-                {isSuccess && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-                {t.type === 'info' && <Info className="w-5 h-5 text-blue-600" />}
+                {isSuccess && <CheckCircle2 className="w-5 h-5 text-verified" />}
+                {t.type === 'info' && <Info className="w-5 h-5 text-ink-soft" />}
               </div>
 
               <div className="flex-1 min-w-0 pr-1">
@@ -233,6 +238,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               <button
                 type="button"
                 onClick={() => dismissToast(t.id)}
+                aria-label="Dismiss notification"
                 className="shrink-0 p-1 text-ink-soft/40 hover:text-ink hover:bg-paper rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />

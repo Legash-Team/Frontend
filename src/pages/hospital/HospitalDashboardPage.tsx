@@ -4,12 +4,12 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
 import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
 import type { DashboardData } from '@/features/hospital/types/hospital-types';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import {
   LayoutDashboard,
   Building2,
   Droplets,
-  AlertTriangle,
-  RefreshCw,
   Eye,
   Sparkles,
 } from 'lucide-react';
@@ -99,30 +99,18 @@ export const HospitalDashboardPage: React.FC = () => {
 
         {/* Loading State */}
         {loading && (
-          <div className="bg-white rounded-2xl p-12 text-center border border-line-soft shadow-xs">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent"></div>
-            <p className="mt-3 text-sm font-sans text-ink-soft font-medium">Loading hospital dashboard...</p>
+          <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
+            <LoadingState text="Loading hospital dashboard..." />
           </div>
         )}
 
         {/* Error State */}
-        {error && (
-          <div className="bg-crimson/5 border border-crimson/20 rounded-xl p-4 text-ink text-sm flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-crimson shrink-0 stroke-[1.75]" />
-              <div>
-                <p className="font-serif font-bold text-ink">Unable to fetch dashboard</p>
-                <p className="text-crimson text-xs mt-0.5 font-sans">{error}</p>
-              </div>
-            </div>
-            <button
-              onClick={fetchDashboard}
-              className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider bg-crimson/10 hover:bg-crimson/20 text-crimson px-3 py-1.5 rounded-lg transition-colors"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
-            </button>
-          </div>
+        {error && !loading && (
+          <ErrorState
+            title="Unable to fetch dashboard"
+            message={error}
+            onRetry={fetchDashboard}
+          />
         )}
 
         {!loading && !error && data && (

@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getBloodRequests, getBloodRequestResponses } from '@/features/hospital/api/hospital-api';
 import type { BloodRequest, AcceptedDonor } from '@/features/hospital/types/hospital-types';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   ClipboardList,
   AlertTriangle,
   Clock,
   Plus,
   RefreshCw,
-  AlertCircle,
   Calendar,
   Layers,
   User,
@@ -228,54 +230,40 @@ export const AllRequestsPage: React.FC = () => {
 
         {/* Loading State */}
         {loading && (
-          <div className="bg-white rounded-2xl p-16 text-center border border-line-soft shadow-xs">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent"></div>
-            <p className="mt-3 text-sm font-sans text-ink-soft font-medium">Fetching blood requisitions...</p>
+          <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
+            <LoadingState text="Fetching blood requisitions..." />
           </div>
         )}
 
         {/* Error State */}
-        {error && (
-          <div className="bg-crimson/5 border border-crimson/20 rounded-xl p-4 text-ink text-sm flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-crimson shrink-0 stroke-[1.75]" />
-              <div>
-                <p className="font-serif font-bold text-ink">Unable to load requests</p>
-                <p className="text-crimson text-xs mt-0.5 font-sans">{error}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => fetchRequests(filter)}
-              className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider bg-crimson/10 hover:bg-crimson/20 text-crimson px-3 py-1.5 rounded-lg transition-colors"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
-            </button>
-          </div>
+        {error && !loading && (
+          <ErrorState
+            title="Unable to load requests"
+            message={error}
+            onRetry={() => fetchRequests(filter)}
+          />
         )}
 
         {/* Empty State */}
         {!loading && !error && requests.length === 0 && (
-          <div className="bg-white rounded-2xl p-16 text-center border border-line-soft shadow-xs space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-paper-dim flex items-center justify-center mx-auto text-ink-soft">
-              <Layers className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-serif font-bold text-base text-ink">No blood requests found.</h3>
-              <p className="text-xs text-ink-soft mt-1 font-sans max-w-sm mx-auto">
-                {filter === 'All'
-                  ? 'Your facility has not broadcast any blood requisitions yet.'
-                  : `No ${filter.toLowerCase()} blood requests found.`}
-              </p>
-            </div>
-            <Link
-              to="/hospital/blood-request"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create First Request</span>
-            </Link>
-          </div>
+          <EmptyState
+            icon={<Layers className="w-6 h-6" />}
+            title="No blood requests found."
+            description={
+              filter === 'All'
+                ? 'Your facility has not broadcast any blood requisitions yet.'
+                : `No ${filter.toLowerCase()} blood requests found.`
+            }
+            action={
+              <Link
+                to="/hospital/blood-request"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create First Request</span>
+              </Link>
+            }
+          />
         )}
 
         {/* Requests Grid */}

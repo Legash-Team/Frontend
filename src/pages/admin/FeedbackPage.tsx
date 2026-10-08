@@ -17,6 +17,9 @@ import {
   Eye
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { fetchFeedbacks, markFeedbackReviewed, approveHospital } from './api/admin-api';
 import { useDialog } from '@/context/DialogContext';
 
@@ -189,21 +192,15 @@ const FeedbackPage = () => {
 
         {/* LOADING & ERROR STATES */}
         {loading ? (
-          <div className="py-20 text-center bg-white rounded-[32px] border border-line-soft shadow-xs">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent" />
-            <p className="mt-4 text-sm text-ink-soft font-medium">Loading appeals list...</p>
+          <div className="bg-white rounded-[32px] border border-line-soft shadow-xs">
+            <LoadingState text="Loading appeals list..." />
           </div>
         ) : error ? (
-          <div className="p-6 bg-crimson/5 border border-crimson/25 rounded-3xl text-crimson text-sm flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={24} />
-              <div>
-                <p className="font-bold">Failed to load appeals</p>
-                <p className="text-xs opacity-75 mt-0.5">{error}</p>
-              </div>
-            </div>
-            <button onClick={loadFeedbacks} className="px-4 py-2 bg-crimson text-white rounded-xl text-xs font-bold uppercase">Retry</button>
-          </div>
+          <ErrorState
+            title="Failed to load appeals"
+            message={error}
+            onRetry={loadFeedbacks}
+          />
         ) : (
           /* FEEDBACK LIST */
           <div className="grid gap-6">
@@ -315,13 +312,10 @@ const FeedbackPage = () => {
                   );
                 })
               ) : (
-                <motion.div 
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="py-32 text-center bg-white rounded-[40px] border border-dashed border-line-soft"
-                >
-                  <MessageSquare className="mx-auto text-ink-soft/20 mb-4" size={48} strokeWidth={1} />
-                  <p className="text-ink-soft font-serif italic text-lg">No feedbacks found in this category.</p>
-                </motion.div>
+                <EmptyState
+                  icon={<MessageSquare className="w-12 h-12" strokeWidth={1} />}
+                  title="No feedbacks found in this category."
+                />
               )}
             </AnimatePresence>
           </div>
