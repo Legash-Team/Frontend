@@ -8,7 +8,9 @@ import {
   UserPlus, 
   LogOut,
   ChevronLeft,
-  X
+  X,
+  Database,
+  PieChart
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
@@ -32,6 +34,8 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
   if (canApprove) {
     menuItems.push({ icon: LayoutDashboard, label: 'Facilities', path: '/admin/dashboard' });
     menuItems.push({ icon: MessageSquare, label: 'Feedbacks', path: '/admin/feedbacks' });
+    menuItems.push({ icon: Database, label: 'Hospital Stock', path: '/admin/hospital-stock' });
+    menuItems.push({ icon: PieChart, label: 'Analytics', path: '/admin/hospital-analytics' });
   }
 
   if (canPost) {

@@ -5,9 +5,10 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'superadmin' | 'admin' | 'hospital';
+  requireCanApproveHospitals?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole, requireCanApproveHospitals }) => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   
@@ -21,6 +22,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
       ? '/admin/dashboard' 
       : '/hospital/dashboard';
     return <Navigate to={redirectPath} replace />;
+  }
+
+  if (requireCanApproveHospitals) {
+    const isSuperAdmin = user?.role === 'superadmin';
+    const canApprove = isSuperAdmin || Boolean(user?.permissions?.canApproveHospitals);
+    if (!canApprove) {
+      const redirectPath = user?.role === 'superadmin' || user?.role === 'admin' 
+        ? '/admin/dashboard' 
+        : '/hospital/dashboard';
+      return <Navigate to={redirectPath} replace />;
+    }
   }
 
   return <>{children}</>;

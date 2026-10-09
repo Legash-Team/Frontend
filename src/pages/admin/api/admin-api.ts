@@ -168,3 +168,31 @@ export const deleteAdmin = async (id: string) => {
     throw error.response?.data?.error || 'Failed to delete admin.';
   }
 };
+
+/**
+ * GET /api/superadmin/hospitals/stock
+ */
+export const fetchHospitalStock = async (bloodType: string = '', sortBy: string = '') => {
+  try {
+    const params = new URLSearchParams();
+    if (bloodType) params.append('bloodType', bloodType);
+    if (sortBy) params.append('sortBy', sortBy);
+    
+    const response = await axiosInstance.get<{ success: boolean; data: any[] }>(`/api/superadmin/hospitals/stock?${params.toString()}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to fetch hospital stock.';
+  }
+};
+
+/**
+ * GET /api/superadmin/analytics/hospitals
+ */
+export const fetchHospitalAnalytics = async () => {
+  try {
+    const response = await axiosInstance.get<{ success: boolean; data: any }>(`/api/superadmin/analytics/hospitals`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to fetch hospital analytics.';
+  }
+};

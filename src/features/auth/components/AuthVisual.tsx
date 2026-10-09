@@ -52,6 +52,7 @@ export const AuthVisual = () => {
           preserveAspectRatio="none"
         >
           <motion.path
+            d="M0,60 C360,10 720,110 1080,60 C1440,10 1800,110 2160,60 L2160,120 L0,120 Z"
             animate={{ 
               x: ['-50%', '0%'],
               d: [
@@ -86,7 +87,7 @@ export const AuthVisual = () => {
             />
             
             {/* Keep the overlays but make them full-bleed */}
-            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           </div>
 

@@ -29,6 +29,8 @@ import EventPostingPage from './pages/admin/EventPostingPage';
 import AdminCreationPage from './pages/admin/AdminCreationPage';
 import FeedbackPage from './pages/admin/FeedbackPage';
 import AdminSetupPage from './pages/admin/AdminSetupPage';
+import HospitalStockPage from './pages/superadmin/HospitalStockPage';
+import HospitalAnalyticsPage from './pages/superadmin/HospitalAnalyticsPage';
 
 export const App: React.FC = () => {
   return (
@@ -105,6 +107,22 @@ export const App: React.FC = () => {
             {/* --- ADMIN DASHBOARD ROUTES --- */}
           
             {/* --- PROTECTED ADMIN/SUPERADMIN ROUTES --- */}
+            <Route
+              path="/admin/hospital-stock"
+              element={
+                <ProtectedRoute requireCanApproveHospitals>
+                  <HospitalStockPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/hospital-analytics"
+              element={
+                <ProtectedRoute requireCanApproveHospitals>
+                  <HospitalAnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/admin/dashboard"
               element={

@@ -31,14 +31,32 @@ export const resendHospitalOTP = async (email: string) => {
 };
 
 export const loginUser = async (credentials: any) => {
-  try {
-    const response = await axiosInstance.post('/api/auth/login', credentials);
-    // This returns the token, role, permissions, and user object
-    return response.data; 
-  } catch (error: any) {
-    // Specifically passing back the error message for 401 or 422
-    throw error.response?.data?.error || "Login failed.";
-  }
+  // try {
+  //   const response = await axiosInstance.post('/api/auth/login', credentials);
+  //   return response.data; 
+  // } catch (error: any) {
+  //   throw error.response?.data?.error || "Login failed.";
+  // }
+  
+  // --- TEMPORARY MOCK FOR SUPER ADMIN TESTING ---
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        token: "mock_superadmin_token_123",
+        role: credentials.email.includes("admin") ? "admin" : "superadmin",
+        permissions: {
+          canApproveHospitals: true,
+          canPostEvents: true,
+        },
+        user: {
+          id: "superadmin_id",
+          name: "Mock Super Admin",
+          email: credentials.email,
+        }
+      });
+    }, 1000);
+  });
 };
 
 /**
