@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  UserPlus, 
-  CheckCircle2, 
+import {
+  UserPlus,
+  CheckCircle2,
   AlertCircle,
   RefreshCw,
   Trash2
@@ -30,12 +30,9 @@ const AdminCreationPage = () => {
   const [createError, setCreateError] = useState<string | null>(null);
 
   // Form State
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    canApproveHospitals: false,
-    canPostEvents: false
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [canApproveHospitals, setCanApproveHospitals] = useState(false);
 
   // Load the live admin list from backend
   const loadAdmins = async () => {
@@ -83,18 +80,20 @@ const AdminCreationPage = () => {
 
     try {
       const res = await createAdmin({
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
         permissions: {
-          canApproveHospitals: formData.canApproveHospitals,
-          canPostEvents: formData.canPostEvents,
+          canApproveHospitals,
+          canPostEvents: false,
         },
       });
 
       if (res.success) {
         setSuccessMsg(res.message || 'Admin account created! Verification OTP has been sent to their email.');
         // Reset Form
-        setFormData({ name: '', email: '', canApproveHospitals: false, canPostEvents: false });
+        setName('');
+        setEmail('');
+        setCanApproveHospitals(false);
         // Refresh the admin list
         await loadAdmins();
         // Hide success message after 5 seconds
@@ -118,7 +117,7 @@ const AdminCreationPage = () => {
   return (
     <AdminLayout title="Staff Management">
       <div className="space-y-8">
-        
+
         {/* 1. CREATION BANNER */}
         <div className="w-full bg-white border border-line-soft rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden">
           <div className="relative z-10">
@@ -137,44 +136,45 @@ const AdminCreationPage = () => {
               <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">Full Name</label>
-                  <input 
-                    type="text" required value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  <input
+                    type="text" required value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Elias Gebre"
                     className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">System Email</label>
-                  <input 
-                    type="email" required value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  <input
+                    type="email" required value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@legash.et"
                     className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                   />
                 </div>
 
-                {/* Role Toggles */}
-                <div className="md:col-span-2 flex flex-wrap gap-4">
-                  <PermissionBadge 
-                    label="Can Approve Hospitals" 
-                    active={formData.canApproveHospitals} 
-                    onClick={() => setFormData({...formData, canApproveHospitals: !formData.canApproveHospitals})} 
-                  />
-                  <PermissionBadge 
-                    label="Can Post Events" 
-                    active={formData.canPostEvents} 
-                    onClick={() => setFormData({...formData, canPostEvents: !formData.canPostEvents})} 
-                  />
+                {/* Permission Checkbox */}
+                <div className="md:col-span-2">
+                  <label className="inline-flex items-start gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={canApproveHospitals}
+                      onChange={(e) => setCanApproveHospitals(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-line-soft text-crimson focus:ring-crimson accent-crimson cursor-pointer"
+                    />
+                    <span className="text-sm text-ink-soft leading-snug">
+                      Grant hospital-approval permission
+                    </span>
+                  </label>
                 </div>
               </div>
 
               {/* Submit Side */}
               <div className="flex flex-col justify-end">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   isLoading={isCreating}
-                  disabled={!formData.name || !formData.email || (!formData.canApproveHospitals && !formData.canPostEvents)}
+                  disabled={!name || !email}
                   className="w-full h-14 rounded-2xl font-bold shadow-lg"
                 >
                   Create Admin Account
@@ -190,7 +190,7 @@ const AdminCreationPage = () => {
         {/* 2. NOTIFICATIONS */}
         <AnimatePresence>
           {successMsg && (
-            <motion.div 
+            <motion.div
               initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
               className="bg-verified/10 border border-verified/20 rounded-2xl p-4 flex items-center gap-3 text-verified overflow-hidden"
             >
@@ -199,7 +199,7 @@ const AdminCreationPage = () => {
             </motion.div>
           )}
           {createError && (
-            <motion.div 
+            <motion.div
               initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
               className="bg-crimson/5 border border-crimson/20 rounded-2xl p-4 flex items-center gap-3 text-crimson overflow-hidden"
             >
@@ -217,8 +217,8 @@ const AdminCreationPage = () => {
               <div className="px-3 py-1 rounded-full bg-paper border border-line-soft text-[10px] font-bold text-ink-soft uppercase tracking-tighter">
                 {loadingAdmins ? '...' : `${admins.length} Total`}
               </div>
-              <button 
-                onClick={loadAdmins} 
+              <button
+                onClick={loadAdmins}
                 disabled={loadingAdmins}
                 className="p-2 text-ink-soft/40 hover:text-crimson transition-colors"
                 title="Refresh list"
@@ -227,7 +227,7 @@ const AdminCreationPage = () => {
               </button>
             </div>
           </div>
-          
+
           {loadingAdmins ? (
             <div className="py-12 text-center">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-crimson border-t-transparent" />
@@ -262,8 +262,8 @@ const AdminCreationPage = () => {
                       </td>
                       <td className="p-4 sm:p-6">
                         <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border whitespace-nowrap ${
-                          getRoleLabel(admin.permissions) === 'Full Access' 
-                            ? 'bg-crimson/5 border-crimson/20 text-crimson' 
+                          getRoleLabel(admin.permissions) === 'Full Access'
+                            ? 'bg-crimson/5 border-crimson/20 text-crimson'
                             : 'bg-paper border-line-soft text-ink-soft'
                         }`}>
                           {getRoleLabel(admin.permissions)}
@@ -281,13 +281,13 @@ const AdminCreationPage = () => {
                         {confirmDeleteId === admin.id ? (
                           <div className="flex items-center justify-end gap-2 animate-in fade-in zoom-in duration-200">
                             <span className="text-[10px] font-bold text-crimson uppercase mr-1 tracking-widest">Are you sure?</span>
-                            <button 
+                            <button
                               onClick={() => setConfirmDeleteId(null)}
                               className="px-2.5 py-1 text-xs font-bold text-ink-soft hover:bg-paper rounded-md transition-colors border border-line-soft"
                             >
                               Cancel
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleDelete(admin.id)}
                               className="px-2.5 py-1 text-xs font-bold text-white bg-crimson hover:bg-crimson-dark rounded-md transition-colors"
                             >
@@ -295,7 +295,7 @@ const AdminCreationPage = () => {
                             </button>
                           </div>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => setConfirmDeleteId(admin.id)}
                             className="p-2 text-ink-soft hover:text-crimson hover:bg-crimson/5 rounded-lg transition-colors"
                             title="Delete Admin"
@@ -315,22 +315,5 @@ const AdminCreationPage = () => {
     </AdminLayout>
   );
 };
-
-// --- SUB-COMPONENTS ---
-
-const PermissionBadge = ({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 ${
-      active 
-        ? 'bg-crimson border-crimson text-white shadow-md shadow-crimson/20' 
-        : 'bg-white border-line-soft text-ink-soft hover:border-crimson/30'
-    }`}
-  >
-    {active ? <CheckCircle2 size={14} /> : <div className="w-3.5 h-3.5 rounded-full border-2 border-current opacity-20" />}
-    {label}
-  </button>
-);
 
 export default AdminCreationPage;
