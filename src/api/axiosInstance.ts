@@ -67,6 +67,85 @@ axiosInstance.interceptors.request.use(
       });
     }
 
+    if (config.url?.includes('/api/superadmin/hospitals/pending')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          hospitals: [
+            {
+              id: "hosp_101",
+              hospitalName: "Tikur Anbessa Specialized Hospital",
+              licenseNumber: "MED-ETH-2024-8841",
+              email: "contact@tikuranbessa.gov.et",
+              phone: "+251 11 551 1211",
+              createdAt: new Date().toISOString(),
+              location: { address: "Addis Ababa, Lideta Sub City", lat: 9.0142, lng: 38.7485 }
+            },
+            {
+              id: "hosp_102",
+              hospitalName: "St. Paul's Hospital Millennium Medical College",
+              licenseNumber: "MED-ETH-2023-4519",
+              email: "info@sphmmc.edu.et",
+              phone: "+251 11 275 0125",
+              createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+              location: { address: "Addis Ababa, Gulele Sub City", lat: 9.0578, lng: 38.7369 }
+            },
+            {
+              id: "hosp_103",
+              hospitalName: "Zewditu Memorial Hospital",
+              licenseNumber: "MED-ETH-2024-1102",
+              email: "admin@zewdituhospital.org",
+              phone: "+251 11 551 8085",
+              createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+              location: { address: "Addis Ababa, Kirkos Sub City", lat: 9.0177, lng: 38.7612 }
+            }
+          ]
+        }
+      });
+    }
+
+    if (config.url?.match(/\/api\/superadmin\/hospitals\/.*\/approve/)) {
+      return Promise.reject({
+        isMock: true,
+        data: { success: true, message: "Hospital approved successfully." }
+      });
+    }
+
+    if (config.url?.match(/\/api\/superadmin\/hospitals\/.*\/reject/)) {
+      return Promise.reject({
+        isMock: true,
+        data: { success: true, message: "Hospital rejected successfully." }
+      });
+    }
+
+    if (config.url?.includes('/api/hospital/profile')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          profile: {
+            id: "hosp_profile_01",
+            hospitalName: "Addis General Hospital",
+            email: "contact@hospital.org",
+            phone: "+251911234567",
+            licenseNumber: "LIC-2024-9988",
+            location: { address: "Bole Road, Addis Ababa", lat: 9.0054, lng: 38.7636 }
+          }
+        }
+      });
+    }
+
+    if (config.url?.includes('/api/hospital/blood-stock')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          stock: { 'A+': 32, 'A-': 8, 'B+': 20, 'B-': 5, 'AB+': 12, 'AB-': 3, 'O+': 45, 'O-': 15 }
+        }
+      });
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
