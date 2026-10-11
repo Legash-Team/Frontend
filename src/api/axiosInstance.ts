@@ -27,14 +27,54 @@ axiosInstance.interceptors.request.use(
 
     // --- TEMPORARY MOCK ---
     if (config.url?.includes('/api/auth/login')) {
+      let email = '';
+      try {
+        const payload = typeof config.data === 'string' ? JSON.parse(config.data) : config.data;
+        email = (payload?.email || '').toLowerCase();
+      } catch {
+        email = '';
+      }
+
+      const isAdmin = email.includes('admin');
+      const isSuperAdmin = email.includes('superadmin') || email === 'admin@legash.com';
+
+      if (isAdmin) {
+        return Promise.reject({
+          isMock: true,
+          data: {
+            success: true,
+            token: "mock_admin_token_123",
+            role: isSuperAdmin ? "superadmin" : "admin",
+            permissions: { canApproveHospitals: true, canPostEvents: true },
+            user: {
+              id: isSuperAdmin ? "superadmin_id" : "admin_id",
+              name: isSuperAdmin ? "Mock Super Admin" : "Mock Staff Admin",
+              email: email || "admin@legash.com"
+            }
+          }
+        });
+      }
+
+      // Default: Hospital User login
       return Promise.reject({
         isMock: true,
         data: {
           success: true,
-          token: "mock_superadmin_token_123",
-          role: "superadmin",
-          permissions: { canApproveHospitals: true, canPostEvents: true },
-          user: { id: "superadmin_id", name: "Mock Super Admin", email: "admin@legash.com" }
+          token: "mock_hospital_token_123",
+          role: "hospital",
+          user: {
+            id: "hosp_user_01",
+            name: "Addis General Hospital",
+            email: email || "contact@hospital.org"
+          },
+          hospital: {
+            id: "hosp_user_01",
+            name: "Addis General Hospital",
+            hospitalName: "Addis General Hospital",
+            email: email || "contact@hospital.org",
+            phone: "+251 91 123 4567",
+            licenseNumber: "LIC-ETH-2024-9988"
+          }
         }
       });
     }
@@ -142,6 +182,44 @@ axiosInstance.interceptors.request.use(
         data: {
           success: true,
           stock: { 'A+': 32, 'A-': 8, 'B+': 20, 'B-': 5, 'AB+': 12, 'AB-': 3, 'O+': 45, 'O-': 15 }
+        }
+      });
+    }
+
+    if (config.url?.includes('/api/superadmin/feedbacks')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          feedbacks: [
+            {
+              id: "fb_01",
+              hospitalName: "Tikur Anbessa Hospital",
+              email: "admin@tikuranbessa.gov.et",
+              message: "Requesting re-evaluation of document verification.",
+              status: "new",
+              createdAt: new Date().toISOString()
+            }
+          ]
+        }
+      });
+    }
+
+    if (config.url?.includes('/api/superadmin/admins')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          admins: [
+            {
+              id: "superadmin_id",
+              name: "Super Administrator",
+              email: "admin@legash.com",
+              permissions: { canApproveHospitals: true, canPostEvents: true },
+              emailVerified: true,
+              createdAt: new Date().toISOString()
+            }
+          ]
         }
       });
     }
