@@ -4,5 +4,22 @@
     "en": "English",
     "am": "አማርኛ",
     "om": "Afaan Oromoo"
+  },
+  "myPosts": {
+    "title": "Maxxansii Kiyya",
+    "description": "Gochii kiyyaa keessani qorannoo fi to'atanii ilaali.",
+    "loading": "Maxxansii keessan fe'aa jirra...",
+    "errorTitle": "Maxxansii fe'uun hin danda'amne",
+    "retry": "Irra deemaa",
+    "emptyTitle": "Maxxansii hammaa qabduu hin jiru",
+    "emptyDescription": "Hammaa gocha tokko illee kan hin maxxansee. Maxxansii isa jalqabaa oomshiifadhu.",
+    "createNew": "Gocha Maxxansi",
+    "createFirst": "Maxxansii Isaa Jalqabaa Oomshiifadhu",
+    "devDataTitle": "Deeggarsa Daataa",
+    "devDataDescription": "Maxxansii asii agarsiisan qorannoo qofaaf faayidaa qabu. Kan kiyya kan ta'an hin jiran.",
+    "statusOpen": "Baname",
+    "statusClosed": "Cufame",
+    "created": "Kan Oomishame",
+    "closes": "Kan Cufamu"
   }
 }

@@ -4,5 +4,22 @@
     "en": "English",
     "am": "አማርኛ",
     "om": "Afaan Oromoo"
+  },
+  "myPosts": {
+    "title": "የእኔ ልጥፎች",
+    "description": "እርስዎ ለሰም ሰጪ አውታረስራራ የላሱቸውን ክስተቶች ይመልከቱ እና ይቀናኙ።",
+    "loading": "ልጥፎዎትን በመጫን ላይ...",
+    "errorTitle": "ልጥፎችን መጫን አልተቻለም",
+    "retry": "እንደገና ይሞክሩ",
+    "emptyTitle": "እስካሁን ምንም ልጥፍ የለም",
+    "emptyDescription": "እስካሁን ምንም ክስተት አልላሱም። መጀመሪያ ልጥፍዎን ይፍጠሩ።",
+    "createNew": "ክስተት ይላሱ",
+    "createFirst": "መጀመሪያ ልጥፍዎን ይፍጠሩ",
+    "devDataTitle": "የልማት አማራጭ መረጃ",
+    "devDataDescription": "እዚህ የታዩት ልጥፎች ለልማት ዓላማ ብቻ ምሳሌ መረጃ ናቸው። እነሱ እውነተኛ የአስተዳዳሪ መዝገቦች አይደሉም።",
+    "statusOpen": "ክፍት",
+    "statusClosed": "ዝግ",
+    "created": "የተፈጠረ",
+    "closes": "የሚዘጋ"
   }
 }

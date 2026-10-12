@@ -30,6 +30,7 @@ import EventPostingPage from './pages/admin/EventPostingPage';
 import AdminCreationPage from './pages/admin/AdminCreationPage';
 import FeedbackPage from './pages/admin/FeedbackPage';
 import AdminSetupPage from './pages/admin/AdminSetupPage';
+import MyPostsPage from './pages/admin/MyPostsPage';
 
 export const App: React.FC = () => {
   return (
@@ -139,7 +140,15 @@ export const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-            
+            <Route
+              path="/admin/my-posts"
+              element={
+                <ProtectedRoute>
+                  <MyPostsPage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Setup doesn't need to be protected (uses token in URL) */}
             <Route path="/admin/setup" element={<AdminSetupPage />} />
             
