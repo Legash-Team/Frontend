@@ -4,5 +4,22 @@
     "en": "English",
     "am": "አማርኛ",
     "om": "Afaan Oromoo"
+  },
+  "myPosts": {
+    "title": "My Posts",
+    "description": "View and manage the events you have broadcasted to the donor network.",
+    "loading": "Loading your posts...",
+    "errorTitle": "Unable to load posts",
+    "retry": "Retry",
+    "emptyTitle": "No posts yet",
+    "emptyDescription": "You have not broadcast any events yet. Create your first post to get started.",
+    "createNew": "Post Event",
+    "createFirst": "Create Your First Post",
+    "devDataTitle": "Development Sample Data",
+    "devDataDescription": "The posts shown here are mock data for development purposes only. They are not real administrator records.",
+    "statusOpen": "Open",
+    "statusClosed": "Closed",
+    "created": "Created",
+    "closes": "Closes"
   }
 }

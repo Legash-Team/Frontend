@@ -5,10 +5,11 @@ import {
   LayoutDashboard, 
   MessageSquare, 
   CalendarPlus, 
-  UserPlus, 
+  UserPlus,
   LogOut,
   ChevronLeft,
-  X
+  X,
+  ClipboardList
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
@@ -36,6 +37,7 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
 
   if (canPost) {
     menuItems.push({ icon: CalendarPlus, label: 'Post Event', path: '/admin/events' });
+    menuItems.push({ icon: ClipboardList, label: 'My Posts', path: '/admin/my-posts' });
   }
 
   // Only show "Create Admin" if the user is a superadmin
