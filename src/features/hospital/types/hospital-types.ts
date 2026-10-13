@@ -140,3 +140,62 @@ export interface HospitalSearchResult {
   [key: string]: unknown;
 }
 
+// ─── Donation Records Queue (Backend Part 11) ────────────────────────────────
+
+export interface PendingDonationRecord {
+  id: string; // record ID or acceptance ID
+  acceptanceId?: string;
+  donorId?: string;
+  donorName?: string;
+  name?: string;
+  shortId?: string;
+  donorShortId?: string;
+  donor?: {
+    id?: string;
+    name?: string;
+    shortId?: string;
+    bloodType?: BloodType | string;
+    phone?: string;
+    email?: string;
+  };
+  requestId?: string;
+  request?: {
+    id?: string;
+    bloodType?: BloodType | string;
+    requestType?: RequestType | string;
+    isEmergency?: boolean;
+    description?: string;
+    createdAt?: string;
+  };
+  requestDescription?: string;
+  requestBloodType?: BloodType | string;
+  acceptedAt?: string;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
+export type DonationRecordOutcome = 'donated' | 'did_not_donate';
+
+export interface SubmitDonationRecordPayload {
+  recordId?: string;
+  acceptanceId?: string;
+  donorId?: string;
+  requestId?: string;
+  outcome: DonationRecordOutcome;
+  // Fields for outcome === 'donated'
+  donorBloodType?: BloodType;
+  donatedToBloodType?: BloodType;
+  height?: string;
+  weight?: string;
+  healthStatus?: string;
+  peopleSaved?: string | number;
+  thankYouMessage?: string;
+  [key: string]: unknown;
+}
+
+export interface SubmitDonationRecordResponse {
+  success?: boolean;
+  message?: string;
+  [key: string]: unknown;
+}
+

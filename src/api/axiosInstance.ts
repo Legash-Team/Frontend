@@ -13,6 +13,90 @@ export const axiosInstance = axios.create({
   },
 });
 
+let mockPendingDonationRecords: any[] = [
+  {
+    id: "rec_pend_001",
+    acceptanceId: "acc_001",
+    donorId: "donor_101",
+    donorName: "Dawit Bekele",
+    shortId: "DON-4081",
+    donor: {
+      id: "donor_101",
+      name: "Dawit Bekele",
+      shortId: "DON-4081",
+      bloodType: "O-",
+      phone: "+251 91 144 8822"
+    },
+    requestId: "req_881",
+    request: {
+      id: "req_881",
+      bloodType: "O-",
+      requestType: "Emergency",
+      isEmergency: true,
+      description: "Emergency O- Blood Request for ICU Trauma Unit",
+      createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
+    },
+    requestDescription: "Emergency O- Blood Request for ICU Trauma Unit",
+    requestBloodType: "O-",
+    acceptedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 4).toISOString()
+  },
+  {
+    id: "rec_pend_002",
+    acceptanceId: "acc_002",
+    donorId: "donor_102",
+    donorName: "Selamawit Tadesse",
+    shortId: "DON-7192",
+    donor: {
+      id: "donor_102",
+      name: "Selamawit Tadesse",
+      shortId: "DON-7192",
+      bloodType: "A+",
+      phone: "+251 92 333 5511"
+    },
+    requestId: "req_882",
+    request: {
+      id: "req_882",
+      bloodType: "A+",
+      requestType: "Normal",
+      isEmergency: false,
+      description: "Scheduled Surgery Blood Reserve Request",
+      createdAt: new Date(Date.now() - 3600000 * 3).toISOString()
+    },
+    requestDescription: "Scheduled Surgery Blood Reserve Request",
+    requestBloodType: "A+",
+    acceptedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
+  },
+  {
+    id: "rec_pend_003",
+    acceptanceId: "acc_003",
+    donorId: "donor_103",
+    donorName: "Henok Girma",
+    shortId: "DON-2350",
+    donor: {
+      id: "donor_103",
+      name: "Henok Girma",
+      shortId: "DON-2350",
+      bloodType: "B+",
+      phone: "+251 93 777 9900"
+    },
+    requestId: "req_883",
+    request: {
+      id: "req_883",
+      bloodType: "B+",
+      requestType: "Emergency",
+      isEmergency: true,
+      description: "Urgent B+ Pediatric Ward Replacement",
+      createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
+    },
+    requestDescription: "Urgent B+ Pediatric Ward Replacement",
+    requestBloodType: "B+",
+    acceptedAt: new Date(Date.now() - 3600000 * 1).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 1).toISOString()
+  }
+];
+
 axiosInstance.interceptors.request.use(
   (config) => {
     const token =
@@ -220,6 +304,57 @@ axiosInstance.interceptors.request.use(
               createdAt: new Date().toISOString()
             }
           ]
+        }
+      });
+    }
+
+    if (config.url?.includes('/api/hospital/donation-records/pending/count')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          count: mockPendingDonationRecords.length,
+          pendingCount: mockPendingDonationRecords.length,
+        }
+      });
+    }
+
+    if (config.url?.includes('/api/hospital/donation-records/pending')) {
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          records: [...mockPendingDonationRecords],
+          pending: [...mockPendingDonationRecords],
+        }
+      });
+    }
+
+    if (config.url?.includes('/api/hospital/donation-records') && config.method?.toLowerCase() === 'post') {
+      let payload: any = {};
+      try {
+        payload = typeof config.data === 'string' ? JSON.parse(config.data) : (config.data || {});
+      } catch {
+        payload = {};
+      }
+
+      const targetId = payload.recordId || payload.acceptanceId || payload.donorId || payload.id;
+      if (targetId) {
+        mockPendingDonationRecords = mockPendingDonationRecords.filter(
+          (r) => r.id !== targetId && r.acceptanceId !== targetId && r.donorId !== targetId
+        );
+      } else if (mockPendingDonationRecords.length > 0) {
+        mockPendingDonationRecords.shift();
+      }
+
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          message: payload.outcome === 'donated' 
+            ? 'Donation record confirmed and verified successfully.' 
+            : 'Donor marked as did not donate.',
+          remainingCount: mockPendingDonationRecords.length,
         }
       });
     }

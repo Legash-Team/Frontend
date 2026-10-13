@@ -17,6 +17,9 @@ import type {
   BloodType,
   RequestType,
   AcceptedDonor,
+  PendingDonationRecord,
+  SubmitDonationRecordPayload,
+  SubmitDonationRecordResponse,
 } from '@/features/hospital/types/hospital-types';
 
 // ─── Shared response types ────────────────────────────────────────────────────
@@ -713,3 +716,115 @@ export const searchHospitals = async (
     throw err?.response?.data?.error || 'Failed to search hospitals.';
   }
 };
+
+// ─── Donation Records Queue (Backend Part 11) ────────────────────────────────
+
+/**
+ * Dedicated lightweight endpoint for Hospital Dashboard check.
+ * GET /api/hospital/donation-records/pending/count → { count }
+ * 
+ * Specifically only returns the pending count to avoid pulling full donor details
+ * on initial dashboard render.
+ */
+export const getPendingDonationRecordsCount = async (): Promise<number> => {
+  try {
+    const res = await axiosInstance.get<{
+      count?: number;
+      pendingCount?: number;
+      data?: { count?: number; pendingCount?: number } | number;
+      success?: boolean;
+    }>('/api/hospital/donation-records/pending/count');
+
+    if (typeof res.data?.count === 'number') {
+      return res.data.count;
+    }
+    if (typeof res.data?.pendingCount === 'number') {
+      return res.data.pendingCount;
+    }
+    if (typeof res.data?.data === 'number') {
+      return res.data.data;
+    }
+    if (res.data?.data && typeof res.data.data === 'object') {
+      const nested = res.data.data.count ?? res.data.data.pendingCount;
+      if (typeof nested === 'number') return nested;
+    }
+
+    return 0;
+  } catch (err: any) {
+    console.warn('Failed to fetch pending donation records count:', err);
+    return 0;
+  }
+};
+
+/**
+ * Fetch pending donor records in chronological order (oldest acceptance first).
+ * GET /api/hospital/donation-records/pending
+ */
+export const getPendingDonationRecords = async (): Promise<PendingDonationRecord[]> => {
+  try {
+    const res = await axiosInstance.get<{
+      success?: boolean;
+      pending?: PendingDonationRecord[];
+      records?: PendingDonationRecord[];
+      data?: PendingDonationRecord[] | { pending?: PendingDonationRecord[]; records?: PendingDonationRecord[] };
+    }>('/api/hospital/donation-records/pending');
+
+    const data = res.data;
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (Array.isArray(data?.pending)) {
+      return data.pending;
+    }
+    if (Array.isArray(data?.records)) {
+      return data.records;
+    }
+    if (data?.data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    if (data?.data && typeof data.data === 'object') {
+      const nested = (data.data as any).pending || (data.data as any).records;
+      if (Array.isArray(nested)) return nested;
+    }
+
+    return [];
+  } catch (err: any) {
+    const backendError =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      'Failed to fetch pending donation records.';
+    throw new Error(backendError);
+  }
+};
+
+/**
+ * Submit donation outcome for a pending donor record.
+ * POST /api/hospital/donation-records
+ * 
+ * - When outcome: 'donated': includes blood types, height, weight, healthStatus, peopleSaved, thankYouMessage
+ * - When outcome: 'did_not_donate': includes outcome only (and identifiers)
+ */
+export const submitDonationRecord = async (
+  payload: SubmitDonationRecordPayload
+): Promise<SubmitDonationRecordResponse> => {
+  try {
+    const response = await axiosInstance.post<SubmitDonationRecordResponse>(
+      '/api/hospital/donation-records',
+      payload
+    );
+
+    return {
+      success: response.data?.success ?? true,
+      message: response.data?.message || 'Donation record processed successfully.',
+      ...response.data,
+    };
+  } catch (err: any) {
+    const backendError =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      'Failed to submit donation record.';
+    throw new Error(backendError);
+  }
+};

@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
+import {
+  getHospitalDashboard,
+  getPendingDonationRecordsCount,
+} from '@/features/hospital/api/hospital-api';
 import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
 import type { DashboardData } from '@/features/hospital/types/hospital-types';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { PendingDonationsBanner } from '@/features/hospital/components/PendingDonationsBanner';
+import { DonationQueueModal } from '@/features/hospital/components/DonationQueueModal';
 import {
   LayoutDashboard,
   Building2,
@@ -18,6 +23,23 @@ export const HospitalDashboardPage: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Dedicated lightweight pending donation records count state
+  const [pendingCount, setPendingCount] = useState<number>(0);
+  const [pendingCountLoading, setPendingCountLoading] = useState<boolean>(false);
+  const [isQueueModalOpen, setIsQueueModalOpen] = useState<boolean>(false);
+
+  const fetchPendingCount = async () => {
+    setPendingCountLoading(true);
+    try {
+      const count = await getPendingDonationRecordsCount();
+      setPendingCount(count);
+    } catch (err) {
+      console.warn('Failed to fetch pending donation records count:', err);
+    } finally {
+      setPendingCountLoading(false);
+    }
+  };
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -41,6 +63,7 @@ export const HospitalDashboardPage: React.FC = () => {
 
   useEffect(() => {
     fetchDashboard();
+    fetchPendingCount();
   }, []);
 
   const rawData = (data as unknown as Record<string, unknown>) || {};
@@ -96,6 +119,15 @@ export const HospitalDashboardPage: React.FC = () => {
             </Link>
           </div>
         </div>
+
+        {/* Dedicated Pending Donation Confirmation Banner (Backend Part 11) */}
+        {pendingCount > 0 && (
+          <PendingDonationsBanner
+            count={pendingCount}
+            loading={pendingCountLoading}
+            onOpenQueue={() => setIsQueueModalOpen(true)}
+          />
+        )}
 
         {/* Loading State */}
         {loading && (
@@ -205,6 +237,13 @@ export const HospitalDashboardPage: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Donation Queue Modal Flow (Backend Part 11) */}
+      <DonationQueueModal
+        isOpen={isQueueModalOpen}
+        onClose={() => setIsQueueModalOpen(false)}
+        onQueueUpdated={fetchPendingCount}
+      />
     </DashboardLayout>
   );
 };
