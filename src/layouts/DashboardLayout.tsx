@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { AiChatFloatingButton } from '@/components/navigation/AiChatFloatingButton';
 import {
   LayoutDashboard,
   User,
@@ -15,6 +16,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Building2,
+  Bot,
 } from 'lucide-react';
 
 export interface DashboardLayoutProps {
@@ -33,6 +35,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     { label: 'Blood Request', path: '/hospital/blood-request', icon: PlusCircle },
     { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
     { label: 'Hospital Search', path: '/hospital/search', icon: Search },
+    { label: 'AI Assistant', path: '/ai-chat', icon: Bot },
     {
       label: 'Profile',
       path: '/hospital/profile',
@@ -252,6 +255,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           <p>&copy; {new Date().getFullYear()} Legash Blood Network. All rights reserved.</p>
         </footer>
       </div>
+
+      {/* Floating Action Button for AI Chat (Hospital role only) */}
+      <AiChatFloatingButton />
     </div>
   );
 };

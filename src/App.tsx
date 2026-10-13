@@ -22,6 +22,7 @@ import BloodStockPage from './pages/hospital/BloodStockPage';
 import BloodRequestPage from './pages/hospital/BloodRequestPage';
 import AllRequestsPage from './pages/hospital/AllRequestsPage';
 import HospitalSearchPage from './pages/hospital/HospitalSearchPage';
+import AiChatPage from './pages/AiChatPage';
 
 // --- 4. ADMIN DASHBOARD PAGES (Ensure these paths are correct) ---
 import DashboardPage from './pages/admin/DashboardPage';
@@ -100,6 +101,22 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <HospitalSearchPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-chat"
+              element={
+                <ProtectedRoute requiredRole="hospital">
+                  <AiChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/ai-chat"
+              element={
+                <ProtectedRoute requiredRole="hospital">
+                  <AiChatPage />
                 </ProtectedRoute>
               }
             />

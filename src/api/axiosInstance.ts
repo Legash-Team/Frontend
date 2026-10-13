@@ -359,6 +359,40 @@ axiosInstance.interceptors.request.use(
       });
     }
 
+    if (config.url?.includes('/api/ai/chat') && config.method?.toLowerCase() === 'post') {
+      let payload: any = {};
+      try {
+        payload = typeof config.data === 'string' ? JSON.parse(config.data) : (config.data || {});
+      } catch {
+        payload = {};
+      }
+
+      const userText = (payload?.message || '').toLowerCase();
+      const existingConvId = payload?.conversationId;
+      const activeConvId = existingConvId || `conv_session_${Date.now()}`;
+
+      let reply = "Hello! I am your Legash AI Health Assistant. I can answer clinical blood compatibility rules, post-donation recovery guidelines, and general wellness nutrition questions. How can I help your facility today?";
+
+      if (userText.includes('fluid') || userText.includes('care') || userText.includes('tips') || userText.includes('first-time')) {
+        reply = "For first-time donors, recommend drinking at least 500ml of water before donation and 4-6 glasses over the next 24 hours. Keep the bandage on for 4 hours, avoid heavy lifting or strenuous exercise for the remainder of the day, and consume an iron-rich balanced meal.";
+      } else if (userText.includes('universal') || userText.includes('compatibility') || userText.includes('rules')) {
+        reply = "Compatibility Rules:\n• Type O- is the universal red blood cell donor (accepted by all groups in trauma situations).\n• Type AB+ is the universal red blood cell recipient.\n• Type AB is the universal plasma donor, whereas Type O is the universal plasma recipient.\nAlways perform standard crossmatching prior to non-emergency transfusion.";
+      } else if (userText.includes('hydration') || userText.includes('ferritin') || userText.includes('recovery')) {
+        reply = "Hydration supports rapid blood volume restoration (within 24-48 hours). Ferritin stores support hemoglobin replenishment, which typically takes 4-8 weeks. Encourage donors to consume dietary iron (spinach, lentils, lean meats) paired with Vitamin C to optimize absorption.";
+      } else if (userText.includes('how to') || userText.includes('system') || userText.includes('password') || userText.includes('login') || userText.includes('portal')) {
+        reply = "Notice: As a health and wellness assistant, I cannot resolve system how-to questions, facility password changes, or account management. Please use the Help Center (Part 7) or contact your network administrator for portal assistance.";
+      }
+
+      return Promise.reject({
+        isMock: true,
+        data: {
+          success: true,
+          reply,
+          conversationId: activeConvId,
+        }
+      });
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
