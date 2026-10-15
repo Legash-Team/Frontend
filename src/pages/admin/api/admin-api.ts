@@ -1,4 +1,6 @@
 import axiosInstance from '@/api/axiosInstance';
+import type { HospitalStockResponse } from '../models/hospital-stock-types';
+import type { HospitalAnalyticsResponse } from '../models/hospital-analytics-types';
 
 /**
  * GET /api/superadmin/hospitals/pending
@@ -166,5 +168,33 @@ export const deleteAdmin = async (id: string) => {
     return response.data;
   } catch (error: any) {
     throw error.response?.data?.error || 'Failed to delete admin.';
+  }
+};
+
+/**
+ * GET /api/superadmin/hospitals/stock
+ */
+export const fetchHospitalStock = async (bloodType: string = '', sortBy: string = ''): Promise<HospitalStockResponse> => {
+  try {
+    const params = new URLSearchParams();
+    if (bloodType) params.append('bloodType', bloodType);
+    if (sortBy) params.append('sortBy', sortBy);
+
+    const response = await axiosInstance.get(`/api/superadmin/hospitals/stock?${params.toString()}`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to fetch hospital stock.';
+  }
+};
+
+/**
+ * GET /api/superadmin/analytics/hospitals
+ */
+export const fetchHospitalAnalytics = async (): Promise<HospitalAnalyticsResponse> => {
+  try {
+    const response = await axiosInstance.get(`/api/superadmin/analytics/hospitals`);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to fetch hospital analytics.';
   }
 };

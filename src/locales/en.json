@@ -21,5 +21,37 @@
     "statusClosed": "Closed",
     "created": "Created",
     "closes": "Closes"
+  },
+  "hospitalStock": {
+    "title": "Hospital Stock",
+    "description": "Monitor blood availability across all registered facilities.",
+    "loading": "Loading hospital stock...",
+    "errorTitle": "Failed to load stock",
+    "retry": "Retry",
+    "emptyMessage": "No stock data available.",
+    "filterAllTypes": "All Blood Types",
+    "filterDefaultSort": "Default Sort",
+    "colHospital": "Hospital Name",
+    "colLocation": "Location",
+    "colPhone": "Phone",
+    "colBloodType": "Blood Type",
+    "colUnits": "Available Units",
+    "sortUnitsDesc": "Available Units (High to Low)",
+    "sortUnitsAsc": "Available Units (Low to High)",
+    "sortNameAsc": "Hospital Name (A-Z)",
+    "sortNameDesc": "Hospital Name (Z-A)"
+  },
+  "hospitalAnalytics": {
+    "title": "Hospital Analytics",
+    "description": "Comprehensive insights and trends across all medical facilities.",
+    "loading": "Compiling analytics...",
+    "errorTitle": "Failed to load analytics",
+    "retry": "Retry",
+    "units": "Units",
+    "topFacilities": "Top 10 Facilities (Stock)",
+    "bottomFacilities": "Bottom 10 Facilities (Stock)",
+    "trendsTitle": "Supply Trends (30 Days)",
+    "noData": "No data available.",
+    "noTrends": "No trend data available."
   }
 }

@@ -21,5 +21,37 @@
     "statusClosed": "ዝግ",
     "created": "የተፈጠረ",
     "closes": "የሚዘጋ"
+  },
+  "hospitalStock": {
+    "title": "የሆስፒታል የደም ክምችት",
+    "description": "በተመዘገቡ ሁሉም ተቋማት የደም አገልግሎት ይቆጣጠሩ።",
+    "loading": "የሆስፒታል ክምችት በመጫን ላይ...",
+    "errorTitle": "ክምችትን መጫን አልተቻለም",
+    "retry": "እንደገና ይሞክሩ",
+    "emptyMessage": "ምንም የክምችት መረጃ የለም።",
+    "filterAllTypes": "ሁሉም የደም አይነቶች",
+    "filterDefaultSort": "ነባር ደርድር",
+    "colHospital": "የሆስፒታል ስም",
+    "colLocation": "አቀማመጥ",
+    "colPhone": "ስልክ",
+    "colBloodType": "የደም አይነት",
+    "colUnits": "የሚገኙ ክፍሎች",
+    "sortUnitsDesc": "የሚገኙ ክፍሎች (ከፍተኛ ወደ ዝቅተኛ)",
+    "sortUnitsAsc": "የሚገኙ ክፍሎች (ከዝቅተኛ ወደ ከፍተኛ)",
+    "sortNameAsc": "የሆስፒታል ስም (A-Z)",
+    "sortNameDesc": "የሆስፒታል ስም (Z-A)"
+  },
+  "hospitalAnalytics": {
+    "title": "የሆስፒታል ትንታኔ",
+    "description": "በሁሉም የሕክምና ተቋማት ላይ ሰፊ ሃሳቦች እና አዝማማዎች።",
+    "loading": "ትንታኔ በማዘጋጀት ላይ...",
+    "errorTitle": "ትንታኔን መጫን አልተቻለም",
+    "retry": "እንደገና ይሞክሩ",
+    "units": "ክፍሎች",
+    "topFacilities": "ከፍተኛ 10 ተቋማት (ክምችት)",
+    "bottomFacilities": "ዝቅተኛ 10 ተቋማት (ክምችት)",
+    "trendsTitle": "የአቅርብ አዝማማዎች (30 ቀናት)",
+    "noData": "ምንም መረጃ የለም።",
+    "noTrends": "ምንም የአዝማማ መረጃ የለም።"
   }
 }
