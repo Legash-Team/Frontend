@@ -21,5 +21,37 @@
     "statusClosed": "Cufame",
     "created": "Kan Oomishame",
     "closes": "Kan Cufamu"
+  },
+  "hospitalStock": {
+    "title": "Baalaa Hospitalii",
+    "description": "Baalaa dhigsii kan hospitaloota hundaati ifa godhu.",
+    "loading": "Baalaa hospitalii fe'aa jirra...",
+    "errorTitle": "Baalaa fe'uun hin danda'amne",
+    "retry": "Irra deemaa",
+    "emptyMessage": "Baalaa odeeffannoo hin jiru.",
+    "filterAllTypes": "Gosa Dhiigaa Hunda",
+    "filterDefaultSort": "Sortingii Duraa",
+    "colHospital": "Maqaa Hospitalii",
+    "colLocation": "Iddoo",
+    "colPhone": "Bilbila",
+    "colBloodType": "Gosa Dhiigaa",
+    "colUnits": "Kutaa Kan Jiran",
+    "sortUnitsDesc": "Kutaa Kan Jiran (Gubbaa-xiqqaa)",
+    "sortUnitsAsc": "Kutaa Kan Jiran (Xiqqaa-gubbaa)",
+    "sortNameAsc": "Maqaa Hospitalii (A-Z)",
+    "sortNameDesc": "Maqaa Hospitalii (Z-A)"
+  },
+  "hospitalAnalytics": {
+    "title": "Ibsa Tiyaatiraa",
+    "description": "Yaada fi yeroo hunda kan hospitaloota hundaati.",
+    "loading": "Ibsa tiyaatiraa qophaa'aa jirra...",
+    "errorTitle": "Ibsa fe'uun hin danda'amne",
+    "retry": "Irra deemaa",
+    "units": "Kutaa",
+    "topFacilities": "Gubbaa 10 Dhaabbatoota (Stock)",
+    "bottomFacilities": "Jalqabaa 10 Dhaabbatoota (Stock)",
+    "trendsTitle": "Yeroo Dhiibbaa Guutu (30 Guyyaa)",
+    "noData": "Odeeffannoo hin jiru.",
+    "noTrends": "Yeroo dhiibbaa odeeffannoo hin jiru."
   }
 }

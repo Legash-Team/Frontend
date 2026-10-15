@@ -31,6 +31,8 @@ import AdminCreationPage from './pages/admin/AdminCreationPage';
 import FeedbackPage from './pages/admin/FeedbackPage';
 import AdminSetupPage from './pages/admin/AdminSetupPage';
 import MyPostsPage from './pages/admin/MyPostsPage';
+import HospitalStockPage from './pages/admin/HospitalStockPage';
+import HospitalAnalyticsPage from './pages/admin/HospitalAnalyticsPage';
 
 export const App: React.FC = () => {
   return (
@@ -137,6 +139,22 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <FeedbackPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/hospital-stock"
+              element={
+                <ProtectedRoute requireCanApproveHospitals>
+                  <HospitalStockPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/hospital-analytics"
+              element={
+                <ProtectedRoute requireCanApproveHospitals>
+                  <HospitalAnalyticsPage />
                 </ProtectedRoute>
               }
             />
