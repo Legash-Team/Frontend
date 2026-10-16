@@ -65,5 +65,10 @@
     "req2": "Return only events where createdBy matches the authenticated admin",
     "req3": "Enforce authorization via existing permission middleware",
     "noDataMessage": "No event data is displayed until the backend endpoint is available."
+  },
+  "eventPosting": {
+    "titleLabel": "Mataa Gocha",
+    "titlePlaceholder": "fkn. Gocha Dhiigaa Hawaasaa — Boolee",
+    "titleRequired": "Mataa, ibsa, fi guyyaa dhumaa guuti."
   }
 }
