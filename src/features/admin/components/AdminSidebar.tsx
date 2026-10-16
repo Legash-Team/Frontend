@@ -42,6 +42,7 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
   if (canPost) {
     menuItems.push({ icon: CalendarPlus, label: 'Post Event', path: '/admin/events' });
     menuItems.push({ icon: ClipboardList, label: 'My Posts', path: '/admin/my-posts' });
+    menuItems.push({ icon: CalendarPlus, label: 'My Events', path: '/admin/my-events' });
   }
 
   // Only show "Create Admin" if the user is a superadmin
