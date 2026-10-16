@@ -90,6 +90,7 @@ export const uploadMedia = async (file: File) => {
  * POST /api/superadmin/events
  */
 export const createEvent = async (payload: {
+  title: string;
   mediaUrl?: string;
   mediaType?: string;
   description: string;

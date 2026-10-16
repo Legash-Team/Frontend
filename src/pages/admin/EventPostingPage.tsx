@@ -20,6 +20,7 @@ const EventPostingPage = () => {
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
+    title: '',
     description: '',
     applyLink: '',
     expiryDate: '',
@@ -51,8 +52,8 @@ const EventPostingPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.description.trim() || !formData.expiryDate) {
-      toast.warning("Please fill in description and closing date.");
+    if (!formData.title.trim() || !formData.description.trim() || !formData.expiryDate) {
+      toast.warning("Please fill in title, description, and closing date.");
       return;
     }
 
@@ -72,6 +73,7 @@ const EventPostingPage = () => {
       const closesAt = new Date(formData.expiryDate).toISOString();
 
       const res = await createEvent({
+        title: formData.title.trim(),
         mediaUrl: mediaUrl || undefined,
         mediaType: mediaUrl ? mediaType : undefined,
         description: formData.description.trim(),
@@ -83,6 +85,7 @@ const EventPostingPage = () => {
         toast.success(res.message || "Event broadcasted to the mobile network!");
         // Reset form
         setFormData({
+          title: '',
           description: '',
           applyLink: '',
           expiryDate: '',
@@ -158,7 +161,22 @@ const EventPostingPage = () => {
                 )}
               </div>
 
-              {/* 2. RICH TEXT DETAILED DESCRIPTION */}
+              {/* 2. EVENT TITLE */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">
+                  Event Title <span className="text-crimson">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g. Community Blood Drive — Bole"
+                  className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
+                />
+              </div>
+
+              {/* 3. RICH TEXT DETAILED DESCRIPTION */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">

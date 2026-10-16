@@ -65,5 +65,10 @@
     "req2": "Return only events where createdBy matches the authenticated admin",
     "req3": "Enforce authorization via existing permission middleware",
     "noDataMessage": "No event data is displayed until the backend endpoint is available."
+  },
+  "eventPosting": {
+    "titleLabel": "Event Title",
+    "titlePlaceholder": "e.g. Community Blood Drive — Bole",
+    "titleRequired": "Please fill in title, description, and closing date."
   }
 }
