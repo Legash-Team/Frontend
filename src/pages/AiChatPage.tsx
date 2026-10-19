@@ -8,12 +8,10 @@ import {
 import {
   Bot,
   Send,
-  Sparkles,
   HelpCircle,
   RotateCcw,
   User,
   ArrowLeft,
-  HeartHandshake,
   AlertCircle,
   Lightbulb,
 } from 'lucide-react';

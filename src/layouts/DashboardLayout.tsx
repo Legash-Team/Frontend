@@ -17,6 +17,7 @@ import {
   PanelLeftOpen,
   Building2,
   Bot,
+  HelpCircle,
 } from 'lucide-react';
 
 export interface DashboardLayoutProps {
@@ -36,6 +37,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
     { label: 'Hospital Search', path: '/hospital/search', icon: Search },
     { label: 'AI Assistant', path: '/ai-chat', icon: Bot },
+    { label: 'Help Center', path: '/help-center', icon: HelpCircle },
     {
       label: 'Profile',
       path: '/hospital/profile',

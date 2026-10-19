@@ -8,10 +8,11 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'How it works', href: '#how' },
-    { name: 'About Us', href: '#about' },
-    { name: 'Privacy', href: '#privacy' },
-    { name: 'For hospitals', href: '#hospitals' },
+    { name: 'How it works', href: '/#how' },
+    { name: 'About Us', href: '/#about' },
+    { name: 'Privacy', href: '/#privacy' },
+    { name: 'For hospitals', href: '/#hospitals' },
+    { name: 'Help Center', href: '/help-center' },
   ];
 
   return (
@@ -21,18 +22,31 @@ export const Navbar = () => {
           <Logo />
 
           {/* Desktop Navigation Links */}
-          <ul className="hidden md:flex items-center gap-8 lg:gap-9">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <a 
-                  href={link.href} 
-                  className="group relative py-2 text-[0.94rem] font-medium text-ink-soft hover:text-crimson transition-colors duration-300"
-                >
-                  {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-crimson transition-all duration-300 group-hover:w-full" />
-                </a>
-              </li>
-            ))}
+          <ul className="hidden md:flex items-center gap-7 lg:gap-8">
+            {navLinks.map((link) => {
+              const isInternal = link.href.startsWith('/') && !link.href.includes('#');
+              return (
+                <li key={link.href}>
+                  {isInternal ? (
+                    <Link
+                      to={link.href}
+                      className="group relative py-2 text-[0.94rem] font-medium text-ink-soft hover:text-crimson transition-colors duration-300"
+                    >
+                      {link.name}
+                      <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-crimson transition-all duration-300 group-hover:w-full" />
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="group relative py-2 text-[0.94rem] font-medium text-ink-soft hover:text-crimson transition-colors duration-300"
+                    >
+                      {link.name}
+                      <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-crimson transition-all duration-300 group-hover:w-full" />
+                    </a>
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           <div className="flex items-center gap-3">
@@ -70,17 +84,30 @@ export const Navbar = () => {
           {/* Mobile Menu Content */}
           <div className="relative z-50 bg-white border-b border-line-soft mt-[76px] p-6 shadow-2xl space-y-5 animate-in slide-in-from-top-4 duration-200">
             <ul className="space-y-3">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a 
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-2 text-base font-bold text-ink-soft hover:text-crimson transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+              {navLinks.map((link) => {
+                const isInternal = link.href.startsWith('/') && !link.href.includes('#');
+                return (
+                  <li key={link.href}>
+                    {isInternal ? (
+                      <Link
+                        to={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block py-2 text-base font-bold text-ink-soft hover:text-crimson transition-colors"
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block py-2 text-base font-bold text-ink-soft hover:text-crimson transition-colors"
+                      >
+                        {link.name}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="pt-4 border-t border-line-soft flex flex-col gap-3">

@@ -22,16 +22,17 @@ export const Footer = () => {
             <FooterGroup 
               title="Network" 
               links={[
-                { label: 'How it works', href: '#how' },
-                { label: 'About Us', href: '#about' },
-                { label: 'Privacy Protocol', href: '#privacy' }
+                { label: 'How it works', href: '/#how' },
+                { label: 'About Us', href: '/#about' },
+                { label: 'Privacy Protocol', href: '/#privacy' },
+                { label: 'Help Center (FAQ)', href: '/help-center' }
               ]} 
             />
             
             <FooterGroup 
               title="Facilities" 
               links={[
-                { label: 'For Hospitals', href: '#hospitals' },
+                { label: 'For Hospitals', href: '/#hospitals' },
                 { label: 'Register Facility', href: '/register' },
                 { label: 'Hospital Login', href: '/login' }
               ]} 

@@ -13,6 +13,7 @@ import LoginPage from './pages/public/LoginPage';
 import TermsPage from './pages/public/TermsPage';
 import VerifyEmailPage from './pages/public/VerifyOTPPage';
 import AppealPage from './pages/public/AppealPage';
+import HelpCenterPage from './pages/HelpCenterPage';
 
 // --- 3. HOSPITAL PORTAL PAGES (Moved to src/pages/hospital/) ---
 import HospitalDashboardPage from './pages/hospital/HospitalDashboardPage';
@@ -46,6 +47,8 @@ export const App: React.FC = () => {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/appeal" element={<AppealPage />} />
+            <Route path="/help-center" element={<HelpCenterPage />} />
+            <Route path="/help" element={<HelpCenterPage />} />
 
             {/* --- PROTECTED HOSPITAL PORTAL ROUTES --- */}
             <Route
