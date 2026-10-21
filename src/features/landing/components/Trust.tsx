@@ -1,15 +1,16 @@
 import React from 'react';
 import { ShieldCheck, Activity, Zap } from 'lucide-react';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 export const Trust = () => {
   return (
     <section className="py-16 sm:py-24 bg-white border-y border-line-soft" id="hospitals">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
-        
+
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 sm:gap-16 items-center">
-          
+
           {/* Left: Minimal Heading */}
-          <div>
+          <ScrollReveal>
             <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
                <ShieldCheck size={16} className="text-verified" />
                <span className="font-mono text-[10px] font-bold text-ink-soft uppercase tracking-[0.2em]">Verified Network</span>
@@ -21,38 +22,44 @@ export const Trust = () => {
             <p className="text-sm text-ink-soft leading-relaxed max-w-sm">
               We vet every facility manually to ensure a 100% legitimate hospital-to-donor connection.
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Right: The Strip (Low Profile) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-            <SmallFeature 
-              icon={<ShieldCheck size={20} />} 
-              title="Vetted Identity" 
-              desc="License-based verification for every admin."
-            />
-            <SmallFeature 
-              icon={<Activity size={20} />} 
-              title="Live Stock" 
-              desc="Real-time blood inventory management."
-            />
-            <SmallFeature 
-              icon={<Zap size={20} />} 
-              title="Smart Radius" 
-              desc="Targeted alerts to nearby matching donors."
-            />
+            <ScrollReveal delay={0}>
+              <SmallFeature
+                icon={<ShieldCheck size={20} />}
+                title="Vetted Identity"
+                desc="License-based verification for every admin."
+              />
+            </ScrollReveal>
+            <ScrollReveal delay={120}>
+              <SmallFeature
+                icon={<Activity size={20} />}
+                title="Live Stock"
+                desc="Real-time blood inventory management."
+              />
+            </ScrollReveal>
+            <ScrollReveal delay={240}>
+              <SmallFeature
+                icon={<Zap size={20} />}
+                title="Smart Radius"
+                desc="Targeted alerts to nearby matching donors."
+              />
+            </ScrollReveal>
           </div>
 
         </div>
 
         {/* Minimalist Bottom Bar */}
-        <div className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-line-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <ScrollReveal className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-line-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
            <div className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">
              Trusted by 85+ Ethiopian Medical Centers
            </div>
            <a href="/register" className="text-xs font-bold text-crimson hover:text-ink transition-colors flex items-center gap-2 group">
              Register your facility <span className="group-hover:translate-x-1 transition-transform">→</span>
            </a>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

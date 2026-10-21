@@ -30,6 +30,28 @@
     0%, 100% { filter: drop-shadow(0 0 0 rgba(195, 31, 59, 0)); }
     50% { filter: drop-shadow(0 0 6px rgba(195, 31, 59, 0.55)); }
   }
+  @keyframes ecg-flow-right-to-left {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Global Base Styles */
@@ -52,6 +74,41 @@ h1, h2, h3 {
   stroke-dasharray: 900;
   stroke-dashoffset: 900;
   animation: draw 3.2s ease-out forwards, glow 2.4s ease-in-out 3.2s infinite;
+}
+
+/* Consistent, Unbroken ECG Pulse Flow from Right to Left */
+.ecg-flow {
+  animation: ecg-flow-right-to-left 14s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ecg-flow {
+    animation: none !important;
+  }
+}
+
+/* Scroll Reveal Animation */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Never leave content hidden for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
