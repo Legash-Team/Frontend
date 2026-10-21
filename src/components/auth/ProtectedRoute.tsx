@@ -6,9 +6,15 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'superadmin' | 'admin' | 'hospital';
   requireCanApproveHospitals?: boolean;
+  requireCanPostEvents?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole, requireCanApproveHospitals }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+  requireCanApproveHospitals,
+  requireCanPostEvents,
+}) => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
 
@@ -28,6 +34,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
     const isSuperAdmin = user?.role === 'superadmin';
     const canApprove = isSuperAdmin || Boolean(user?.permissions?.canApproveHospitals);
     if (!canApprove) {
+      const redirectPath = user?.role === 'superadmin' || user?.role === 'admin'
+        ? '/admin/dashboard'
+        : '/hospital/dashboard';
+      return <Navigate to={redirectPath} replace />;
+    }
+  }
+
+  if (requireCanPostEvents) {
+    const isSuperAdmin = user?.role === 'superadmin';
+    const canPost = isSuperAdmin || Boolean(user?.permissions?.canPostEvents);
+    if (!canPost) {
       const redirectPath = user?.role === 'superadmin' || user?.role === 'admin'
         ? '/admin/dashboard'
         : '/hospital/dashboard';

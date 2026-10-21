@@ -122,7 +122,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/events"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requireCanPostEvents>
                   <EventPostingPage />
                 </ProtectedRoute>
               }
@@ -162,7 +162,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/my-posts"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requireCanPostEvents>
                   <MyPostsPage />
                 </ProtectedRoute>
               }
@@ -170,7 +170,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/my-events"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requireCanPostEvents>
                   <MyEventsPage />
                 </ProtectedRoute>
               }
