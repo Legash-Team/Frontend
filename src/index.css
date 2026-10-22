@@ -14,9 +14,9 @@
   --color-line-soft: rgba(27, 20, 16, 0.08);
 
   /* Fonts */
-  --font-serif: "Fraunces", serif;
-  --font-sans: "Inter", sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
+  --font-serif: "Sora", sans-serif;
+  --font-sans: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
   /* Custom Animations */
   @keyframes blip {

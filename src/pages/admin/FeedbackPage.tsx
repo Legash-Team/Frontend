@@ -154,7 +154,7 @@ const FeedbackPage = () => {
   });
 
   return (
-    <AdminLayout title="Hospital Feedback Hub">
+    <AdminLayout title="Feedbacks" icon={<MessageSquare size={16} className="stroke-[1.75]" />}>
       <div className="space-y-8">
         
         {/* TAB & SEARCH NAVIGATION */}
@@ -278,32 +278,35 @@ const FeedbackPage = () => {
                           </div>
                           
                           <div className="flex flex-wrap gap-3">
-                            <button 
+                            <Button 
+                              variant="outline"
+                              size="sm"
                               disabled={actionLoading}
                               onClick={() => setSelectedFeedback(item)}
-                              className="px-5 py-2.5 rounded-xl border border-line-soft text-[11px] font-bold text-ink hover:bg-paper transition-all flex items-center gap-2 uppercase tracking-wider"
                             >
-                              <Eye size={16} className="text-ink-soft" /> Inspect Details
-                            </button>
+                              <Eye size={16} /> Inspect Details
+                            </Button>
 
                             {item.status === 'new' && (
-                              <button 
+                              <Button 
+                                variant="outline"
+                                size="sm"
                                 disabled={actionLoading}
                                 onClick={() => handleMarkReviewed(id)}
-                                className="px-5 py-2.5 rounded-xl border border-line-soft text-[11px] font-bold text-ink-soft hover:bg-paper transition-all flex items-center gap-2 uppercase tracking-wider"
                               >
                                 <CheckCircle2 size={16} className="text-verified" /> Mark Reviewed
-                              </button>
+                              </Button>
                             )}
 
                             {!isApproved && (
-                              <button 
+                              <Button 
+                                variant="primary"
+                                size="sm"
                                 disabled={actionLoading}
                                 onClick={() => handleApproveFromAppeal(item)}
-                                className="px-6 py-2.5 rounded-xl bg-ink text-white text-[11px] font-bold hover:bg-crimson transition-all flex items-center gap-2 group uppercase tracking-widest shadow-lg shadow-ink/10"
                               >
-                                <CheckCircle2 size={16} className="text-verified group-hover:text-white transition-colors" /> Approve Facility
-                              </button>
+                                <CheckCircle2 size={16} /> Approve Facility
+                              </Button>
                             )}
                           </div>
                         </div>
@@ -451,9 +454,9 @@ const FeedbackPage = () => {
                       variant="ghost"
                       disabled={actionLoading}
                       onClick={() => handleMarkReviewed(selectedFeedback.id || selectedFeedback._id)}
-                      className="border-line-soft text-ink-soft rounded-2xl text-xs uppercase tracking-wider"
+                      className="shadow-none"
                     >
-                      <CheckCircle2 size={16} className="text-verified mr-1" /> Mark Reviewed Only
+                      <CheckCircle2 size={16} className="text-verified" /> Mark Reviewed Only
                     </Button>
                   )}
 
@@ -462,9 +465,8 @@ const FeedbackPage = () => {
                       variant="primary"
                       disabled={actionLoading}
                       onClick={() => handleApproveFromAppeal(selectedFeedback)}
-                      className="rounded-2xl font-bold text-xs uppercase tracking-widest px-8 shadow-lg shadow-ink/10"
                     >
-                      <CheckCircle2 size={16} className="mr-1 text-verified" /> Approve Facility & Notify
+                      <CheckCircle2 size={16} className="text-verified" /> Approve Facility & Notify
                     </Button>
                   )}
                 </div>

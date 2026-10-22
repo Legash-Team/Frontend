@@ -133,7 +133,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <AdminLayout title="System Overview">
+    <AdminLayout title="Hospitals">
       <div className="space-y-6">
 
         {/* PAGE HEADER — matches the hospital dashboard header structure */}
@@ -141,7 +141,7 @@ const DashboardPage = () => {
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
               <ShieldCheck className="w-6 h-6 text-crimson stroke-[1.75]" />
-              <span>System Overview</span>
+              <span>Verification Queue</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
               Review pending hospital applications and keep the Legash facility network verified.
@@ -159,18 +159,22 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* WELCOME BANNER — hospital portal gradient + pill badge + CTA pattern */}
-        <div className="bg-gradient-to-r from-crimson via-crimson to-crimson-dark rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-          <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        {/* WELCOME BANNER — clean white surface + soft crimson/sand glow */}
+        <div className="relative overflow-hidden rounded-2xl border border-line-soft bg-white shadow-sm p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          {/* Subtle crimson glow, bottom-right */}
+          <div className="absolute -right-10 -bottom-16 w-56 h-56 rounded-full bg-crimson/[0.07] blur-3xl pointer-events-none" />
+          {/* Subtle sand glow, top-left */}
+          <div className="absolute -left-16 -top-16 w-48 h-48 rounded-full bg-sand/50 blur-3xl pointer-events-none" />
+
           <div className="space-y-2 z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-red-100 border border-white/20">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300 stroke-[1.75]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-crimson/[0.06] rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-crimson border border-crimson/15">
+              <Sparkles className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
               <span>Legash Admin Console</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-white">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-ink">
               Welcome, {user?.name || 'Administrator'}
             </h2>
-            <p className="text-sm font-sans text-red-100 max-w-2xl leading-relaxed">
+            <p className="text-sm font-sans text-ink-soft max-w-2xl leading-relaxed">
               Approve or reject hospital applications based on their submitted information, provide a reason when declining, and keep the verification queue moving across Ethiopia.
             </p>
           </div>
@@ -180,9 +184,9 @@ const DashboardPage = () => {
               type="button"
               onClick={loadPendingHospitals}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-crimson hover:bg-paper font-sans font-bold rounded-xl text-xs transition-all shadow-sm disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-crimson text-white hover:bg-crimson-dark font-sans font-bold rounded-xl text-xs transition-all shadow-sm shadow-crimson/15 disabled:opacity-60"
             >
-              <RefreshCw className={`w-4 h-4 text-crimson stroke-[1.75] ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-white stroke-[1.75] ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh Queue</span>
             </button>
           </div>
@@ -332,7 +336,7 @@ const DashboardPage = () => {
                         variant="ghost" 
                         disabled={actionLoading}
                         onClick={() => setShowRejectStep(true)}
-                        className="flex-1 border border-crimson/20 text-crimson hover:bg-crimson/5 text-xs font-bold uppercase tracking-widest h-12 sm:h-14 rounded-2xl"
+                        className="flex-1 border border-crimson text-crimson hover:bg-crimson hover:text-white text-xs font-bold uppercase tracking-widest h-12 sm:h-14 rounded-2xl"
                       >
                         Decline Application
                       </Button>

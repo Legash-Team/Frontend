@@ -32,7 +32,7 @@ export const Button = ({
   const variants = {
     primary: "bg-crimson text-paper shadow-sm hover:bg-crimson-dark hover:-translate-y-0.5 text-white",
     secondary: "bg-ink text-paper hover:bg-ink/90",
-    ghost: "bg-transparent text-ink border border-line hover:border-ink",
+    ghost: "bg-white text-ink border border-line hover:bg-paper hover:border-ink shadow-xs",
     outline: "bg-transparent text-ink border border-ink hover:bg-ink hover:text-white"
   };
 

@@ -115,7 +115,7 @@ const AdminCreationPage = () => {
   };
 
   return (
-    <AdminLayout title="Staff Management">
+    <AdminLayout title="Staff Management" icon={<UserPlus size={16} className="stroke-[1.75]" />}>
       <div className="space-y-8">
 
         {/* 1. CREATION BANNER */}
@@ -175,7 +175,7 @@ const AdminCreationPage = () => {
                   type="submit"
                   isLoading={isCreating}
                   disabled={!name || !email}
-                  className="w-full h-14 rounded-2xl font-bold shadow-lg"
+                  className="w-full"
                 >
                   Create Admin Account
                 </Button>
@@ -281,18 +281,20 @@ const AdminCreationPage = () => {
                         {confirmDeleteId === admin.id ? (
                           <div className="flex items-center justify-end gap-2 animate-in fade-in zoom-in duration-200">
                             <span className="text-[10px] font-bold text-crimson uppercase mr-1 tracking-widest">Are you sure?</span>
-                            <button
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => setConfirmDeleteId(null)}
-                              className="px-2.5 py-1 text-xs font-bold text-ink-soft hover:bg-paper rounded-md transition-colors border border-line-soft"
                             >
                               Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant="primary"
+                              size="sm"
                               onClick={() => handleDelete(admin.id)}
-                              className="px-2.5 py-1 text-xs font-bold text-white bg-crimson hover:bg-crimson-dark rounded-md transition-colors"
                             >
                               Delete
-                            </button>
+                            </Button>
                           </div>
                         ) : (
                           <button

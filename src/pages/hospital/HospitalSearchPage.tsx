@@ -111,12 +111,13 @@ export const HospitalSearchPage: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <DashboardLayout>
+      <DashboardLayout
+        icon={<Search size={16} className="stroke-[1.75]" />}
+      >
         <div className="space-y-6 max-w-5xl mx-auto">
           {/* Header */}
           <div className="pb-4 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-              <Search className="w-7 h-7 text-red-600" />
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
               <span>Hospital Search</span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">
