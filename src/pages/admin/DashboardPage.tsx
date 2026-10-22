@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -10,24 +11,52 @@ import {
   Phone, 
   X, 
   CheckCircle2, 
-  AlertCircle,
-  ChevronRight,
-  Activity
+  AlertCircle, 
+  ChevronRight, 
+  Activity,
+  Sparkles,
+  RefreshCw,
+  PieChart,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { fetchPendingHospitals, approveHospital, rejectHospital } from './api/admin-api';
 import { useDialog } from '@/context/DialogContext';
+import { useAuth } from '@/features/auth/context/AuthContext';
+
+interface PendingHospitalLocation {
+  address?: string;
+  lat?: number | string;
+  lng?: number | string;
+}
+
+interface PendingHospital {
+  id: string;
+  hospitalName: string;
+  licenseNumber: string;
+  email: string;
+  phone: string;
+  createdAt?: string;
+  location?: PendingHospitalLocation | null;
+}
+
+// admin-api throws plain strings (server message or fallback); normalize anything else to a readable message
+const getErrorMessage = (err: unknown, fallback: string): string => {
+  if (typeof err === 'string' && err.trim()) return err;
+  if (err instanceof Error && err.message) return err.message;
+  return fallback;
+};
 
 const DashboardPage = () => {
   const { toast } = useDialog();
+  const { user } = useAuth();
   // --- STATE FOR INTEGRATED FUNCTIONALITY ---
-  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [hospitals, setHospitals] = useState<PendingHospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const [selectedHosp, setSelectedHosp] = useState<any | null>(null);
+  const [selectedHosp, setSelectedHosp] = useState<PendingHospital | null>(null);
   const [showRejectStep, setShowRejectStep] = useState(false);
   const [rejectionReason, setReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -43,8 +72,8 @@ const DashboardPage = () => {
       } else {
         setHospitals([]);
       }
-    } catch (err: any) {
-      setError(err || 'Failed to fetch pending applications.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to fetch pending applications.'));
     } finally {
       setLoading(false);
     }
@@ -64,8 +93,8 @@ const DashboardPage = () => {
         setSelectedHosp(null);
         toast.success('Hospital approved successfully! An approval email has been sent.');
       }
-    } catch (err: any) {
-      toast.error(err || 'Failed to approve hospital.');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to approve hospital.'));
     } finally {
       setActionLoading(false);
     }
@@ -86,8 +115,8 @@ const DashboardPage = () => {
         setReason('');
         toast.success('Hospital registration declined.');
       }
-    } catch (err: any) {
-      toast.error(err || 'Failed to reject hospital.');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to reject hospital.'));
     } finally {
       setActionLoading(false);
     }
@@ -105,34 +134,99 @@ const DashboardPage = () => {
 
   return (
     <AdminLayout title="System Overview">
-      <div className="space-y-8">
-        
-        {/* WELCOME BANNER */}
-        <div className="bg-crimson rounded-3xl p-8 text-paper shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="absolute -right-8 -bottom-8 w-64 h-64 bg-crimson/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 space-y-2">
-            <h2 className="text-3xl font-serif font-bold tracking-tight">System Command Center</h2>
-            <p>Approves or rejects hospital based on their information, gives reasons if it was rejected and posts upcoming events across Ethiopia.</p>
+      <div className="space-y-6">
+
+        {/* PAGE HEADER — matches the hospital dashboard header structure */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-line-soft gap-4">
+          <div>
+            <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
+              <ShieldCheck className="w-6 h-6 text-crimson stroke-[1.75]" />
+              <span>System Overview</span>
+            </h1>
+            <p className="text-sm font-sans text-ink-soft mt-1">
+              Review pending hospital applications and keep the Legash facility network verified.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/admin/hospital-analytics"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft rounded-xl text-xs font-sans font-semibold transition-colors"
+            >
+              <PieChart className="w-4 h-4 text-ink-soft stroke-[1.75]" />
+              <span>View Analytics</span>
+            </Link>
           </div>
         </div>
 
-        {/* STATS STRIP */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <AdminStatCard label="Pending Approval" value={loading ? '...' : hospitals.length} icon={<Clock />} color="text-amber-500" />
-           <AdminStatCard label="System Integrity" value="Active" icon={<ShieldCheck />} color="text-verified" />
-           <AdminStatCard label="Portal Status" value="Online" icon={<Activity />} color="text-crimson" />
+        {/* WELCOME BANNER — hospital portal gradient + pill badge + CTA pattern */}
+        <div className="bg-gradient-to-r from-crimson via-crimson to-crimson-dark rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="space-y-2 z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-red-100 border border-white/20">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 stroke-[1.75]" />
+              <span>Legash Admin Console</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-white">
+              Welcome, {user?.name || 'Administrator'}
+            </h2>
+            <p className="text-sm font-sans text-red-100 max-w-2xl leading-relaxed">
+              Approve or reject hospital applications based on their submitted information, provide a reason when declining, and keep the verification queue moving across Ethiopia.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 z-10">
+            <button
+              type="button"
+              onClick={loadPendingHospitals}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-crimson hover:bg-paper font-sans font-bold rounded-xl text-xs transition-all shadow-sm disabled:opacity-60"
+            >
+              <RefreshCw className={`w-4 h-4 text-crimson stroke-[1.75] ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh Queue</span>
+            </button>
+          </div>
         </div>
 
-        {/* LIST HEADER */}
-        <div className="flex items-center justify-between border-b border-line-soft pb-4">
-           <h3 className="text-sm font-mono font-bold text-ink-soft uppercase tracking-widest flex items-center gap-2">
-             <Building2 size={16} className="text-crimson" /> Facility Verification Queue
-           </h3>
+        {/* STATS STRIP — bordered cards with mono labels + status chips */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <AdminStatCard
+            label="Pending Approval"
+            value={loading ? '...' : String(hospitals.length)}
+            icon={<Clock />}
+            chip={
+              loading
+                ? { text: 'Loading', tone: 'verified' }
+                : hospitals.length === 0
+                  ? { text: 'Clear', tone: 'verified' }
+                  : { text: 'Awaiting', tone: 'crimson' }
+            }
+          />
+          <AdminStatCard label="System Integrity" value="Active" icon={<ShieldCheck />} chip={{ text: 'Secure', tone: 'verified' }} />
+          <AdminStatCard label="Portal Status" value="Online" icon={<Activity />} chip={{ text: 'Live', tone: 'verified' }} />
+        </div>
+
+        {/* LIST HEADER — shared section-header pattern */}
+        <div className="flex items-center justify-between border-b border-line-soft pb-4 gap-4">
+          <div>
+            <h2 className="text-base font-serif font-bold text-ink flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-crimson stroke-[1.75]" />
+              <span>Facility Verification Queue</span>
+            </h2>
+            <p className="text-xs font-sans text-ink-soft mt-0.5">
+              New hospital registrations waiting for approval or a rejection reason.
+            </p>
+          </div>
+          {!loading && !error && (
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-ink-soft bg-paper border border-line-soft px-2.5 py-1 rounded-lg whitespace-nowrap">
+              {hospitals.length} pending
+            </span>
+          )}
         </div>
 
         {/* LOADING & ERROR STATES */}
         {loading ? (
-          <div className="bg-white rounded-[32px] border border-line-soft shadow-xs">
+          <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
             <LoadingState text="Loading verification queue..." />
           </div>
         ) : error ? (
@@ -149,7 +243,7 @@ const DashboardPage = () => {
                 layoutId={hosp.id}
                 key={hosp.id}
                 onClick={() => setSelectedHosp(hosp)}
-                className="bg-white border border-line-soft rounded-[24px] p-6 hover:shadow-xl hover:border-crimson/20 transition-all cursor-pointer group"
+                className="bg-white border border-line-soft rounded-2xl p-6 hover:shadow-md hover:border-crimson/20 transition-all cursor-pointer group"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-10 h-10 rounded-xl bg-paper flex items-center justify-center text-ink-soft group-hover:bg-crimson group-hover:text-white transition-colors">
@@ -168,8 +262,12 @@ const DashboardPage = () => {
             ))}
           </div>
         ) : (
-          <div className="py-20 text-center bg-white rounded-[32px] border border-dashed border-line-soft">
+          <div className="py-16 text-center bg-white rounded-2xl border border-dashed border-line-soft">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-verified/10 flex items-center justify-center text-verified mb-3">
+              <CheckCircle2 size={24} className="stroke-[1.75]" />
+            </div>
             <p className="text-ink-soft font-serif italic text-lg">Verification queue is currently empty.</p>
+            <p className="text-xs font-sans text-ink-soft/70 mt-1">New hospital applications will appear here for review.</p>
           </div>
         )}
       </div>
@@ -190,7 +288,7 @@ const DashboardPage = () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white rounded-3xl sm:rounded-[40px] shadow-2xl border border-line-soft w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+              className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-line-soft w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
             >
               {/* Modal Header */}
               <div className="p-5 sm:p-8 border-b border-line-soft flex justify-between items-center bg-paper/30 shrink-0">
@@ -259,7 +357,7 @@ const DashboardPage = () => {
                     <textarea 
                       autoFocus
                       disabled={actionLoading}
-                      className="w-full h-36 sm:h-40 p-4 sm:p-5 bg-paper border border-line-soft rounded-2xl sm:rounded-[24px] outline-none focus:border-crimson text-sm resize-none"
+                      className="w-full h-36 sm:h-40 p-4 sm:p-5 bg-paper border border-line-soft rounded-2xl outline-none focus:border-crimson text-sm resize-none"
                       placeholder="Write your reason here..."
                       value={rejectionReason}
                       onChange={(e) => setReason(e.target.value)}
@@ -287,19 +385,38 @@ const DashboardPage = () => {
 };
 
 // --- HELPERS ---
-const AdminStatCard = ({ label, value, icon, color }: any) => (
-  <div className="bg-white border border-line-soft rounded-3xl p-6 shadow-sm flex items-center gap-5">
-    <div className={`w-12 h-12 rounded-2xl bg-paper flex items-center justify-center ${color}`}>{React.cloneElement(icon as React.ReactElement<any>, { size: 24 })}</div>
-    <div>
-      <p className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">{label}</p>
-      <p className="text-2xl font-serif font-bold text-ink">{value}</p>
+interface StatChip {
+  text: string;
+  tone: 'crimson' | 'verified';
+}
+
+const AdminStatCard = ({ label, value, icon, chip }: {
+  label: string;
+  value: React.ReactNode;
+  icon: React.ReactElement;
+  chip: StatChip;
+}) => (
+  <div className="bg-white rounded-2xl border border-line-soft shadow-xs p-6 space-y-4">
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2 text-ink-soft/60">
+        {React.cloneElement(icon as React.ReactElement<{ size?: number; className?: string }>, { size: 16, className: 'w-4 h-4 stroke-[1.75]' })}
+        <span className="text-[10px] font-mono font-bold text-ink-soft/60 uppercase tracking-widest">{label}</span>
+      </div>
+      <span
+        className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+          chip.tone === 'verified' ? 'bg-verified/10 text-verified' : 'bg-crimson/10 text-crimson'
+        }`}
+      >
+        {chip.text}
+      </span>
     </div>
+    <p className="text-2xl font-serif font-bold text-ink tracking-tight">{value}</p>
   </div>
 );
 
-const DetailItem = ({ label, value, icon }: any) => (
+const DetailItem = ({ label, value, icon }: { label: string; value: React.ReactNode; icon: React.ReactElement }) => (
   <div className="flex gap-4 items-start">
-    <div className="text-crimson mt-1">{React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}</div>
+    <div className="text-crimson mt-1">{React.cloneElement(icon as React.ReactElement<{ size?: number }>, { size: 18 })}</div>
     <div>
       <p className="text-[9px] font-mono font-bold text-ink-soft/50 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-sm font-bold text-ink leading-tight">{value}</p>
