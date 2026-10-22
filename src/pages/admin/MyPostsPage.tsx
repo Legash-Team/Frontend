@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { ClipboardList } from 'lucide-react';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -52,7 +53,7 @@ const MyPostsPage = () => {
   };
 
   return (
-    <AdminLayout title="My Posts">
+    <AdminLayout title="My Posts" icon={<ClipboardList size={16} className="stroke-[1.75]" />}>
       <div className="space-y-6 max-w-5xl mx-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-line-soft">

@@ -178,7 +178,9 @@ export const EditProfilePage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      icon={<Pencil size={16} className="stroke-[1.75]" />}
+    >
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-200">
@@ -190,8 +192,7 @@ export const EditProfilePage: React.FC = () => {
               <span>/</span>
               <span className="text-gray-900">Edit</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-              <Pencil className="w-6 h-6 text-red-600" />
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
               <span>Edit Hospital Profile</span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">

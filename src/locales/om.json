@@ -54,18 +54,6 @@
     "noData": "Odeeffannoo hin jiru.",
     "noTrends": "Yeroo dhiibbaa odeeffannoo hin jiru."
   },
-  "myEvents": {
-    "title": "Gochoota Kiyya",
-    "description": "Gochii kiyyaa keessani qorannoo fi to'atanii ilaali.",
-    "createNew": "Gocha Maxxansi",
-    "backendPendingTitle": "Feature Under Development",
-    "backendPendingDescription": "The My Events page is not yet connected to the backend. A creator-scoped endpoint is being implemented to ensure administrators only see events they are authorized to access.",
-    "requiredEndpoint": "Required Endpoint:",
-    "req1": "Server-side filtering by authenticated user identity (req.user.id)",
-    "req2": "Return only events where createdBy matches the authenticated admin",
-    "req3": "Enforce authorization via existing permission middleware",
-    "noDataMessage": "No event data is displayed until the backend endpoint is available."
-  },
   "eventPosting": {
     "titleLabel": "Mataa Gocha",
     "titlePlaceholder": "fkn. Gocha Dhiigaa Hawaasaa — Boolee",

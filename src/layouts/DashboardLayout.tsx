@@ -13,16 +13,17 @@ import {
   LogOut,
   Menu,
   X,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronLeft,
+  ChevronRight,
   Building2,
 } from 'lucide-react';
 
 export interface DashboardLayoutProps {
   children: React.ReactNode;
+  icon?: React.ReactNode;
 }
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -150,20 +151,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       >
         {/* Brand Header & Minimize Toggle Button */}
         <div
-          className={`py-5 border-b border-line-soft flex items-center justify-between ${isMinimized ? 'px-3 flex-col gap-3' : 'px-5'
+          className={`h-[76px] border-b border-line-soft flex items-center ${isMinimized ? 'justify-center px-3' : 'justify-between px-5'
             }`}
         >
           <div className="flex items-center gap-3">
             {!isMinimized ? (
-              <div className="overflow-hidden whitespace-nowrap">
-                <div className="flex items-center gap-2">
-                  <Logo />
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
-                    Hospital
-                  </span>
-                </div>
-                <p className="text-[11px] font-sans text-ink-soft/70 font-medium mt-0.5">Emergency Blood Network</p>
-              </div>
+              <Logo />
             ) : (
               <div className="p-1">
                 <span className="inline-block transform translate-y-[1px]">
@@ -175,31 +168,31 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsMinimized((prev) => !prev)}
-            className="p-1.5 text-ink-soft hover:text-ink rounded-lg hover:bg-paper-dim transition-colors focus:outline-none"
-            title={isMinimized ? 'Expand Sidebar' : 'Minimize Sidebar'}
-            aria-label={isMinimized ? 'Expand Sidebar' : 'Minimize Sidebar'}
-          >
-            {isMinimized ? (
-              <PanelLeftOpen className="w-5 h-5 text-ink-soft stroke-[2]" />
-            ) : (
-              <PanelLeftClose className="w-5 h-5 text-ink-soft stroke-[2]" />
-            )}
-          </button>
+          {!isMinimized && (
+            <button
+              type="button"
+              onClick={() => setIsMinimized(true)}
+              className="p-1.5 rounded-lg hover:bg-paper text-ink-soft transition-colors focus:outline-none"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
         </div>
 
-        {/* Facility Info Card (expanded state) */}
-        {!isMinimized && (
-          <div className="px-4 py-3 mx-3 mt-3 bg-paper/70 border border-line-soft rounded-xl flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-crimson/10 text-crimson flex items-center justify-center shrink-0">
-              <Building2 className="w-4 h-4 stroke-[2]" />
-            </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-serif font-bold text-ink truncate">{hospitalDisplayName}</p>
-              <p className="text-[10px] font-mono text-ink-soft truncate">{user?.email || 'Verified Facility'}</p>
-            </div>
+        {/* Expand trigger when collapsed */}
+        {isMinimized && (
+          <div className="flex justify-center py-4 border-b border-line-soft">
+            <button
+              type="button"
+              onClick={() => setIsMinimized(false)}
+              className="p-2 rounded-full bg-crimson/5 text-crimson hover:bg-crimson/10 transition-colors hover:scale-110 focus:outline-none"
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
         )}
 
@@ -230,9 +223,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
         {/* Footer / Sign Out Button */}
         <div className="p-3 border-t border-gray-200 bg-gray-50/50">
-          <div className={isMinimized ? 'flex justify-center' : ''}>
-            <LanguageSwitcher />
-          </div>
           <button
             type="button"
             onClick={handleSignOut}
@@ -248,16 +238,30 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Main Content Container */}
       <div
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${isMinimized ? 'md:pl-20' : 'md:pl-64'
-          }`}
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${isMinimized ? 'md:pl-20' : 'md:pl-64'}`}
       >
+        {/* Desktop Top Header — mirrors AdminLayout: per-page icon badge + language switcher + Hospital label */}
+        <header className="hidden md:flex h-[76px] bg-white border-b border-line-soft px-8 items-center justify-between shrink-0 sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-lg bg-crimson/10 flex items-center justify-center text-crimson shrink-0"
+              aria-hidden="true"
+            >
+              {icon ?? <Building2 size={16} className="stroke-[1.75]" />}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <LanguageSwitcher />
+            <span className="text-[10px] font-mono font-bold px-2.5 py-1 bg-crimson/10 text-crimson rounded-full uppercase whitespace-nowrap">
+              Hospital
+            </span>
+          </div>
+        </header>
+
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
-
-        <footer className="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Legash Blood Network. All rights reserved.</p>
-        </footer>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { CalendarPlus } from 'lucide-react';
 import { 
   Upload, 
   ImageIcon, 
@@ -101,7 +102,7 @@ const EventPostingPage = () => {
   };
 
   return (
-    <AdminLayout title="Event Broadcast">
+    <AdminLayout title="Post Event" icon={<CalendarPlus size={16} className="stroke-[1.75]" />}>
       <div className="grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 lg:gap-12 items-start">
         
         {/* LEFT: THE FORM */}

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  Menu, 
-  LayoutDashboard, 
-  MessageSquare, 
-  CalendarPlus, 
+import {
+  LayoutDashboard,
+  MessageSquare,
+  CalendarPlus,
   UserPlus,
   LogOut,
   ChevronLeft,
+  ChevronRight,
   X,
   ClipboardList,
   Database,
@@ -33,21 +33,24 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
   const menuItems = [];
 
   if (canApprove) {
-    menuItems.push({ icon: LayoutDashboard, label: 'Facilities', path: '/admin/dashboard' });
-    menuItems.push({ icon: MessageSquare, label: 'Feedbacks', path: '/admin/feedbacks' });
-    menuItems.push({ icon: Database, label: 'Hospital Stock', path: '/admin/hospital-stock' });
+    menuItems.push({ icon: LayoutDashboard, label: 'Hospitals', path: '/admin/dashboard' });
+    menuItems.push({ icon: Database, label: 'Hospitals Blood Stock', path: '/admin/hospital-stock' });
     menuItems.push({ icon: PieChart, label: 'Analytics', path: '/admin/hospital-analytics' });
   }
 
   if (canPost) {
     menuItems.push({ icon: CalendarPlus, label: 'Post Event', path: '/admin/events' });
     menuItems.push({ icon: ClipboardList, label: 'My Posts', path: '/admin/my-posts' });
-    menuItems.push({ icon: CalendarPlus, label: 'My Events', path: '/admin/my-events' });
   }
 
   // Only show "Create Admin" if the user is a superadmin
   if (isSuperAdmin) {
     menuItems.push({ icon: UserPlus, label: 'Create Admin', path: '/admin/create-admin' });
+  }
+
+  // Feedback always sits at the very end of the menu
+  if (canApprove) {
+    menuItems.push({ icon: MessageSquare, label: 'Feedback', path: '/admin/feedbacks' });
   }
   
   const handleSignOut = () => {
@@ -161,12 +164,12 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
         {/* Expand trigger when collapsed */}
         {isCollapsed && (
           <div className="flex justify-center py-4 border-b border-line-soft">
-            <button 
+            <button
               onClick={() => setIsCollapsed(false)}
-              className="p-2 rounded-full bg-crimson/5 text-crimson hover:bg-crimson/10 transition-colors"
+              className="p-2 rounded-full bg-crimson/5 text-crimson hover:bg-crimson/10 transition-colors hover:scale-110"
               title="Expand sidebar"
             >
-              <Menu size={20} />
+              <ChevronRight size={20} />
             </button>
           </div>
         )}

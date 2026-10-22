@@ -209,13 +209,14 @@ export const HospitalProfilePage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      icon={<Building2 size={16} className="stroke-[1.75]" />}
+    >
       <div className="space-y-8 max-w-5xl mx-auto">
         {/* Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-line-soft">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
-              <Building2 className="w-6 h-6 text-crimson stroke-[1.75]" />
+            <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
               <span>Hospital Profile</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">

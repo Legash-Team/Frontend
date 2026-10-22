@@ -33,7 +33,6 @@ import AdminSetupPage from './pages/admin/AdminSetupPage';
 import MyPostsPage from './pages/admin/MyPostsPage';
 import HospitalStockPage from './pages/admin/HospitalStockPage';
 import HospitalAnalyticsPage from './pages/admin/HospitalAnalyticsPage';
-import MyEventsPage from './pages/admin/MyEventsPage';
 
 export const App: React.FC = () => {
   return (
@@ -167,16 +166,6 @@ export const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/admin/my-events"
-              element={
-                <ProtectedRoute requireCanPostEvents>
-                  <MyEventsPage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Setup doesn't need to be protected (uses token in URL) */}
             <Route path="/admin/setup" element={<AdminSetupPage />} />
             
             {/* --- FALLBACK REDIRECT --- */}

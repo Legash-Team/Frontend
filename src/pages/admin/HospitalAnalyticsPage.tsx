@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { PieChart } from 'lucide-react';
 import { fetchHospitalAnalytics } from './api/admin-api';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -40,13 +41,17 @@ const HospitalAnalyticsPage = () => {
   }, []);
 
   return (
-    <AdminLayout title={t('hospitalAnalytics.title')}>
+    <AdminLayout
+        title={t('hospitalAnalytics.title')}
+        icon={<PieChart size={16} className="stroke-[1.75]" />}
+      >
       <div className="space-y-8">
-        <div className="bg-crimson rounded-3xl p-8 text-paper shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="absolute -right-8 -bottom-8 w-64 h-64 bg-crimson/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl border border-line-soft bg-white shadow-sm p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="absolute -right-10 -bottom-16 w-56 h-56 rounded-full bg-crimson/[0.07] blur-3xl pointer-events-none" />
+          <div className="absolute -left-16 -top-16 w-48 h-48 rounded-full bg-sand/50 blur-3xl pointer-events-none" />
           <div className="relative z-10 space-y-2">
-            <h2 className="text-3xl font-serif font-bold tracking-tight">{t('hospitalAnalytics.title')}</h2>
-            <p>{t('hospitalAnalytics.description')}</p>
+            <h2 className="text-3xl font-serif font-bold tracking-tight text-ink">{t('hospitalAnalytics.title')}</h2>
+            <p className="text-ink-soft">{t('hospitalAnalytics.description')}</p>
           </div>
         </div>
 

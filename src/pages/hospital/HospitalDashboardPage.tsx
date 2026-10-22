@@ -64,13 +64,14 @@ export const HospitalDashboardPage: React.FC = () => {
     {};
 
   return (
-    <DashboardLayout>
+    <DashboardLayout
+      icon={<LayoutDashboard size={16} className="stroke-[1.75]" />}
+    >
       <div className="space-y-6">
         {/* Page Banner Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-line-soft gap-4">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
-              <LayoutDashboard className="w-6 h-6 text-crimson stroke-[1.75]" />
+            <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
               <span>Hospital Dashboard</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
