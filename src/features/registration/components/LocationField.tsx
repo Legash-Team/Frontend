@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button';
 import { MapPin, Navigation, CheckCircle2 } from 'lucide-react';
 import type { LocationData } from '../types/registration-types';
@@ -20,11 +21,13 @@ export const LocationField: React.FC<LocationFieldProps> = ({
   onGetLocation,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-3">
       {/* 1. Synced Label */}
       <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-        Facility Location <span className="text-crimson">*</span>
+        {t('auth.register.facilityLocation')} <span className="text-crimson">*</span>
       </label>
 
       {/* 2. Wide Action Area (2-Column Grid) */}
@@ -36,18 +39,18 @@ export const LocationField: React.FC<LocationFieldProps> = ({
             variant={location ? "ghost" : "outline"}
             onClick={onGetLocation}
             isLoading={locationLoading}
-            loadingText="Accessing GPS..."
+            loadingText={t('auth.register.accessingGps')}
             disabled={disabled}
             className={`w-full h-12 text-xs font-bold rounded-xl border-line-soft transition-all
               ${location ? 'bg-verified/5 text-verified border-verified/20' : 'bg-paper text-ink hover:bg-sand/20'}`}
           >
             {location ? (
               <span className="flex items-center gap-2">
-                <Navigation size={14} /> Update Location
+                <Navigation size={14} /> {t('auth.register.updateLocation')}
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <MapPin size={14} className="text-crimson" /> Current Location
+                <MapPin size={14} className="text-crimson" /> {t('auth.register.currentLocation')}
               </span>
             )}
           </Button>
@@ -61,10 +64,10 @@ export const LocationField: React.FC<LocationFieldProps> = ({
         >
           {location ? (
             <span className="flex items-center gap-2">
-              <CheckCircle2 size={14} /> Location Found
+              <CheckCircle2 size={14} /> {t('auth.register.locationFound')}
             </span>
           ) : (
-            'WAITING TO LOCATE...'
+            t('auth.register.waitingToLocate')
           )}
         </div>
       </div>
@@ -78,7 +81,7 @@ export const LocationField: React.FC<LocationFieldProps> = ({
         )}
         
         <p className="text-[10px] text-ink-soft/50 italic leading-relaxed">
-          * Coordinates required to calculate donor proximity.
+          {t('auth.register.locationHint')}
         </p>
       </div>
     </div>

@@ -74,7 +74,7 @@ export const Footer = () => {
           <ScrollReveal className="lg:col-span-6 flex flex-col items-start">
             <Logo className="text-paper mb-5 sm:mb-6" />
             <p className="text-paper/50 text-sm sm:text-[0.95rem] max-w-sm leading-relaxed">
-              The professional digital link between Ethiopia's medical facilities and a verified network of donors. Optimized for speed, privacy, and precision.
+              The link between Ethiopia's health care and a verififed network of donors. Optimized to help the health care system and donors to connect and work together to save lives.
             </p>
           </ScrollReveal>
 
@@ -82,7 +82,7 @@ export const Footer = () => {
           <div className="lg:col-span-6 grid grid-cols-2 gap-8 sm:gap-12">
             <ScrollReveal delay={100}>
               <FooterGroup
-                title="Network"
+                title="Company"
                 links={[
                   { label: 'How it works', href: '#how' },
                   { label: 'About Us', href: '#about' },
@@ -108,11 +108,9 @@ export const Footer = () => {
         <ScrollReveal className="pt-8 sm:pt-10 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8 text-center sm:text-left">
           <div className="flex flex-col items-center sm:items-start gap-2">
             <div className="text-[10px] font-mono font-bold tracking-[0.15em] text-paper/40 uppercase">
-              © {new Date().getFullYear()} LEGASH WEB. All rights reserved.
+              © {new Date().getFullYear()} LEGASH. All rights reserved.
             </div>
-            <div className="text-[10px] font-mono tracking-[0.15em] text-paper/25 uppercase">
-              Ethiopia’s digital blood infrastructure
-            </div>
+            
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-8">

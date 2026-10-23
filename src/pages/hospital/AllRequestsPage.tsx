@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getBloodRequests, getBloodRequestResponses } from '@/features/hospital/api/hospital-api';
 import type { BloodRequest, AcceptedDonor } from '@/features/hospital/types/hospital-types';
@@ -20,11 +20,13 @@ import {
   X,
   Eye,
   CheckCircle2,
+  FileHeart,
 } from 'lucide-react';
 import { useDialog } from '@/context/DialogContext';
 
 export const AllRequestsPage: React.FC = () => {
   const { confirm, toast } = useDialog();
+  const navigate = useNavigate();
   type FilterOption = 'All' | 'Emergency' | 'Standard';
   const [filter, setFilter] = useState<FilterOption>('All');
   const [requests, setRequests] = useState<BloodRequest[]>([]);
@@ -505,6 +507,19 @@ export const AllRequestsPage: React.FC = () => {
                           </div>
                         )}
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate('/hospital/medical-records', {
+                            state: { request: selectedRequest, donor },
+                          })
+                        }
+                        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-crimson/10 hover:bg-crimson text-crimson hover:text-white border border-crimson/20 rounded-lg font-sans font-semibold transition-colors"
+                      >
+                        <FileHeart className="w-3.5 h-3.5" />
+                        <span>Record Donation</span>
+                      </button>
                     </div>
                   ))}
                 </div>

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { AuthVisual } from '@/features/auth/components/AuthVisual';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
       <header className="h-[76px] w-full bg-paper/90 backdrop-blur-md border-b border-line-soft z-30 shrink-0 sticky top-0">
         <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center justify-between">
           <Logo />
+          <LanguageSwitcher />
         </div>
       </header>
 

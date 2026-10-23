@@ -155,7 +155,7 @@ export const BloodStockPage: React.FC = () => {
               <span>Blood Stock Inventory</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Manage blood kit quantities across all 8 standard blood groups. Overview cards display the current database stock.
+              Manage blood kit quantities across all 8 standard blood groups. Overview cards display your current stock.
             </p>
           </div>
 
@@ -176,11 +176,11 @@ export const BloodStockPage: React.FC = () => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-ink-soft">
-              Current Registered Database Stock
+              Current Registered Stock
             </span>
             {hasUnsavedChanges && (
               <span className="text-xs font-mono font-medium text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md animate-pulse">
-                Unsaved edits staged below
+                Unsaved changes below
               </span>
             )}
           </div>
@@ -251,7 +251,7 @@ export const BloodStockPage: React.FC = () => {
                 </span>
               ) : (
                 <span className="text-[11px] font-mono text-red-100 font-medium uppercase tracking-wider">
-                  Synced with Database
+                  Up to date
                 </span>
               )}
             </div>
@@ -338,7 +338,7 @@ export const BloodStockPage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-line-soft">
                   <div className="flex items-center gap-2 text-xs font-sans text-ink-soft">
                     <Info className="w-4 h-4 text-crimson shrink-0 stroke-[1.75]" />
-                    <span>Edits are staged locally. Click &apos;Save Stock Inventory&apos; to commit all 8 blood types to the database.</span>
+                    <span>Edits are not saved yet. Click &apos;Save Stock Inventory&apos; to save all 8 blood types.</span>
                   </div>
 
                   <div className="flex items-center gap-3">

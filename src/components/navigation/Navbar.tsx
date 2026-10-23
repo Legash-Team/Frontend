@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 import { Button } from '@/components/ui/Button';
 import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
 
 export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,8 +25,8 @@ export const Navbar = () => {
           <ul className="hidden md:flex items-center gap-8 lg:gap-9">
             {navLinks.map((link) => (
               <li key={link.href}>
-                <a 
-                  href={link.href} 
+                <a
+                  href={link.href}
                   className="group relative py-2 text-[0.94rem] font-medium text-ink-soft hover:text-crimson transition-colors duration-300"
                 >
                   {link.name}
@@ -72,7 +73,7 @@ export const Navbar = () => {
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a 
+                  <a
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className="block py-2 text-base font-bold text-ink-soft hover:text-crimson transition-colors"
@@ -97,7 +98,7 @@ export const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 text-xs font-bold uppercase tracking-widest text-ink-soft hover:text-crimson"
               >
-                Sign In to Portal
+                Sign In
               </Link>
             </div>
           </div>

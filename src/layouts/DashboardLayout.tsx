@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   User,
@@ -16,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  FileHeart,
 } from 'lucide-react';
 
 export interface DashboardLayoutProps {
@@ -28,15 +30,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   const navItems = [
-    { label: 'Dashboard', path: '/hospital/dashboard', icon: LayoutDashboard },
-    { label: 'Blood Stock', path: '/hospital/blood-stock', icon: Droplets },
-    { label: 'Blood Request', path: '/hospital/blood-request', icon: PlusCircle },
-    { label: 'All Requests', path: '/hospital/all-requests', icon: ClipboardList },
-    { label: 'Hospital Search', path: '/hospital/search', icon: Search },
+    { label: t('nav.hospital.dashboard'), path: '/hospital/dashboard', icon: LayoutDashboard },
+    { label: t('nav.hospital.bloodStock'), path: '/hospital/blood-stock', icon: Droplets },
+    { label: t('nav.hospital.bloodRequest'), path: '/hospital/blood-request', icon: PlusCircle },
+    { label: t('nav.hospital.allRequests'), path: '/hospital/all-requests', icon: ClipboardList },
+    { label: t('nav.hospital.hospitalSearch'), path: '/hospital/search', icon: Search },
+    { label: t('nav.hospital.medicalRecords'), path: '/hospital/medical-records', icon: FileHeart },
     {
-      label: 'Profile',
+      label: t('nav.hospital.profile'),
       path: '/hospital/profile',
       icon: User
     },
@@ -47,7 +51,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
     navigate('/login', { replace: true });
   };
 
-  const hospitalDisplayName = user?.name || user?.hospitalName || 'Hospital Portal';
+  const hospitalDisplayName = user?.name || user?.hospitalName || t('badge.hospital');
 
   return (
     <div className="min-h-screen bg-paper flex flex-col md:flex-row font-sans text-ink">
@@ -56,7 +60,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
         <div className="flex items-center gap-2">
           <Logo  />
           <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
-            Hospital
+            {t('badge.hospital')}
           </span>
         </div>
 
@@ -88,7 +92,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
               <div className="flex items-center gap-2">
                 <Logo />
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-crimson/10 text-crimson">
-                  Portal
+                  {t('badge.hospital')}
                 </span>
               </div>
               <button
@@ -103,7 +107,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
             {/* Hospital User Badge */}
             <div className="px-4 py-3 bg-paper border-b border-line-soft">
               <p className="text-xs font-serif font-bold text-ink truncate">{hospitalDisplayName}</p>
-              <p className="text-[11px] font-sans text-ink-soft truncate">{user?.email || 'Verified Facility'}</p>
+              <p className="text-[11px] font-sans text-ink-soft truncate">{user?.email || t('common.verifiedFacility')}</p>
             </div>
 
             <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
@@ -137,7 +141,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
                 className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors"
               >
                 <LogOut className="w-4 h-4 shrink-0 stroke-[2]" />
-                <span>Sign Out</span>
+                <span>{t('common.signOut')}</span>
               </button>
             </div>
           </div>
@@ -226,12 +230,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
           <button
             type="button"
             onClick={handleSignOut}
-            title={isMinimized ? 'Sign Out' : undefined}
+            title={isMinimized ? t('common.signOut') : undefined}
             className={`flex items-center gap-3 w-full rounded-xl text-sm font-bold text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors ${isMinimized ? 'justify-center p-3' : 'px-3.5 py-2.5'
               }`}
           >
             <LogOut className="w-4 h-4 shrink-0 stroke-[2] text-gray-500 group-hover:text-red-700" />
-            {!isMinimized && <span className="whitespace-nowrap">Sign Out</span>}
+            {!isMinimized && <span className="whitespace-nowrap">{t('common.signOut')}</span>}
           </button>
         </div>
       </aside>
@@ -254,7 +258,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
           <div className="flex items-center gap-3 shrink-0">
             <LanguageSwitcher />
             <span className="text-[10px] font-mono font-bold px-2.5 py-1 bg-crimson/10 text-crimson rounded-full uppercase whitespace-nowrap">
-              Hospital
+              {t('badge.hospital')}
             </span>
           </div>
         </header>

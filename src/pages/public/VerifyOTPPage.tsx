@@ -152,7 +152,7 @@ const handleResend = async () => {
   return (
     <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-4 sm:p-6">
       
-      <div className="w-full max-w-md mb-6 sm:mb-8">
+      <div className="w-full max-w-lg mb-6 sm:mb-8">
         <Link to="/register" className="inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-crimson transition-colors group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           Back to registration
@@ -162,7 +162,7 @@ const handleResend = async () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white border border-line-soft rounded-3xl sm:rounded-[40px] p-6 sm:p-10 md:p-12 shadow-2xl shadow-ink/5"
+        className="w-full max-w-lg bg-white border border-line-soft rounded-3xl sm:rounded-[40px] p-6 sm:p-10 md:p-12 shadow-2xl shadow-ink/5"
       >
         <div className="text-center mb-8 sm:mb-10">
           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-crimson">
@@ -255,7 +255,7 @@ const handleResend = async () => {
           onClick={handleVerify}
           isLoading={isVerifying}
           disabled={otp.some(d => !d)}
-          className="w-full h-14 rounded-2xl text-base font-bold shadow-lg mb-8"
+          className="w-full h-14 rounded-2xl text-base font-bold shadow-md border-2 border-crimson disabled:opacity-100 mb-8"
         >
           Verify Account
         </Button>

@@ -84,6 +84,27 @@ export const setupAdminPassword = async (payload: any) => {
 };
 
 /**
+ * Completes an invitation sent by a Super Admin (Invite Admin page).
+ * The invitee sets their name, password, location and phone number here.
+ * No OTP verification happens afterwards — they go straight to login.
+ * POST /api/auth/accept-invitation
+ */
+export const acceptInvitation = async (payload: {
+  token: string;
+  name: string;
+  password: string;
+  phone: string;
+  location: { lat: number; lng: number };
+}) => {
+  try {
+    const response = await axiosInstance.post('/api/auth/accept-invitation', payload);
+    return response.data; // Expected: { success: true, message: "..." }
+  } catch (error: any) {
+    throw error.response?.data?.error || "Failed to complete account setup. Link may be expired.";
+  }
+};
+
+/**
  * Submit feedback/appeal for rejected hospital
  * POST /api/hospital/feedback
  */

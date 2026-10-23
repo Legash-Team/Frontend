@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { RegisterFormData, FormErrors } from '../types/registration-types';
 import { registerHospital } from '../api/registration-api';
 
@@ -17,6 +18,7 @@ const INITIAL_FORM_DATA: RegisterFormData = {
 
 export const useRegisterForm = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState<RegisterFormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -48,7 +50,7 @@ export const useRegisterForm = () => {
     setLocationError(null);
 
     if (!navigator.geolocation) {
-      const err = 'Geolocation is not supported by your browser.';
+      const err = t('auth.register.errors.geoUnsupported');
       setLocationError(err);
       setErrors((prev) => ({ ...prev, location: err }));
       return;
@@ -72,13 +74,13 @@ export const useRegisterForm = () => {
       },
       (error) => {
         setLocationLoading(false);
-        let errorMsg = 'Failed to retrieve location.';
+        let errorMsg = t('auth.register.errors.geoFailed');
         if (error.code === error.PERMISSION_DENIED) {
-          errorMsg = 'Location permission denied. Please allow browser location access.';
+          errorMsg = t('auth.register.errors.geoDenied');
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errorMsg = 'Location information is unavailable.';
+          errorMsg = t('auth.register.errors.geoUnavailable');
         } else if (error.code === error.TIMEOUT) {
-          errorMsg = 'Location request timed out. Please try again.';
+          errorMsg = t('auth.register.errors.geoTimeout');
         }
         setLocationError(errorMsg);
         setErrors((prev) => ({ ...prev, location: errorMsg }));
@@ -97,15 +99,15 @@ export const useRegisterForm = () => {
 
     // 1. Hospital Name
     if (!formData.name || !formData.name.trim()) {
-      newErrors.name = 'Hospital name is required.';
+      newErrors.name = t('auth.register.errors.nameRequired');
     }
 
     // 2. Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !formData.email.trim()) {
-      newErrors.email = 'Email is required.';
+      newErrors.email = t('auth.register.errors.emailRequired');
     } else if (!emailRegex.test(formData.email.trim())) {
-      newErrors.email = 'Please enter a valid email address.';
+      newErrors.email = t('auth.register.errors.emailInvalid');
     }
 
   // 3. Phone (Ethiopian format - exactly 9 digits after the +251 prefix)
@@ -113,45 +115,45 @@ const phoneTrimmed = formData.phone ? formData.phone.trim() : '';
 const suffixRegex = /^[0-9]{9}$/; // Only allows exactly 9 digits
 
 if (!phoneTrimmed) {
-  newErrors.phone = 'Phone number is required.';
+  newErrors.phone = t('auth.register.errors.phoneRequired');
 } else if (!suffixRegex.test(phoneTrimmed)) {
   // This message is much better for the user
-  newErrors.phone = 'Enter the 9 digits after +251 (e.g. 911223344)';
+  newErrors.phone = t('auth.register.errors.phoneInvalid');
 }
 
     // 4. License / Registration Number
     if (!formData.licenseNumber || !formData.licenseNumber.trim()) {
-      newErrors.licenseNumber = 'License / Registration number is required.';
+      newErrors.licenseNumber = t('auth.register.errors.licenseRequired');
     }
 
     // 5. Password
     const hasUppercase = /[A-Z]/.test(formData.password);
     const hasSpecial = /[^A-Za-z0-9]/.test(formData.password);
     if (!formData.password) {
-      newErrors.password = 'Password is required.';
+      newErrors.password = t('auth.register.errors.passwordRequired');
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters long.';
+      newErrors.password = t('auth.register.errors.passwordLength');
     } else if (!hasUppercase) {
-      newErrors.password = 'Password must contain at least 1 uppercase letter.';
+      newErrors.password = t('auth.register.errors.passwordUpper');
     } else if (!hasSpecial) {
-      newErrors.password = 'Password must contain at least 1 special character.';
+      newErrors.password = t('auth.register.errors.passwordSpecial');
     }
 
     // 6. Confirm Password
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirm password is required.';
+      newErrors.confirmPassword = t('auth.register.errors.confirmRequired');
     } else if (formData.confirmPassword !== formData.password) {
-      newErrors.confirmPassword = 'Passwords do not match.';
+      newErrors.confirmPassword = t('auth.register.errors.passwordMismatch');
     }
 
     // 7. Location
     if (!formData.location) {
-      newErrors.location = 'Hospital location is required. Please capture your location.';
+      newErrors.location = t('auth.register.errors.locationRequired');
     }
 
     // 8. Terms Agreement
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'You must agree to the Terms & Privacy Policy to register.';
+      newErrors.agreeToTerms = t('auth.register.errors.termsRequired');
     }
 
     setErrors(newErrors);

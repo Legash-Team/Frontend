@@ -1,12 +1,15 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import RegistrationForm from '@/features/registration/components/RegistrationForm';
 
 export const RegisterPage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <AuthLayout
-      title="Welcome to Legash"
-      subtitle="Register your healthcare facility or hospital account to join the network."
+      title={t('auth.register.title')}
+      subtitle={t('auth.register.subtitle')}
     >
       <RegistrationForm />
     </AuthLayout>
@@ -14,4 +17,3 @@ export const RegisterPage: React.FC = () => {
 };
 
 export default RegisterPage;
-

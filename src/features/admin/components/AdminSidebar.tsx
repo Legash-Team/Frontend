@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface AdminSidebarProps {
   mobileOpen?: boolean;
@@ -25,6 +26,7 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { logout, user } = useAuth(); 
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const isSuperAdmin = user?.role === 'superadmin';
   const canApprove = isSuperAdmin || Boolean(user?.permissions?.canApproveHospitals);
@@ -33,24 +35,24 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
   const menuItems = [];
 
   if (canApprove) {
-    menuItems.push({ icon: LayoutDashboard, label: 'Hospitals', path: '/admin/dashboard' });
-    menuItems.push({ icon: Database, label: 'Hospitals Blood Stock', path: '/admin/hospital-stock' });
-    menuItems.push({ icon: PieChart, label: 'Analytics', path: '/admin/hospital-analytics' });
+    menuItems.push({ icon: LayoutDashboard, label: t('nav.admin.hospitals'), path: '/admin/dashboard' });
+    menuItems.push({ icon: Database, label: t('nav.admin.hospitalBloodStock'), path: '/admin/hospital-stock' });
+    menuItems.push({ icon: PieChart, label: t('nav.admin.analytics'), path: '/admin/hospital-analytics' });
   }
 
   if (canPost) {
-    menuItems.push({ icon: CalendarPlus, label: 'Post Event', path: '/admin/events' });
-    menuItems.push({ icon: ClipboardList, label: 'My Posts', path: '/admin/my-posts' });
+    menuItems.push({ icon: CalendarPlus, label: t('nav.admin.postEvent'), path: '/admin/events' });
+    menuItems.push({ icon: ClipboardList, label: t('nav.admin.myPosts'), path: '/admin/my-posts' });
   }
 
-  // Only show "Create Admin" if the user is a superadmin
+  // Only show "Invite Admin" if the user is a superadmin
   if (isSuperAdmin) {
-    menuItems.push({ icon: UserPlus, label: 'Create Admin', path: '/admin/create-admin' });
+    menuItems.push({ icon: UserPlus, label: t('nav.admin.inviteAdmin'), path: '/admin/create-admin' });
   }
 
   // Feedback always sits at the very end of the menu
   if (canApprove) {
-    menuItems.push({ icon: MessageSquare, label: 'Feedback', path: '/admin/feedbacks' });
+    menuItems.push({ icon: MessageSquare, label: t('nav.admin.feedback'), path: '/admin/feedbacks' });
   }
   
   const handleSignOut = () => {
@@ -98,7 +100,7 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
         >
           <LogOut size={20} className="shrink-0" />
           <span className={`text-[11px] font-bold uppercase tracking-widest ${isCollapsed ? 'md:hidden' : ''}`}>
-            Sign Out
+            {t('common.signOut')}
           </span>
         </button>
       </div>
@@ -132,10 +134,10 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
             {/* Admin Badge */}
             <div className="px-6 py-3 bg-paper/60 border-b border-line-soft flex items-center justify-between">
               <span className="text-xs font-serif font-bold text-ink">
-                {user?.name || 'Administrator'}
+                {user?.name || t('common.administrator')}
               </span>
               <span className="text-[9px] font-mono font-bold px-2 py-0.5 bg-crimson/10 text-crimson rounded-full uppercase">
-                {isSuperAdmin ? 'Super' : 'Staff'}
+                {isSuperAdmin ? t('badge.super') : t('badge.staff')}
               </span>
             </div>
 

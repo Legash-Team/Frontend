@@ -10,6 +10,7 @@ export {
   markFeedbackReviewed,
   uploadMedia,
   createEvent,
-  createAdmin,
+  inviteAdmin,
   listAdmins,
+  deleteAdmin,
 } from '@/pages/admin/api/admin-api';

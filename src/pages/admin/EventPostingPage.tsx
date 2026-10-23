@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
 import { CalendarPlus } from 'lucide-react';
 import { 
   Upload, 
@@ -18,6 +20,11 @@ import { useDialog } from '@/context/DialogContext';
 const EventPostingPage = () => {
   const { toast } = useDialog();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const location = useLocation();
+
+  // Blood center users get the blood center chrome, admins keep the admin chrome
+  const isBloodCenter = location.pathname.startsWith('/blood-center');
+  const Layout = isBloodCenter ? BloodCenterLayout : AdminLayout;
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
@@ -102,7 +109,7 @@ const EventPostingPage = () => {
   };
 
   return (
-    <AdminLayout title="Post Event" icon={<CalendarPlus size={16} className="stroke-[1.75]" />}>
+    <Layout title="Post Event" icon={<CalendarPlus size={16} className="stroke-[1.75]" />}>
       <div className="grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 lg:gap-12 items-start">
         
         {/* LEFT: THE FORM */}
@@ -300,7 +307,7 @@ const EventPostingPage = () => {
         </div>
 
       </div>
-    </AdminLayout>
+    </Layout>
   );
 };
 

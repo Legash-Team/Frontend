@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, 
@@ -25,6 +27,12 @@ import { useDialog } from '@/context/DialogContext';
 
 const FeedbackPage = () => {
   const { confirm, toast } = useDialog();
+  const location = useLocation();
+
+  // Blood center users get the blood center chrome, admins keep the admin chrome
+  const isBloodCenter = location.pathname.startsWith('/blood-center');
+  const Layout = isBloodCenter ? BloodCenterLayout : AdminLayout;
+
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,7 +162,7 @@ const FeedbackPage = () => {
   });
 
   return (
-    <AdminLayout title="Feedbacks" icon={<MessageSquare size={16} className="stroke-[1.75]" />}>
+    <Layout title="Feedbacks" icon={<MessageSquare size={16} className="stroke-[1.75]" />}>
       <div className="space-y-8">
         
         {/* TAB & SEARCH NAVIGATION */}
@@ -475,7 +483,7 @@ const FeedbackPage = () => {
           </div>
         )}
       </AnimatePresence>
-    </AdminLayout>
+    </Layout>
   );
 };
 

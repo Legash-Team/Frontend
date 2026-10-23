@@ -1,5 +1,6 @@
 import React, { type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export interface TermsAgreementProps {
   agreeToTerms: boolean;
@@ -14,6 +15,8 @@ export const TermsAgreement: React.FC<TermsAgreementProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-1 pt-1">
       <label className="inline-flex items-start gap-3 cursor-pointer select-none">
@@ -26,16 +29,16 @@ export const TermsAgreement: React.FC<TermsAgreementProps> = ({
           className="mt-0.5 h-4 w-4 rounded border-line-soft text-crimson focus:ring-crimson accent-crimson cursor-pointer"
         />
         <span className="text-xs sm:text-sm text-ink-soft leading-snug">
-          I agree to the{' '}
+          {t('auth.register.termsPrefix')}{' '}
           <Link
             to="/terms"
             target="_blank"
             rel="noopener noreferrer"
             className="text-crimson font-bold hover:underline"
           >
-            Terms & Privacy Policy
+            {t('auth.register.termsLink')}
           </Link>{' '}
-          and confirm hospital details are official.
+          {t('auth.register.termsSuffix')}
         </span>
       </label>
       {error && (
