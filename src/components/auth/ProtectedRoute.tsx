@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { TEMP_OPEN_ACCESS } from '@/lib/temporaryAccess';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -17,6 +18,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
+
+  // TEMPORARY: register/login don't work until the backend auth flow is done,
+  // so while TEMP_OPEN_ACCESS is on every protected URL opens directly by
+  // changing the address. Set the flag to false to restore the checks below.
+  if (TEMP_OPEN_ACCESS) {
+    return <>{children}</>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
