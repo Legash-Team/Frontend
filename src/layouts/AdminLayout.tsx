@@ -4,10 +4,14 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 import { Menu, ShieldCheck } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export const AdminLayout = ({ children, icon }: { children: React.ReactNode; title: string; icon?: React.ReactNode }) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const isSuperAdmin = user?.role === 'superadmin';
   
   return (
     <div className="flex h-screen bg-paper overflow-hidden">
@@ -45,7 +49,7 @@ export const AdminLayout = ({ children, icon }: { children: React.ReactNode; tit
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <LanguageSwitcher />
             <span className="text-[10px] font-mono font-bold px-2.5 py-1 bg-crimson/10 text-crimson rounded-full uppercase whitespace-nowrap">
-              {user?.role === 'superadmin' ? 'Super Admin' : 'Admin'}
+              {isSuperAdmin ? t('badge.superAdmin') : t('badge.admin')}
             </span>
           </div>
         </header>

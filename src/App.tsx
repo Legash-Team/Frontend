@@ -14,6 +14,7 @@ import TermsPage from './pages/public/TermsPage';
 import VerifyEmailPage from './pages/public/VerifyOTPPage';
 import AppealPage from './pages/public/AppealPage';
 import AuthCallbackPage from './pages/public/AuthCallbackPage';
+import InviteAcceptancePage from './pages/public/InviteAcceptancePage';
 
 // --- 3. HOSPITAL PORTAL PAGES (Moved to src/pages/hospital/) ---
 import HospitalDashboardPage from './pages/hospital/HospitalDashboardPage';
@@ -23,6 +24,7 @@ import BloodStockPage from './pages/hospital/BloodStockPage';
 import BloodRequestPage from './pages/hospital/BloodRequestPage';
 import AllRequestsPage from './pages/hospital/AllRequestsPage';
 import HospitalSearchPage from './pages/hospital/HospitalSearchPage';
+import DonationRecordsPage from './pages/hospital/DonationRecordsPage';
 
 // --- 4. ADMIN DASHBOARD PAGES (Ensure these paths are correct) ---
 import DashboardPage from './pages/admin/DashboardPage';
@@ -33,6 +35,8 @@ import AdminSetupPage from './pages/admin/AdminSetupPage';
 import MyPostsPage from './pages/admin/MyPostsPage';
 import HospitalStockPage from './pages/admin/HospitalStockPage';
 import HospitalAnalyticsPage from './pages/admin/HospitalAnalyticsPage';
+import BloodCenterDashboardPage from './pages/admin/BloodCenterDashboardPage';
+import BloodCenterHospitalsPage from './pages/admin/BloodCenterHospitalsPage';
 
 export const App: React.FC = () => {
   return (
@@ -48,6 +52,10 @@ export const App: React.FC = () => {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/appeal" element={<AppealPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+
+            {/* --- INVITATION ACCEPTANCE (Super Admin invited blood centers / admins) --- */}
+            <Route path="/invite/:token" element={<InviteAcceptancePage />} />
+            <Route path="/invite" element={<InviteAcceptancePage />} />
 
             {/* --- PROTECTED HOSPITAL PORTAL ROUTES --- */}
             <Route
@@ -103,6 +111,14 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <HospitalSearchPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/medical-records"
+              element={
+                <ProtectedRoute>
+                  <DonationRecordsPage />
                 </ProtectedRoute>
               }
             />
@@ -166,6 +182,15 @@ export const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            {/* TEMPORARY: blood-center routes are open (no <ProtectedRoute>) while the
+                backend for blood-center auth/permissions is unfinished, so the team can
+                reach them by URL for testing. Restore the guards (role + canApproveHospitals)
+                once the backend is live — see TEMP_OPEN_ACCESS in src/lib/temporaryAccess.ts. */}
+            <Route path="/blood-center/dashboard" element={<BloodCenterDashboardPage />} />
+            <Route path="/blood-center/events" element={<EventPostingPage />} />
+            <Route path="/blood-center/my-posts" element={<MyPostsPage />} />
+            <Route path="/blood-center/hospitals" element={<BloodCenterHospitalsPage />} />
+            <Route path="/blood-center/feedbacks" element={<FeedbackPage />} />
             <Route path="/admin/setup" element={<AdminSetupPage />} />
             
             {/* --- FALLBACK REDIRECT --- */}

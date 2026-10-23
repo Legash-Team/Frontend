@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff } from 'lucide-react';
 import type { RegisterFormData, FormErrors } from '../types/registration-types';
 
@@ -17,13 +18,14 @@ export const PasswordFields: React.FC<PasswordFieldsProps> = ({
 }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
       {/* Password Field */}
       <div className="flex flex-col gap-2">
         <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-          Password <span className="text-crimson">*</span>
+          {t('auth.register.password')} <span className="text-crimson">*</span>
         </label>
         <div className="relative group">
           <input
@@ -53,7 +55,7 @@ export const PasswordFields: React.FC<PasswordFieldsProps> = ({
       {/* Confirm Password Field */}
       <div className="flex flex-col gap-2">
         <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-          Confirm Password <span className="text-crimson">*</span>
+          {t('auth.register.confirmPassword')} <span className="text-crimson">*</span>
         </label>
         <div className="relative group">
           <input

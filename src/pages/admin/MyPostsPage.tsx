@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
+import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
 import { ClipboardList } from 'lucide-react';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -18,6 +19,13 @@ import {
 
 const MyPostsPage = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+
+  // Blood center users get the blood center chrome, admins keep the admin chrome
+  const isBloodCenter = location.pathname.startsWith('/blood-center');
+  const Layout = isBloodCenter ? BloodCenterLayout : AdminLayout;
+  const basePath = isBloodCenter ? '/blood-center' : '/admin';
+
   const [events, setEvents] = useState<MockEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,13 +61,13 @@ const MyPostsPage = () => {
   };
 
   return (
-    <AdminLayout title="My Posts" icon={<ClipboardList size={16} className="stroke-[1.75]" />}>
+    <Layout title={isBloodCenter ? 'My Events' : 'My Posts'} icon={<ClipboardList size={16} className="stroke-[1.75]" />}>
       <div className="space-y-6 max-w-5xl mx-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-line-soft">
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
-              {t('myPosts.title')}
+              {isBloodCenter ? 'My Events' : t('myPosts.title')}
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
               {t('myPosts.description')}
@@ -67,7 +75,7 @@ const MyPostsPage = () => {
           </div>
 
           <Link
-            to="/admin/events"
+            to={`${basePath}/events`}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs shrink-0"
           >
             <PlusCircle className="w-4 h-4" />
@@ -113,7 +121,7 @@ const MyPostsPage = () => {
             description={t('myPosts.emptyDescription')}
             action={
               <Link
-                to="/admin/events"
+                to={`${basePath}/events`}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs"
               >
                 <PlusCircle className="w-4 h-4" />
@@ -196,7 +204,7 @@ const MyPostsPage = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </Layout>
   );
 };
 

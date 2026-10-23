@@ -518,7 +518,7 @@ export const HospitalProfilePage: React.FC = () => {
                     <span>Delete Hospital Account</span>
                   </h3>
                   <p className="text-xs text-ink-soft mt-1 font-sans max-w-xl">
-                    Permanently delete your hospital profile, remove live inventory listings, and terminate portal access. This action is irreversible.
+                    Permanently delete your hospital profile, remove live inventory listings, and end your sign-in access. This action is irreversible.
                   </p>
                 </div>
 

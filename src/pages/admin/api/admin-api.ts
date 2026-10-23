@@ -110,10 +110,11 @@ export const createEvent = async (payload: {
 };
 
 /**
- * POST /api/superadmin/admins
+ * POST /api/superadmin/admins/invite
+ * Sends an invitation link to the given email. The invited person sets
+ * their own name, password, location and phone through the link (no OTP).
  */
-export const createAdmin = async (payload: {
-  name: string;
+export const inviteAdmin = async (payload: {
   email: string;
   permissions: {
     canApproveHospitals: boolean;
@@ -132,10 +133,10 @@ export const createAdmin = async (payload: {
         emailVerified: boolean;
         createdAt: string;
       };
-    }>('/api/superadmin/admins', payload);
+    }>('/api/superadmin/admins/invite', payload);
     return response.data;
   } catch (error: any) {
-    throw error.response?.data?.error || 'Failed to create admin.';
+    throw error.response?.data?.error || 'Failed to send invitation link.';
   }
 };
 

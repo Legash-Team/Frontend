@@ -4,7 +4,7 @@ import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 export const Trust = () => {
   return (
-    <section className="py-16 sm:py-24 bg-white border-y border-line-soft" id="hospitals">
+    <section className="py-16 sm:py-24 bg-white border-y border-line-soft scroll-mt-24" id="hospitals">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
 
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 sm:gap-16 items-center">

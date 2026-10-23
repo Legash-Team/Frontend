@@ -50,7 +50,7 @@ export const HowItWorks = () => {
   const steps = activeTab === 'donor' ? DONOR_STEPS : HOSPITAL_STEPS;
 
   return (
-    <section className="py-16 sm:py-24 bg-paper-dim" id="how">
+    <section className="py-16 sm:py-24 bg-paper-dim scroll-mt-24" id="how">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
 
         {/* Section Header */}

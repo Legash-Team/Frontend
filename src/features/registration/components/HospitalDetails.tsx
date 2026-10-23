@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import type { RegisterFormData, FormErrors } from '../types/registration-types';
 
@@ -15,6 +16,8 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8">
      
@@ -25,12 +28,12 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
         {/* Hospital Name */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-  Hospital Name <span className="text-crimson">*</span>
+  {t('auth.register.hospitalName')} <span className="text-crimson">*</span>
 </label>
           <input
             name="name"
             type="text"
-            placeholder="e.g. St. Paul Hospital"
+            placeholder={t('auth.register.namePlaceholder')}
             value={formData.name}
             onChange={onChange}
             disabled={disabled}
@@ -42,12 +45,12 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
         {/* License Number */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-  Medical License Number <span className="text-crimson">*</span>
+  {t('auth.register.licenseNumber')} <span className="text-crimson">*</span>
 </label>
           <input
             name="licenseNumber"
             type="text"
-            placeholder="e.g. MOH/HOSP/098"
+            placeholder={t('auth.register.licensePlaceholder')}
             value={formData.licenseNumber}
             onChange={onChange}
             disabled={disabled}
@@ -59,12 +62,12 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
         {/* Email Address */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-  Email <span className="text-crimson">*</span>
+  {t('auth.register.email')} <span className="text-crimson">*</span>
 </label>
           <input
             name="email"
             type="email"
-            placeholder="contact@hospital.org"
+            placeholder={t('auth.register.emailPlaceholder')}
             value={formData.email}
             onChange={onChange}
             disabled={disabled}
@@ -75,7 +78,7 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
 
         {/* INTEGRATED PHONE INPUT */}
         <PhoneInput
-          label="Phone Number"
+          label={t('auth.register.phone')}
           name="phone"
           value={formData.phone}
           onChange={onChange}
@@ -86,11 +89,11 @@ export const HospitalDetails: React.FC<HospitalDetailsProps> = ({
         {/* Address */}
         <div className="flex flex-col gap-2 md:col-span-2">
           <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-            Address <span className="text-crimson">*</span>
+            {t('auth.register.address')} <span className="text-crimson">*</span>
           </label>
           <input
             name="address"
-            placeholder="e.g. Bole Sub-city, Woreda 03, Addis Ababa"
+            placeholder={t('auth.register.addressPlaceholder')}
             value={formData.address || ''}
             onChange={onChange}
             disabled={disabled}

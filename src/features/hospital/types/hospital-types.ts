@@ -140,3 +140,58 @@ export interface HospitalSearchResult {
   [key: string]: unknown;
 }
 
+// --- DONATION MEDICAL RECORDS ---
+// Captured when a donor who accepted a blood request actually donates at the
+// facility: units collected plus the screening/vitals record, since every
+// unit is tested in the lab before it can be transfused.
+
+export type ScreeningResult = 'non_reactive' | 'reactive' | 'pending';
+
+export interface DonationScreening {
+  hiv: ScreeningResult;
+  hepatitisB: ScreeningResult;
+  hepatitisC: ScreeningResult;
+  syphilis: ScreeningResult;
+  malaria: ScreeningResult;
+}
+
+export interface DonationVitals {
+  hemoglobin: number | null;
+  pulse: number | null;
+  systolic: number | null;
+  diastolic: number | null;
+  temperature: number | null;
+}
+
+export type DonationOutcome = 'cleared' | 'deferred' | 'rejected';
+
+export interface DonationRecord {
+  id: string;
+  requestId?: string | null;
+  donorName: string;
+  donorPhone?: string;
+  bloodType?: BloodType | null;
+  unitsCollected: number;
+  donatedOn: string;
+  screening: DonationScreening;
+  vitals: DonationVitals;
+  outcome: DonationOutcome;
+  notes?: string;
+  recordedBy: string;
+  recordedAt: string;
+}
+
+export interface DonationRecordPayload {
+  requestId?: string | null;
+  donorName: string;
+  donorPhone?: string;
+  bloodType?: BloodType | null;
+  unitsCollected: number;
+  donatedOn: string;
+  screening: DonationScreening;
+  vitals: DonationVitals;
+  outcome: DonationOutcome;
+  notes?: string;
+  recordedBy: string;
+}
+

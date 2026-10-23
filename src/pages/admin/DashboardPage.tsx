@@ -141,7 +141,7 @@ const DashboardPage = () => {
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
               <ShieldCheck className="w-6 h-6 text-crimson stroke-[1.75]" />
-              <span>Verification Queue</span>
+              <span>Hospitals to Review</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
               Review pending hospital applications and keep the Legash facility network verified.
@@ -169,13 +169,13 @@ const DashboardPage = () => {
           <div className="space-y-2 z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-crimson/[0.06] rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-crimson border border-crimson/15">
               <Sparkles className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
-              <span>Legash Admin Console</span>
+              <span>Legash Admin</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-ink">
               Welcome, {user?.name || 'Administrator'}
             </h2>
             <p className="text-sm font-sans text-ink-soft max-w-2xl leading-relaxed">
-              Approve or reject hospital applications based on their submitted information, provide a reason when declining, and keep the verification queue moving across Ethiopia.
+              Approve or reject hospital applications based on their submitted information, provide a reason when declining, and keep hospital applications moving across Ethiopia.
             </p>
           </div>
 
@@ -187,7 +187,7 @@ const DashboardPage = () => {
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-crimson text-white hover:bg-crimson-dark font-sans font-bold rounded-xl text-xs transition-all shadow-sm shadow-crimson/15 disabled:opacity-60"
             >
               <RefreshCw className={`w-4 h-4 text-white stroke-[1.75] ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh Queue</span>
+              <span>Refresh List</span>
             </button>
           </div>
         </div>
@@ -207,7 +207,7 @@ const DashboardPage = () => {
             }
           />
           <AdminStatCard label="System Integrity" value="Active" icon={<ShieldCheck />} chip={{ text: 'Secure', tone: 'verified' }} />
-          <AdminStatCard label="Portal Status" value="Online" icon={<Activity />} chip={{ text: 'Live', tone: 'verified' }} />
+          <AdminStatCard label="System Status" value="Online" icon={<Activity />} chip={{ text: 'Live', tone: 'verified' }} />
         </div>
 
         {/* LIST HEADER — shared section-header pattern */}
@@ -215,7 +215,7 @@ const DashboardPage = () => {
           <div>
             <h2 className="text-base font-serif font-bold text-ink flex items-center gap-2">
               <Building2 className="w-5 h-5 text-crimson stroke-[1.75]" />
-              <span>Facility Verification Queue</span>
+              <span>Facilities to Review</span>
             </h2>
             <p className="text-xs font-sans text-ink-soft mt-0.5">
               New hospital registrations waiting for approval or a rejection reason.
@@ -231,11 +231,11 @@ const DashboardPage = () => {
         {/* LOADING & ERROR STATES */}
         {loading ? (
           <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
-            <LoadingState text="Loading verification queue..." />
+            <LoadingState text="Loading hospitals..." />
           </div>
         ) : error ? (
           <ErrorState
-            title="Failed to load queue"
+            title="Failed to load hospitals"
             message={error}
             onRetry={loadPendingHospitals}
           />
@@ -270,7 +270,7 @@ const DashboardPage = () => {
             <div className="w-12 h-12 mx-auto rounded-xl bg-verified/10 flex items-center justify-center text-verified mb-3">
               <CheckCircle2 size={24} className="stroke-[1.75]" />
             </div>
-            <p className="text-ink-soft font-serif italic text-lg">Verification queue is currently empty.</p>
+            <p className="text-ink-soft font-serif italic text-lg">No hospitals waiting for review.</p>
             <p className="text-xs font-sans text-ink-soft/70 mt-1">New hospital applications will appear here for review.</p>
           </div>
         )}

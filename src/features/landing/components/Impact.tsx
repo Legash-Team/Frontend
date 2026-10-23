@@ -39,7 +39,7 @@ export const Impact = () => {
 
         {/* About Us Section */}
         <ScrollReveal className="mb-16 sm:mb-20">
-          <div className="relative">
+          <div className="relative scroll-mt-24" id="about">
             {/* Left accent line */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-crimson to-crimson/50 rounded-full" />
 
@@ -69,7 +69,7 @@ export const Impact = () => {
 
         {/* Privacy Section */}
         <ScrollReveal>
-          <div className="relative">
+          <div className="relative scroll-mt-24" id="privacy">
             {/* Left accent line */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-verified to-verified/50 rounded-full" />
 

@@ -1,11 +1,14 @@
+import { useTranslation } from 'react-i18next';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
+
   return (
     <AuthLayout 
-      title="Welcome back" 
-      subtitle="Sign in to manage blood requests and donor coordinates."
+      title={t('auth.login.title')} 
+      subtitle={t('auth.login.subtitle')}
     >
       <LoginForm />
     </AuthLayout>

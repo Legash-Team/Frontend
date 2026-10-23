@@ -120,7 +120,7 @@ export const AuthCallbackPage = () => {
         </div>
         <h2 className="text-xl font-serif font-bold text-ink mb-2">Google Account Verified</h2>
         <p className="text-sm text-ink-soft mb-6">
-          Your Google account has been verified, but LEGASH sign-in cannot complete yet. The backend integration for this flow is not yet available. Please check back later or use email/password login.
+          Your Google account has been verified, but this sign-in method isn't available on LEGASH yet. Please check back later or use email/password login.
         </p>
         <Link
           to="/login"
