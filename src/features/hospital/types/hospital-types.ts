@@ -1,5 +1,12 @@
-import type { LocationData } from '@/features/registration/types/registration-types';
-export type { LocationData };
+export interface HospitalLocation {
+  lat?: number | null;
+  lng?: number | null;
+  address?: string | null;
+  mapsUrl?: string | null;
+  coordinates?: number[] | { lat: number; lng: number } | null;
+}
+
+export type LocationData = HospitalLocation;
 
 export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 
@@ -14,6 +21,8 @@ export const ALLOWED_BLOOD_TYPES: readonly BloodType[] = [
   'O-',
 ] as const;
 
+export const ADEQUATE_BLOOD_STOCK_THRESHOLD = 50;
+
 export type BloodStock = Record<BloodType, number>;
 
 export interface HospitalProfile {
@@ -22,7 +31,7 @@ export interface HospitalProfile {
   email: string;
   phone: string;
   licenseNumber: string;
-  location: LocationData | null;
+  location: HospitalLocation | null;
 }
 
 export interface DashboardData {
@@ -86,6 +95,9 @@ export type BloodRequestStatus = 'ACTIVE' | 'PENDING' | 'ACCEPTED' | 'FULFILLED'
 
 export interface AcceptedDonor {
   id?: string;
+  donorId?: string;
+  shortId?: string;
+  responseId?: string;
   name: string;
   bloodType?: BloodType;
   phone?: string;
@@ -134,16 +146,17 @@ export interface HospitalSearchResult {
   email: string;
   phone: string;
   licenseNumber?: string;
-  location: LocationData | null;
+  location: HospitalLocation | null;
+  hasStock?: boolean;
   stockQuantity?: number;
   availableStock?: BloodStock;
+  mapsUrl?: string | null;
   [key: string]: unknown;
 }
 
 // --- DONATION MEDICAL RECORDS ---
 // Captured when a donor who accepted a blood request actually donates at the
-// facility: units collected plus the screening/vitals record, since every
-// unit is tested in the lab before it can be transfused.
+// facility: units collected plus the screening/vitals record.
 
 export type ScreeningResult = 'non_reactive' | 'reactive' | 'pending';
 
@@ -163,11 +176,13 @@ export interface DonationVitals {
   temperature: number | null;
 }
 
-export type DonationOutcome = 'cleared' | 'deferred' | 'rejected';
+export type DonationOutcome = 'donated' | 'did_not_donate';
 
 export interface DonationRecord {
   id: string;
   requestId?: string | null;
+  responseId?: string | null;
+  donorId?: string | null;
   donorName: string;
   donorPhone?: string;
   bloodType?: BloodType | null;
@@ -183,6 +198,8 @@ export interface DonationRecord {
 
 export interface DonationRecordPayload {
   requestId?: string | null;
+  responseId?: string | null;
+  donorId?: string | null;
   donorName: string;
   donorPhone?: string;
   bloodType?: BloodType | null;

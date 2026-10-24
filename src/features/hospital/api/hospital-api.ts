@@ -606,10 +606,12 @@ export const getBloodRequestResponses = async (
       requestStatus: string;
       accepted: Array<{
         id: string;
+        donorId?: string;
+        shortId?: string;
+        responseId?: string;
         name: string;
         gender: string;
         bloodType: BloodType;
-        phone: string;
       }>;
       deniedCount: number;
       pendingCount: number;
@@ -619,9 +621,11 @@ export const getBloodRequestResponses = async (
       requestStatus: res.data?.requestStatus ?? 'unknown',
       accepted: (res.data?.accepted ?? []).map((d) => ({
         id: String(d.id),
+        donorId: d.donorId || d.shortId || String(d.id),
+        shortId: d.shortId,
+        responseId: d.responseId,
         name: d.name,
         bloodType: d.bloodType,
-        phone: d.phone,
         acceptedAt: new Date().toISOString(),
       })),
       deniedCount: res.data?.deniedCount ?? 0,
@@ -669,9 +673,6 @@ export const closeBloodRequest = async (
 /**
  * Search Hospitals by Blood Type
  * GET /api/hospital/search?bloodType={bloodType}&quantity={quantity}
- *
- * Backend returns: { success, results: [{id, name, email, phone, licenseNumber,
- *   location: {lat, lng, address}, hasStock}] }
  */
 export const searchHospitals = async (
   bloodType: BloodType,
@@ -685,8 +686,8 @@ export const searchHospitals = async (
         name: string;
         email: string;
         phone: string;
-        licenseNumber: string;
-        location?: { lat?: number | null; lng?: number | null; address?: string } | null;
+        location?: { lat?: number | null; lng?: number | null; address?: string; mapsUrl?: string | null } | null;
+        mapsUrl?: string | null;
         hasStock?: boolean;
       }>;
     }>('/api/hospital/search', {
@@ -695,20 +696,35 @@ export const searchHospitals = async (
 
     if (!res.data?.success || !Array.isArray(res.data.results)) return [];
 
-    return res.data.results.map((h) => ({
-      id: String(h.id),
-      name: h.name,
-      phone: h.phone,
-      email: h.email,
-      licenseNumber: h.licenseNumber,
-      location: h.location
-        ? {
-            lat: h.location.lat ?? 9.0108,
-            lng: h.location.lng ?? 38.7613,
-          }
-        : null,
-      stockQuantity: quantity, // quantity searched, not the hospital's actual units (not exposed by API)
-    }));
+    return res.data.results.map((h) => {
+      const hasCoords =
+        h.location?.lat !== undefined &&
+        h.location?.lat !== null &&
+        h.location?.lng !== undefined &&
+        h.location?.lng !== null &&
+        !(h.location.lat === 0 && h.location.lng === 0);
+
+      const lat = hasCoords ? Number(h.location?.lat) : null;
+      const lng = hasCoords ? Number(h.location?.lng) : null;
+      const mapsUrl = h.mapsUrl || h.location?.mapsUrl || null;
+
+      return {
+        id: String(h.id),
+        name: h.name,
+        phone: h.phone,
+        email: h.email,
+        location: h.location
+          ? {
+              lat,
+              lng,
+              address: h.location.address || '',
+              mapsUrl,
+            }
+          : null,
+        mapsUrl,
+        hasStock: h.hasStock ?? true,
+      };
+    });
   } catch (err: any) {
     throw err?.response?.data?.error || 'Failed to search hospitals.';
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 
 // --- 1. SHARED & AUTH INFRASTRUCTURE ---
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -25,18 +25,25 @@ import BloodRequestPage from './pages/hospital/BloodRequestPage';
 import AllRequestsPage from './pages/hospital/AllRequestsPage';
 import HospitalSearchPage from './pages/hospital/HospitalSearchPage';
 import DonationRecordsPage from './pages/hospital/DonationRecordsPage';
+import HospitalBloodCenterRequestsPage from './pages/hospital/HospitalBloodCenterRequestsPage';
 
 // --- 4. ADMIN DASHBOARD PAGES (Ensure these paths are correct) ---
 import DashboardPage from './pages/admin/DashboardPage';
 import EventPostingPage from './pages/admin/EventPostingPage';
 import AdminCreationPage from './pages/admin/AdminCreationPage';
 import FeedbackPage from './pages/admin/FeedbackPage';
-import AdminSetupPage from './pages/admin/AdminSetupPage';
 import MyPostsPage from './pages/admin/MyPostsPage';
 import HospitalStockPage from './pages/admin/HospitalStockPage';
 import HospitalAnalyticsPage from './pages/admin/HospitalAnalyticsPage';
 import BloodCenterDashboardPage from './pages/admin/BloodCenterDashboardPage';
 import BloodCenterHospitalsPage from './pages/admin/BloodCenterHospitalsPage';
+import BloodCenterIncomingRequestsPage from './pages/admin/BloodCenterIncomingRequestsPage';
+
+const AdminSetupRedirect: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  return <Navigate to={token ? `/invite/${token}` : '/invite'} replace />;
+};
 
 export const App: React.FC = () => {
   return (
@@ -117,19 +124,25 @@ export const App: React.FC = () => {
             <Route
               path="/hospital/medical-records"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="hospital">
                   <DonationRecordsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/blood-center-requests"
+              element={
+                <ProtectedRoute requiredRole="hospital">
+                  <HospitalBloodCenterRequestsPage />
                 </ProtectedRoute>
               }
             />
 
             {/* --- ADMIN DASHBOARD ROUTES --- */}
-          
-            {/* --- PROTECTED ADMIN/SUPERADMIN ROUTES --- */}
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="superadmin">
                   <DashboardPage />
                 </ProtectedRoute>
               }
@@ -137,7 +150,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/events"
               element={
-                <ProtectedRoute requireCanPostEvents>
+                <ProtectedRoute requiredRole="superadmin" requireCanPostEvents>
                   <EventPostingPage />
                 </ProtectedRoute>
               }
@@ -153,7 +166,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/feedbacks"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="superadmin">
                   <FeedbackPage />
                 </ProtectedRoute>
               }
@@ -161,7 +174,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/hospital-stock"
               element={
-                <ProtectedRoute requireCanApproveHospitals>
+                <ProtectedRoute requiredRole="superadmin" requireCanApproveHospitals>
                   <HospitalStockPage />
                 </ProtectedRoute>
               }
@@ -169,7 +182,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/hospital-analytics"
               element={
-                <ProtectedRoute requireCanApproveHospitals>
+                <ProtectedRoute requiredRole="superadmin" requireCanApproveHospitals>
                   <HospitalAnalyticsPage />
                 </ProtectedRoute>
               }
@@ -177,21 +190,62 @@ export const App: React.FC = () => {
             <Route
               path="/admin/my-posts"
               element={
-                <ProtectedRoute requireCanPostEvents>
+                <ProtectedRoute requiredRole="superadmin" requireCanPostEvents>
                   <MyPostsPage />
                 </ProtectedRoute>
               }
             />
-            {/* TEMPORARY: blood-center routes are open (no <ProtectedRoute>) while the
-                backend for blood-center auth/permissions is unfinished, so the team can
-                reach them by URL for testing. Restore the guards (role + canApproveHospitals)
-                once the backend is live — see TEMP_OPEN_ACCESS in src/lib/temporaryAccess.ts. */}
-            <Route path="/blood-center/dashboard" element={<BloodCenterDashboardPage />} />
-            <Route path="/blood-center/events" element={<EventPostingPage />} />
-            <Route path="/blood-center/my-posts" element={<MyPostsPage />} />
-            <Route path="/blood-center/hospitals" element={<BloodCenterHospitalsPage />} />
-            <Route path="/blood-center/feedbacks" element={<FeedbackPage />} />
-            <Route path="/admin/setup" element={<AdminSetupPage />} />
+
+            {/* --- BLOOD CENTER ROUTES (admin role) --- */}
+            <Route
+              path="/blood-center/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']}>
+                  <BloodCenterDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blood-center/requests"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']}>
+                  <BloodCenterIncomingRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blood-center/events"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']} requireCanPostEvents>
+                  <EventPostingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blood-center/my-posts"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']} requireCanPostEvents>
+                  <MyPostsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blood-center/hospitals"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']} requireCanApproveHospitals>
+                  <BloodCenterHospitalsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blood-center/feedbacks"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']}>
+                  <FeedbackPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/admin/setup" element={<AdminSetupRedirect />} />
             
             {/* --- FALLBACK REDIRECT --- */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -14,6 +14,6 @@
  * - This only affects the frontend: every API call still requires a real
  *   backend session, so no backend data is exposed by this flag.
  */
-export const TEMP_OPEN_ACCESS = true;
+export const TEMP_OPEN_ACCESS = false;
 
 export default TEMP_OPEN_ACCESS;

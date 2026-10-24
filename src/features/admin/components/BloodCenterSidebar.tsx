@@ -10,6 +10,7 @@ import {
   X,
   ClipboardList,
   Building2,
+  Inbox,
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
@@ -38,6 +39,9 @@ export const BloodCenterSidebar = ({ mobileOpen = false, onMobileClose }: BloodC
 
   // Blood Center Dashboard
   menuItems.push({ icon: LayoutDashboard, label: t('nav.bloodCenter.dashboard'), path: '/blood-center/dashboard' });
+
+  // Incoming Requests from Hospitals
+  menuItems.push({ icon: Inbox, label: 'Hospital Requests', path: '/blood-center/requests' });
 
   // Event Management - every invited blood center can post events
   menuItems.push({ icon: CalendarPlus, label: t('nav.bloodCenter.postEvent'), path: '/blood-center/events' });

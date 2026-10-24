@@ -11,11 +11,10 @@ import {
   AlertTriangle,
   Building2,
   Phone,
-  FileText,
-  MapPin,
   Droplets,
   CheckCircle2,
 } from 'lucide-react';
+import { LocationLink } from '@/utils/mapsUrl';
 
 export const HospitalSearchPage: React.FC = () => {
   const [selectedBloodType, setSelectedBloodType] = useState<BloodType | ''>('');
@@ -252,24 +251,6 @@ export const HospitalSearchPage: React.FC = () => {
                     const hospitalName = h.name || (itemObj.hospitalName as string) || 'Unnamed Hospital';
                     const hospitalEmail = h.email || 'No email recorded';
                     const hospitalPhone = h.phone || 'No phone recorded';
-                    const hospitalLicense = h.licenseNumber || (itemObj.license_number as string) || null;
-
-                    let availableQuantityNum: number = 0;
-                    if (typeof h.stockQuantity === 'number') {
-                      availableQuantityNum = h.stockQuantity;
-                    } else if (h.availableStock && typeof h.availableStock === 'object' && selectedBloodType) {
-                      const stock = h.availableStock[selectedBloodType as BloodType];
-                      if (typeof stock === 'number') {
-                        availableQuantityNum = stock;
-                      }
-                    }
-
-                    const reqQty = searchedQuantity ?? 1;
-                    const hasSufficientStock = availableQuantityNum >= reqQty;
-
-                    const loc = h.location && typeof h.location === 'object' ? (h.location as unknown as Record<string, unknown>) : null;
-                    const lat = loc ? (loc.lat ?? loc.latitude ?? null) : null;
-                    const lng = loc ? (loc.lng ?? loc.longitude ?? null) : null;
 
                     const hObj = h as unknown as Record<string, unknown>;
 
@@ -283,63 +264,36 @@ export const HospitalSearchPage: React.FC = () => {
                             <h3 className="font-bold text-gray-900 text-base">{hospitalName}</h3>
                             <p className="text-xs text-gray-500 mt-0.5">{hospitalEmail}</p>
                           </div>
-                          <span
-                            className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 ${
-                              hasSufficientStock
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                : 'bg-amber-50 text-amber-900 border-amber-200'
-                            }`}
-                          >
-                            <Droplets className={`w-3.5 h-3.5 ${hasSufficientStock ? 'text-emerald-600' : 'text-amber-600'}`} />
-                            <span>{availableQuantityNum} units available</span>
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Droplets className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>In stock</span>
                           </span>
                         </div>
 
-                        {/* Stock vs Requirement Comparison Badge */}
+                        {/* Stock Status Badge */}
                         <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between text-xs">
                           <span className="text-gray-600 font-medium">
-                            Required: <span className="font-bold text-gray-900">{reqQty} units</span>
+                            Stock Status: <span className="font-bold text-gray-900">Matches search criteria</span>
                           </span>
-                          {hasSufficientStock ? (
-                            <span className="text-emerald-700 font-bold flex items-center gap-1">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Sufficient Stock</span>
-                            </span>
-                          ) : (
-                            <span className="text-amber-700 font-bold flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                              <span>Partial Stock ({availableQuantityNum}/{reqQty})</span>
-                            </span>
-                          )}
+                          <span className="text-emerald-700 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>In stock</span>
+                          </span>
                         </div>
 
-                        <div className="space-y-1.5 text-xs text-gray-600 pt-2 border-t border-gray-100">
+                        <div className="space-y-2 text-xs text-gray-600 pt-2 border-t border-gray-100">
                           <div className="flex items-center gap-2">
                             <Phone className="w-3.5 h-3.5 text-gray-400" />
                             <span>{hospitalPhone}</span>
                           </div>
 
-                          {hospitalLicense && (
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-3.5 h-3.5 text-gray-400" />
-                              <span>License: {hospitalLicense}</span>
+                          {h.location?.address && (
+                            <div className="text-xs text-gray-600">
+                              <span>{h.location.address}</span>
                             </div>
                           )}
 
-                          {lat !== null && lng !== null ? (
-                            <div className="flex items-center gap-2 text-gray-700">
-                              <MapPin className="w-3.5 h-3.5 text-red-600" />
-                              <span>
-                                Lat: <span className="font-mono">{String(lat)}</span> | Lng:{' '}
-                                <span className="font-mono">{String(lng)}</span>
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2 text-gray-400">
-                              <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                              <span>Location coordinates not listed</span>
-                            </div>
-                          )}
+                          <LocationLink location={h.location} />
                         </div>
                       </div>
                     );

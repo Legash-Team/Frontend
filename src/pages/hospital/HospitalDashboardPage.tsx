@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
-import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
+import { ALLOWED_BLOOD_TYPES, ADEQUATE_BLOOD_STOCK_THRESHOLD } from '@/features/hospital/types/hospital-types';
 import type { DashboardData } from '@/features/hospital/types/hospital-types';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -171,7 +171,8 @@ export const HospitalDashboardPage: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {ALLOWED_BLOOD_TYPES.map((type) => {
                     const quantity = bloodStockMap[type] ?? 0;
-                    const isLow = quantity < 5;
+                    const isAdequate = quantity >= ADEQUATE_BLOOD_STOCK_THRESHOLD;
+                    const isLow = !isAdequate;
 
                     return (
                       <div
@@ -186,10 +187,10 @@ export const HospitalDashboardPage: React.FC = () => {
                             {type}
                           </span>
                           <span
-                            className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isLow ? 'bg-crimson/10 text-crimson' : 'bg-verified/10 text-verified'
+                            className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isAdequate ? 'bg-verified/10 text-verified' : 'bg-crimson/10 text-crimson'
                               }`}
                           >
-                            {isLow ? 'Low Stock' : 'Adequate'}
+                            {isAdequate ? 'Adequate' : 'Low Stock'}
                           </span>
                         </div>
                         <div className="mt-3 flex items-baseline justify-between">

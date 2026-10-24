@@ -13,7 +13,6 @@ import {
   PlusCircle,
   Calendar,
   ExternalLink,
-  AlertCircle,
   Image as ImageIcon,
 } from 'lucide-react';
 
@@ -83,18 +82,7 @@ const MyPostsPage = () => {
           </Link>
         </div>
 
-        {/* Development Data Notice */}
-        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-amber-800">
-              {t('myPosts.devDataTitle')}
-            </p>
-            <p className="text-xs text-amber-700 mt-0.5">
-              {t('myPosts.devDataDescription')}
-            </p>
-          </div>
-        </div>
+
 
         {/* Loading State */}
         {loading && (

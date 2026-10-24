@@ -84,23 +84,34 @@ export const setupAdminPassword = async (payload: any) => {
 };
 
 /**
- * Completes an invitation sent by a Super Admin (Invite Admin page).
- * The invitee sets their name, password, location and phone number here.
- * No OTP verification happens afterwards — they go straight to login.
- * POST /api/auth/accept-invitation
+ * Completes an invitation sent by Super Admin.
+ * Endpoint: POST /api/auth/admin/setup
  */
 export const acceptInvitation = async (payload: {
-  token: string;
-  name: string;
-  password: string;
-  phone: string;
-  location: { lat: number; lng: number };
+  setupToken?: string;
+  token?: string;
+  centerName?: string;
+  name?: string;
+  password?: string;
+  confirmPassword?: string;
+  phone?: string;
+  termsAccepted?: boolean;
+  location?: { lat: number; lng: number; address: string };
 }) => {
   try {
-    const response = await axiosInstance.post('/api/auth/accept-invitation', payload);
-    return response.data; // Expected: { success: true, message: "..." }
+    const response = await axiosInstance.post('/api/auth/admin/setup', {
+      setupToken: payload.setupToken || payload.token,
+      token: payload.token || payload.setupToken,
+      centerName: payload.centerName || payload.name,
+      phone: payload.phone,
+      password: payload.password,
+      confirmPassword: payload.confirmPassword || payload.password,
+      termsAccepted: payload.termsAccepted ?? true,
+      location: payload.location,
+    });
+    return response.data;
   } catch (error: any) {
-    throw error.response?.data?.error || "Failed to complete account setup. Link may be expired.";
+    throw error.response?.data?.error || "Failed to complete account setup. Link may be expired or invalid.";
   }
 };
 

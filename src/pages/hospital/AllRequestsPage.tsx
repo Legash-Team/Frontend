@@ -15,7 +15,6 @@ import {
   Calendar,
   Layers,
   User,
-  Phone,
   Mail,
   X,
   Eye,
@@ -494,12 +493,10 @@ export const AllRequestsPage: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-3 text-ink-soft text-xs">
-                        {donor.phone && (
-                          <div className="flex items-center gap-1">
-                            <Phone className="w-3.5 h-3.5 text-ink-soft/60" />
-                            <span className="font-mono">{donor.phone}</span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1 font-mono text-[11px] bg-paper px-2.5 py-1 rounded-lg border border-line-soft">
+                          <span className="text-ink-soft/70">Donor ID:</span>
+                          <span className="font-bold text-ink">{donor.donorId || donor.shortId || donor.id}</span>
+                        </div>
                         {donor.email && (
                           <div className="flex items-center gap-1">
                             <Mail className="w-3.5 h-3.5 text-ink-soft/60" />
@@ -508,18 +505,30 @@ export const AllRequestsPage: React.FC = () => {
                         )}
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate('/hospital/medical-records', {
-                            state: { request: selectedRequest, donor },
-                          })
-                        }
-                        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-crimson/10 hover:bg-crimson text-crimson hover:text-white border border-crimson/20 rounded-lg font-sans font-semibold transition-colors"
-                      >
-                        <FileHeart className="w-3.5 h-3.5" />
-                        <span>Record Donation</span>
-                      </button>
+                      {selectedRequest.status?.toUpperCase() === 'CLOSED' ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate('/hospital/medical-records', {
+                              state: { request: selectedRequest, donor },
+                            })
+                          }
+                          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-crimson/10 hover:bg-crimson text-crimson hover:text-white border border-crimson/20 rounded-lg font-sans font-semibold transition-colors"
+                        >
+                          <FileHeart className="w-3.5 h-3.5" />
+                          <span>Record Donation</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled
+                          title="Donation records can only be created after the blood request is closed"
+                          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-paper text-ink-soft/50 border border-line-soft rounded-lg font-sans font-semibold cursor-not-allowed text-[11px]"
+                        >
+                          <FileHeart className="w-3.5 h-3.5" />
+                          <span>Close Request to Record</span>
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

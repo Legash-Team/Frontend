@@ -6,7 +6,7 @@ import {
   getBloodStock,
   updateBloodStock,
 } from '@/features/hospital/api/hospital-api';
-import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
+import { ALLOWED_BLOOD_TYPES, ADEQUATE_BLOOD_STOCK_THRESHOLD } from '@/features/hospital/types/hospital-types';
 import type { BloodStock, BloodType } from '@/features/hospital/types/hospital-types';
 import {
   Droplets,
@@ -189,7 +189,8 @@ export const BloodStockPage: React.FC = () => {
             {ALLOWED_BLOOD_TYPES.map((type) => {
               const currentUnits = savedStock[type] ?? 0;
               const draftUnits = draftStock[type] ?? 0;
-              const isLow = currentUnits < 5;
+              const isAdequate = currentUnits >= ADEQUATE_BLOOD_STOCK_THRESHOLD;
+              const isLow = !isAdequate;
               const isDirty = draftUnits !== currentUnits;
 
               return (
@@ -209,10 +210,10 @@ export const BloodStockPage: React.FC = () => {
                     </span>
                     <span
                       className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                        isLow ? 'bg-crimson/10 text-crimson' : 'bg-verified/10 text-verified'
+                        isAdequate ? 'bg-verified/10 text-verified' : 'bg-crimson/10 text-crimson'
                       }`}
                     >
-                      {isLow ? 'Low Stock' : 'Adequate'}
+                      {isAdequate ? 'Adequate' : 'Low Stock'}
                     </span>
                   </div>
 

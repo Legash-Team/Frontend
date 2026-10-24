@@ -9,6 +9,7 @@ import {
   deleteHospitalAccount,
 } from '@/features/hospital/api/hospital-api';
 import type { HospitalProfile, LocationData } from '@/features/hospital/types/hospital-types';
+import { LocationLink } from '@/utils/mapsUrl';
 import {
   Building2,
   Mail,
@@ -289,21 +290,18 @@ export const HospitalProfilePage: React.FC = () => {
 
               <div className="p-6 sm:p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Hospital Name (Editable) */}
+                  {/* Hospital Name */}
                   <div className="p-4 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
                         Facility Name
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider bg-verified/10 text-verified px-2 py-0.5 rounded font-semibold">
-                        Editable
-                      </span>
                     </div>
                     <p className="text-base font-serif font-bold text-ink">{profile.name}</p>
                   </div>
 
-                  {/* Email Address (Editable with verification) */}
+                  {/* Email Address (Requires Verification) */}
                   <div className="p-4 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
@@ -317,29 +315,23 @@ export const HospitalProfilePage: React.FC = () => {
                     <p className="text-base font-sans font-medium text-ink">{profile.email}</p>
                   </div>
 
-                  {/* Phone Number (Editable directly) */}
+                  {/* Phone Number */}
                   <div className="p-4 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
                         Emergency Phone Line
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider bg-verified/10 text-verified px-2 py-0.5 rounded font-semibold">
-                        Direct Edit
-                      </span>
                     </div>
                     <p className="text-base font-sans font-medium text-ink">{profile.phone}</p>
                   </div>
 
-                  {/* License Number (Read-Only) */}
+                  {/* License Number */}
                   <div className="p-4 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
                         Ministry License / Reg Number
-                      </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider bg-paper-dim text-ink-soft px-2 py-0.5 rounded font-semibold border border-line-soft">
-                        Read-Only
                       </span>
                     </div>
                     <p className="text-base font-mono font-semibold text-ink">
@@ -348,27 +340,27 @@ export const HospitalProfilePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Geolocation Pin Coordinates (Read-Only) */}
-                <div className="p-5 bg-crimson/5 border border-crimson/15 rounded-xl space-y-2">
+                {/* Geolocation Pin Coordinates */}
+                <div className="p-5 bg-paper/60 border border-line-soft rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-serif font-bold text-ink tracking-tight flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-crimson stroke-[1.75]" />
-                      Hospital Coordinates (Emergency Dispatch)
-                    </span>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-crimson/10 text-crimson px-2 py-0.5 rounded">
-                      Read-Only
+                      Location
                     </span>
                   </div>
 
                   {profile.location ? (
-                    <div className="text-xs font-sans text-ink-soft">
+                    <div className="text-xs font-sans text-ink-soft space-y-2">
                       <p className="font-semibold text-ink">
                         Latitude: <span className="font-mono text-crimson font-bold">{profile.location.lat}</span> |{' '}
                         Longitude: <span className="font-mono text-crimson font-bold">{profile.location.lng}</span>
                       </p>
-                      <p className="text-[11px] font-sans text-ink-soft/70 mt-1">
-                        Coordinates are fixed for automated nearest-hospital emergency dispatching.
-                      </p>
+                      {profile.location.address && (
+                        <p className="text-xs text-ink">{profile.location.address}</p>
+                      )}
+                      <div>
+                        <LocationLink location={profile.location} />
+                      </div>
                     </div>
                   ) : (
                     <p className="text-xs font-sans text-ink-soft/70">No geographical coordinates registered.</p>

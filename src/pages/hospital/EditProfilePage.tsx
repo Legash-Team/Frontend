@@ -13,7 +13,6 @@ import {
   Mail,
   Building2,
   Save,
-  MapPin,
   FileText,
 } from 'lucide-react';
 
@@ -312,25 +311,7 @@ export const EditProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Read-Only Field: Geolocation Pin */}
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-red-600" />
-                    Hospital Coordinates
-                  </span>
-                  <span className="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded font-semibold">
-                    Read-Only
-                  </span>
-                </div>
-                {profile.location ? (
-                  <p className="text-xs text-gray-700 font-mono">
-                    Latitude: {profile.location.lat} | Longitude: {profile.location.lng}
-                  </p>
-                ) : (
-                  <p className="text-xs text-gray-500">No location coordinates registered.</p>
-                )}
-              </div>
+
 
               {/* Action Buttons */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">

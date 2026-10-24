@@ -15,8 +15,10 @@ export interface HospitalUser {
   } | null;
   verificationStatus?: string;
   location?: {
-    lat: number;
-    lng: number;
+    lat?: number | null;
+    lng?: number | null;
+    address?: string | null;
+    mapsUrl?: string | null;
   } | null;
 }
 
