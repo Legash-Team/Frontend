@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Spinner } from './Spinner';
 
 interface LoadingStateProps {
@@ -6,9 +7,12 @@ interface LoadingStateProps {
 }
 
 export const LoadingState = ({
-  text = 'Loading...',
+  text,
   className = '',
 }: LoadingStateProps) => {
+  const { t } = useTranslation();
+  const label = text ?? t('common.loading');
+
   return (
     <div
       role="status"
@@ -16,7 +20,7 @@ export const LoadingState = ({
       className={`flex flex-col items-center justify-center py-12 ${className}`}
     >
       <Spinner size="md" />
-      <p className="mt-3 text-sm font-sans text-ink-soft font-medium">{text}</p>
+      <p className="mt-3 text-sm font-sans text-ink-soft font-medium">{label}</p>
     </div>
   );
 };

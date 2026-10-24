@@ -1,0 +1,30 @@
+{
+  "editProfile": {
+    "breadcrumbProfile": "መገለጫ",
+    "breadcrumbEdit": "አስተካክል",
+    "title": "የሆስፒታል መገለጫ አስተካክል",
+    "description": "የተቋሙ የመገናኛ መረጃን ያዘመን። የፈቃድ ቁጥርና የአካባቢ መጠን በንባብ ብቻ ነው።",
+    "cancelBack": "ሰርዝ & ተመለስ",
+    "loading": "የፎርም መረጃ በመጫን ላይ...",
+    "formTitle": "የሆስፒታል መረጃ ቅጽ",
+    "verificationSent": "የማረጋገጫ ጥያቄ ተልኳል",
+    "phoneLabel": "ስልክ ቁጥር (+251 ቅርጸት)",
+    "phoneHelper": "የኢትዮጵያ ቅርጸት (+251...)",
+    "emailHelper": "ኢሜይል ማዘመን የማረጋገጫ አገናኝ ይፈጥራል",
+    "licenseLabel": "ፈቃድ / የምዝገባ ቁጥር",
+    "readOnly": "በንባብ ብቻ",
+    "licenseFixed": "የፈቃድ ቁጥር ተደንክሮ ሊለውት አይችልም።",
+    "coordinatesLabel": "የሆስፒታል መጠኖች",
+    "latitude": "Latitude:",
+    "longitude": "Longitude:",
+    "noCoordinates": "ምንም የአካባቢ መጠን አልተመዘገበም።",
+    "saving": "መገለጫ በመቀመጥ ላይ...",
+    "save": "ለውጦችን አስቀምጥ",
+    "loadFailed": "የሆስፒታል መገለጫ መረጃ ለማስተካከል መጫን አልተቻለም።",
+    "updateFailed": "የሆስፒታል መገለጫ ማዘመን አልተቻለም።",
+    "verificationNotice": "የኢሜይል ለውጥ ጠይቓል! የማረጋገጫ አገናኝ ወደ አዲስ ኢሜይል አድራሻዎ ተልኳል። ለውጡን ለማጠናቀቅ እባክዎ ያረጋግጡ።",
+    "updateSuccess": "የሆስፒታል መገለጫ በተሳካ ሁኔታ ተዘምኗል!",
+    "phonePrefix": "ስልክ ቁጥር ከ +251 መጀመር አለበት",
+    "phoneInvalid": "ትክክል ያልሆነ የኢትዮጵያ ስልክ ቅርጸት። ምሳሌ፦ +251911234567"
+  }
+}

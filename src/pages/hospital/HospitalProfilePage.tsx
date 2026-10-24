@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Button from '@/components/ui/Button';
 import {
@@ -30,6 +31,7 @@ import {
 
 export const HospitalProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<HospitalProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,14 +77,14 @@ export const HospitalProfilePage: React.FC = () => {
             (hospitalObj.name as string) ||
             (hospitalObj.hospitalName as string) ||
             (raw.name as string) ||
-            'N/A',
-          email: (hospitalObj.email as string) || (raw.email as string) || 'N/A',
-          phone: (hospitalObj.phone as string) || (raw.phone as string) || 'N/A',
+            t('common.notAvailable'),
+          email: (hospitalObj.email as string) || (raw.email as string) || t('common.notAvailable'),
+          phone: (hospitalObj.phone as string) || (raw.phone as string) || t('common.notAvailable'),
           licenseNumber:
             (hospitalObj.licenseNumber as string) ||
             (hospitalObj.license_number as string) ||
             (raw.licenseNumber as string) ||
-            'N/A',
+            t('common.notAvailable'),
           location:
             (hospitalObj.location as LocationData | null) ||
             (raw.location as LocationData | null) ||
@@ -90,7 +92,7 @@ export const HospitalProfilePage: React.FC = () => {
         });
       }
     } catch (err: unknown) {
-      let message = 'Failed to load hospital profile data.';
+      let message = t('hospitalProfile.loadFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -113,17 +115,17 @@ export const HospitalProfilePage: React.FC = () => {
     setPasswordError(null);
 
     if (!currentPassword) {
-      setPasswordError('Current password is required.');
+      setPasswordError(t('hospitalProfile.currentRequired'));
       return;
     }
 
     if (!newPassword || newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters long.');
+      setPasswordError(t('hospitalProfile.newPasswordLength'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError('New password and confirm password do not match.');
+      setPasswordError(t('hospitalProfile.passwordMismatch'));
       return;
     }
 
@@ -135,12 +137,12 @@ export const HospitalProfilePage: React.FC = () => {
         confirmPassword,
       });
 
-      setPasswordSuccess(response.message || 'Hospital password updated successfully!');
+      setPasswordSuccess(response.message || t('hospitalProfile.passwordSuccess'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: unknown) {
-      let message = 'Failed to update password. Please verify current password.';
+      let message = t('hospitalProfile.passwordFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -154,16 +156,16 @@ export const HospitalProfilePage: React.FC = () => {
   };
 
   const handleRequestResetEmail = async () => {
-    if (!profile?.email || profile.email === 'N/A') return;
+    if (!profile?.email || profile.email === t('common.notAvailable')) return;
     setForgotError(null);
     setForgotSuccess(null);
     setForgotLoading(true);
 
     try {
       const res = await requestPasswordResetEmail(profile.email);
-      setForgotSuccess(res.message || `Password reset link sent to ${profile.email}`);
+      setForgotSuccess(res.message || t('hospitalProfile.resetLinkSent', { email: profile.email }));
     } catch (err: unknown) {
-      let message = 'Failed to send reset link.';
+      let message = t('hospitalProfile.resetLinkFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -192,10 +194,10 @@ export const HospitalProfilePage: React.FC = () => {
       // Redirect to login page
       navigate('/login', {
         replace: true,
-        state: { message: 'Your hospital account has been permanently deleted.' },
+        state: { message: t('hospitalProfile.accountDeleted') },
       });
     } catch (err: unknown) {
-      let message = 'Failed to delete account. Please try again later.';
+      let message = t('hospitalProfile.deleteFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -217,10 +219,10 @@ export const HospitalProfilePage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-line-soft">
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
-              <span>Hospital Profile</span>
+              <span>{t('hospitalProfile.title')}</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Registered hospital credentials, password security, and verified emergency contact information.
+              {t('hospitalProfile.description')}
             </p>
           </div>
 
@@ -229,7 +231,7 @@ export const HospitalProfilePage: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs"
           >
             <Pencil className="w-4 h-4" />
-            <span>Edit Profile</span>
+            <span>{t('hospitalProfile.editProfile')}</span>
           </Link>
         </div>
 
@@ -237,7 +239,7 @@ export const HospitalProfilePage: React.FC = () => {
         {loading && (
           <div className="bg-white rounded-2xl p-12 text-center border border-line-soft shadow-xs">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson border-t-transparent"></div>
-            <p className="mt-3 text-sm font-sans text-ink-soft font-medium">Fetching hospital profile...</p>
+            <p className="mt-3 text-sm font-sans text-ink-soft font-medium">{t('hospitalProfile.loading')}</p>
           </div>
         )}
 
@@ -247,7 +249,7 @@ export const HospitalProfilePage: React.FC = () => {
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-crimson shrink-0 stroke-[1.75]" />
               <div>
-                <p className="font-serif font-bold text-ink">Unable to fetch profile</p>
+                <p className="font-serif font-bold text-ink">{t('hospitalProfile.errorTitle')}</p>
                 <p className="text-crimson text-xs mt-0.5 font-sans">{error}</p>
               </div>
             </div>
@@ -256,7 +258,7 @@ export const HospitalProfilePage: React.FC = () => {
               className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider bg-crimson/10 hover:bg-crimson/20 text-crimson px-3 py-1.5 rounded-lg transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry</span>
+              <span>{t('common.retry')}</span>
             </button>
           </div>
         )}
@@ -273,7 +275,7 @@ export const HospitalProfilePage: React.FC = () => {
                   <div>
                     <h2 className="text-lg font-serif font-bold tracking-tight">{profile.name}</h2>
                     <p className="text-xs text-red-100 font-mono">
-                      License #: {profile.licenseNumber}
+                      {t('hospitalProfile.licenseLabel')} {profile.licenseNumber}
                     </p>
                   </div>
                 </div>
@@ -283,7 +285,7 @@ export const HospitalProfilePage: React.FC = () => {
                   className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 bg-white text-crimson hover:bg-paper rounded-lg font-mono font-bold text-xs uppercase tracking-wider transition-colors shadow-xs"
                 >
                   <Pencil className="w-3.5 h-3.5" />
-                  <span>Edit Information</span>
+                  <span>{t('hospitalProfile.editInformation')}</span>
                 </Link>
               </div>
 
@@ -294,10 +296,10 @@ export const HospitalProfilePage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
-                        Facility Name
+                        {t('hospitalProfile.facilityName')}
                       </span>
                       <span className="text-[10px] font-mono uppercase tracking-wider bg-verified/10 text-verified px-2 py-0.5 rounded font-semibold">
-                        Editable
+                        {t('hospitalProfile.editable')}
                       </span>
                     </div>
                     <p className="text-base font-serif font-bold text-ink">{profile.name}</p>
@@ -308,10 +310,10 @@ export const HospitalProfilePage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <Mail className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
-                        Official Email (Login ID)
+                        {t('hospitalProfile.officialEmail')}
                       </span>
                       <span className="text-[10px] font-mono uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">
-                        Requires Verification
+                        {t('hospitalProfile.requiresVerification')}
                       </span>
                     </div>
                     <p className="text-base font-sans font-medium text-ink">{profile.email}</p>
@@ -322,10 +324,10 @@ export const HospitalProfilePage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
-                        Emergency Phone Line
+                        {t('hospitalProfile.emergencyPhone')}
                       </span>
                       <span className="text-[10px] font-mono uppercase tracking-wider bg-verified/10 text-verified px-2 py-0.5 rounded font-semibold">
-                        Direct Edit
+                        {t('hospitalProfile.directEdit')}
                       </span>
                     </div>
                     <p className="text-base font-sans font-medium text-ink">{profile.phone}</p>
@@ -336,10 +338,10 @@ export const HospitalProfilePage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase text-ink-soft/70 tracking-wider flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
-                        Ministry License / Reg Number
+                        {t('hospitalProfile.ministryLicense')}
                       </span>
                       <span className="text-[10px] font-mono uppercase tracking-wider bg-paper-dim text-ink-soft px-2 py-0.5 rounded font-semibold border border-line-soft">
-                        Read-Only
+                        {t('editProfile.readOnly')}
                       </span>
                     </div>
                     <p className="text-base font-mono font-semibold text-ink">
@@ -353,25 +355,25 @@ export const HospitalProfilePage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-serif font-bold text-ink tracking-tight flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-crimson stroke-[1.75]" />
-                      Hospital Coordinates (Emergency Dispatch)
+                      {t('hospitalProfile.coordinatesLabel')}
                     </span>
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-crimson/10 text-crimson px-2 py-0.5 rounded">
-                      Read-Only
+                      {t('editProfile.readOnly')}
                     </span>
                   </div>
 
                   {profile.location ? (
                     <div className="text-xs font-sans text-ink-soft">
                       <p className="font-semibold text-ink">
-                        Latitude: <span className="font-mono text-crimson font-bold">{profile.location.lat}</span> |{' '}
-                        Longitude: <span className="font-mono text-crimson font-bold">{profile.location.lng}</span>
+                        {t('editProfile.latitude')} <span className="font-mono text-crimson font-bold">{profile.location.lat}</span> |{' '}
+                        {t('editProfile.longitude')} <span className="font-mono text-crimson font-bold">{profile.location.lng}</span>
                       </p>
                       <p className="text-[11px] font-sans text-ink-soft/70 mt-1">
-                        Coordinates are fixed for automated nearest-hospital emergency dispatching.
+                        {t('hospitalProfile.coordinatesFixed')}
                       </p>
                     </div>
                   ) : (
-                    <p className="text-xs font-sans text-ink-soft/70">No geographical coordinates registered.</p>
+                    <p className="text-xs font-sans text-ink-soft/70">{t('hospitalProfile.noCoordinates')}</p>
                   )}
                 </div>
               </div>
@@ -382,10 +384,10 @@ export const HospitalProfilePage: React.FC = () => {
               <div className="px-6 py-4 bg-paper border-b border-line-soft flex items-center justify-between">
                 <h2 className="text-base font-serif font-bold text-ink flex items-center gap-2">
                   <KeyRound className="w-5 h-5 text-crimson stroke-[1.75]" />
-                  <span>Change Password</span>
+                  <span>{t('hospitalProfile.changePassword')}</span>
                 </h2>
                 <span className="text-xs text-ink-soft font-sans">
-                  Logged-in session security
+                  {t('hospitalProfile.sessionSecurity')}
                 </span>
               </div>
 
@@ -408,7 +410,7 @@ export const HospitalProfilePage: React.FC = () => {
                   {/* Current Password */}
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-                      Current Password <span className="text-crimson">*</span>
+                      {t('hospitalProfile.currentPassword')} <span className="text-crimson">*</span>
                     </label>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft/40 w-4 h-4" />
@@ -433,7 +435,7 @@ export const HospitalProfilePage: React.FC = () => {
                   {/* New Password */}
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-                      New Password <span className="text-crimson">*</span>
+                      {t('hospitalProfile.newPassword')} <span className="text-crimson">*</span>
                     </label>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft/40 w-4 h-4" />
@@ -442,7 +444,7 @@ export const HospitalProfilePage: React.FC = () => {
                         required
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Min. 6 chars"
+                        placeholder={t('hospitalProfile.newPasswordPlaceholder')}
                         className="w-full h-11 pl-10 pr-10 bg-paper border border-line-soft rounded-xl text-sm outline-none focus:border-crimson"
                       />
                       <button
@@ -458,7 +460,7 @@ export const HospitalProfilePage: React.FC = () => {
                   {/* Confirm New Password */}
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-                      Confirm New Password <span className="text-crimson">*</span>
+                      {t('hospitalProfile.confirmNewPassword')} <span className="text-crimson">*</span>
                     </label>
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft/40 w-4 h-4" />
@@ -467,7 +469,7 @@ export const HospitalProfilePage: React.FC = () => {
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Re-enter new password"
+                        placeholder={t('hospitalProfile.confirmPasswordPlaceholder')}
                         className="w-full h-11 pl-10 pr-10 bg-paper border border-line-soft rounded-xl text-sm outline-none focus:border-crimson"
                       />
                       <button
@@ -491,7 +493,7 @@ export const HospitalProfilePage: React.FC = () => {
                     }}
                     className="text-xs font-mono font-bold uppercase tracking-wider text-crimson hover:underline text-left"
                   >
-                    Forgot Current Password? Request Reset via Email
+                    {t('hospitalProfile.forgotPassword')}
                   </button>
 
                   <Button
@@ -499,11 +501,11 @@ export const HospitalProfilePage: React.FC = () => {
                     variant="primary"
                     size="sm"
                     isLoading={passwordLoading}
-                    loadingText="Updating Password..."
+                    loadingText={t('hospitalProfile.updatingPassword')}
                     className="px-6 text-xs"
                   >
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Update Password</span>
+                    <span>{t('hospitalProfile.updatePassword')}</span>
                   </Button>
                 </div>
               </form>
@@ -515,10 +517,10 @@ export const HospitalProfilePage: React.FC = () => {
                 <div>
                   <h3 className="text-base font-serif font-bold text-crimson flex items-center gap-2">
                     <Trash2 className="w-5 h-5 stroke-[1.75]" />
-                    <span>Delete Hospital Account</span>
+                    <span>{t('hospitalProfile.deleteAccount')}</span>
                   </h3>
                   <p className="text-xs text-ink-soft mt-1 font-sans max-w-xl">
-                    Permanently delete your hospital profile, remove live inventory listings, and end your sign-in access. This action is irreversible.
+                    {t('hospitalProfile.deleteDescription')}
                   </p>
                 </div>
 
@@ -532,7 +534,7 @@ export const HospitalProfilePage: React.FC = () => {
                   className="px-4 py-2 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-sans font-semibold transition-colors shadow-xs flex items-center gap-1.5 shrink-0"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete Account</span>
+                  <span>{t('hospitalProfile.deleteAccount')}</span>
                 </button>
               </div>
             </div>
@@ -545,7 +547,7 @@ export const HospitalProfilePage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-white border border-line-soft rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-line-soft">
-              <h3 className="font-serif font-bold text-ink text-lg">Reset Password via Email</h3>
+              <h3 className="font-serif font-bold text-ink text-lg">{t('hospitalProfile.resetTitle')}</h3>
               <button
                 type="button"
                 onClick={() => setForgotModalOpen(false)}
@@ -556,7 +558,7 @@ export const HospitalProfilePage: React.FC = () => {
             </div>
 
             <p className="text-xs font-sans text-ink-soft">
-              We will send a password reset verification link to your registered official hospital email address:
+              {t('hospitalProfile.resetDescription')}
             </p>
 
             <div className="p-3 bg-paper border border-line-soft rounded-xl text-xs font-mono font-bold text-ink">
@@ -579,9 +581,8 @@ export const HospitalProfilePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setForgotModalOpen(false)}
-                className="px-4 py-2 border border-line-soft text-ink-soft rounded-xl text-xs font-semibold hover:bg-paper"
-              >
-                Close
+                className="px-4 py-2 border border-line-soft text-ink-soft rounded-xl text-xs font-semibold hover:bg-paper"                >
+                {t('common.close')}
               </button>
 
               {!forgotSuccess && (
@@ -590,11 +591,11 @@ export const HospitalProfilePage: React.FC = () => {
                   variant="primary"
                   size="sm"
                   isLoading={forgotLoading}
-                  loadingText="Sending..."
+                  loadingText={t('hospitalProfile.sending')}
                   onClick={handleRequestResetEmail}
                   className="px-5 text-xs"
                 >
-                  Send Reset Link
+                  {t('hospitalProfile.sendResetLink')}
                 </Button>
               )}
             </div>
@@ -611,13 +612,13 @@ export const HospitalProfilePage: React.FC = () => {
                 <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
               </div>
               <div>
-                <h3 className="font-serif font-bold text-lg text-ink">Permanent Account Deletion</h3>
-                <p className="text-xs text-crimson font-sans">Warning: This action cannot be undone.</p>
+                <h3 className="font-serif font-bold text-lg text-ink">{t('hospitalProfile.deleteModalTitle')}</h3>
+                <p className="text-xs text-crimson font-sans">{t('hospitalProfile.deleteModalWarning')}</p>
               </div>
             </div>
 
             <p className="text-xs text-ink-soft leading-relaxed">
-              Deleting your hospital account will remove all registered blood stock, cancel pending blood requests, and revoke access to the Legash Emergency Blood Network.
+              {t('hospitalProfile.deleteModalBody')}
             </p>
 
             {deleteError && (
@@ -634,7 +635,7 @@ export const HospitalProfilePage: React.FC = () => {
                 className="mt-0.5 accent-crimson rounded"
               />
               <span className="text-xs font-sans text-ink font-medium">
-                I understand that account deletion is permanent and all hospital records will be irreversibly erased.
+                {t('hospitalProfile.deleteConfirmLabel')}
               </span>
             </label>
 
@@ -645,7 +646,7 @@ export const HospitalProfilePage: React.FC = () => {
                 disabled={deleteLoading}
                 className="px-4 py-2 border border-line-soft text-ink rounded-xl text-xs font-semibold hover:bg-paper"
               >
-                Cancel
+                {t('dialog.cancel')}
               </button>
 
               <button
@@ -657,12 +658,12 @@ export const HospitalProfilePage: React.FC = () => {
                 {deleteLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent" />
-                    <span>Deleting Account...</span>
+                    <span>{t('hospitalProfile.deleting')}</span>
                   </>
                 ) : (
                   <>
                     <Trash2 className="w-4 h-4" />
-                    <span>Permanently Delete</span>
+                    <span>{t('hospitalProfile.deletePermanently')}</span>
                   </>
                 )}
               </button>

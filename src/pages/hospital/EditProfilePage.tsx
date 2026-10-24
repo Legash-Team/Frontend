@@ -1,5 +1,6 @@
 import React, { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -19,6 +20,7 @@ import {
 
 export const EditProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [profile, setProfile] = useState<HospitalProfile>({
     name: '',
@@ -72,7 +74,7 @@ export const EditProfilePage: React.FC = () => {
         }
       } catch (err: unknown) {
         if (!isMounted) return;
-        let message = 'Failed to load hospital profile data for editing.';
+        let message = t('editProfile.loadFailed');
         if (typeof err === 'object' && err !== null && 'response' in err) {
           const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
           message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -104,24 +106,24 @@ export const EditProfilePage: React.FC = () => {
     const newErrors: { name?: string; email?: string; phone?: string } = {};
 
     if (!profile.name || !profile.name.trim()) {
-      newErrors.name = 'Hospital name is required.';
+      newErrors.name = t('auth.register.errors.nameRequired');
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!profile.email || !profile.email.trim()) {
-      newErrors.email = 'Email address is required.';
+      newErrors.email = t('auth.register.errors.emailRequired');
     } else if (!emailRegex.test(profile.email.trim())) {
-      newErrors.email = 'Please enter a valid email address.';
+      newErrors.email = t('auth.register.errors.emailInvalid');
     }
 
     const phoneTrimmed = profile.phone ? profile.phone.trim() : '';
     const ethiopianPhoneRegex = /^\+251[0-9]{9}$/;
     if (!phoneTrimmed) {
-      newErrors.phone = 'Phone number is required.';
+      newErrors.phone = t('auth.register.errors.phoneRequired');
     } else if (!phoneTrimmed.startsWith('+251')) {
-      newErrors.phone = 'Phone number must start with +251';
+      newErrors.phone = t('editProfile.phonePrefix');
     } else if (!ethiopianPhoneRegex.test(phoneTrimmed)) {
-      newErrors.phone = 'Invalid Ethiopian phone format. Example: +251911234567';
+      newErrors.phone = t('editProfile.phoneInvalid');
     }
 
     setErrors(newErrors);
@@ -149,10 +151,10 @@ export const EditProfilePage: React.FC = () => {
       if (response.verificationRequired) {
         setVerificationNotice(
           response.message ||
-            'Email change requested! A verification link has been sent to your new email address. Please verify to complete the change.'
+            t('editProfile.verificationNotice')
         );
       } else {
-        setSuccessMsg(response.message || 'Hospital profile updated successfully!');
+        setSuccessMsg(response.message || t('editProfile.updateSuccess'));
       }
 
       if (response.hospital) {
@@ -164,7 +166,7 @@ export const EditProfilePage: React.FC = () => {
         }));
       }
     } catch (err: unknown) {
-      let message = 'Failed to update hospital profile.';
+      let message = t('editProfile.updateFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -187,16 +189,16 @@ export const EditProfilePage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-1">
               <Link to="/hospital/profile" className="hover:text-red-600 transition-colors">
-                Profile
+                {t('editProfile.breadcrumbProfile')}
               </Link>
               <span>/</span>
-              <span className="text-gray-900">Edit</span>
+              <span className="text-gray-900">{t('editProfile.breadcrumbEdit')}</span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              <span>Edit Hospital Profile</span>
+              <span>{t('editProfile.title')}</span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Update facility contact info. License number and geolocation pin are read-only.
+              {t('editProfile.description')}
             </p>
           </div>
 
@@ -206,7 +208,7 @@ export const EditProfilePage: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-xs transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Cancel & Back</span>
+            <span>{t('editProfile.cancelBack')}</span>
           </button>
         </div>
 
@@ -214,14 +216,14 @@ export const EditProfilePage: React.FC = () => {
         {loading ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-gray-200 shadow-xs">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-red-600 border-t-transparent"></div>
-            <p className="mt-3 text-sm text-gray-600 font-medium">Loading form data...</p>
+            <p className="mt-3 text-sm text-gray-600 font-medium">{t('editProfile.loading')}</p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
             <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4 text-white">
               <h2 className="text-base font-bold flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-red-500" />
-                <span>Hospital Information Form</span>
+                <span>{t('editProfile.formTitle')}</span>
               </h2>
             </div>
 
@@ -238,7 +240,7 @@ export const EditProfilePage: React.FC = () => {
                 <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-sm font-medium flex items-start gap-3">
                   <Mail className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold">Verification Request Sent</p>
+                    <p className="font-semibold">{t('editProfile.verificationSent')}</p>
                     <p className="text-xs mt-0.5">{verificationNotice}</p>
                   </div>
                 </div>
@@ -254,39 +256,39 @@ export const EditProfilePage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Editable Field: Hospital Name */}
                 <Input
-                  label="Hospital Name"
+                  label={t('auth.register.hospitalName')}
                   name="name"
                   value={profile.name}
                   onChange={handleChange}
                   error={errors.name}
-                  placeholder="e.g. St. Paul Hospital"
+                  placeholder={t('auth.register.namePlaceholder')}
                   requiredBadge
                   disabled={submitting}
                 />
 
                 {/* Editable Field: Phone */}
                 <Input
-                  label="Phone Number (+251 format)"
+                  label={t('editProfile.phoneLabel')}
                   name="phone"
                   value={profile.phone}
                   onChange={handleChange}
                   error={errors.phone}
                   placeholder="+251911234567"
-                  helperText="Ethiopian format (+251...)"
+                  helperText={t('editProfile.phoneHelper')}
                   requiredBadge
                   disabled={submitting}
                 />
 
                 {/* Editable Field: Email */}
                 <Input
-                  label="Email Address"
+                  label={t('auth.login.emailLabel')}
                   type="email"
                   name="email"
                   value={profile.email}
                   onChange={handleChange}
                   error={errors.email}
                   placeholder="contact@hospital.org"
-                  helperText="Updating email triggers verification link"
+                  helperText={t('editProfile.emailHelper')}
                   requiredBadge
                   disabled={submitting}
                 />
@@ -296,10 +298,10 @@ export const EditProfilePage: React.FC = () => {
                   <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5 text-gray-500" />
-                      License / Reg. Number
+                      {t('editProfile.licenseLabel')}
                     </span>
                     <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-semibold">
-                      Read-Only
+                      {t('editProfile.readOnly')}
                     </span>
                   </label>
                   <input
@@ -308,7 +310,7 @@ export const EditProfilePage: React.FC = () => {
                     disabled
                     className="w-full px-3.5 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-500 cursor-not-allowed font-mono"
                   />
-                  <p className="text-xs text-gray-400">License number is fixed and cannot be changed.</p>
+                  <p className="text-xs text-gray-400">{t('editProfile.licenseFixed')}</p>
                 </div>
               </div>
 
@@ -317,18 +319,18 @@ export const EditProfilePage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                     <MapPin className="w-4 h-4 text-red-600" />
-                    Hospital Coordinates
+                    {t('editProfile.coordinatesLabel')}
                   </span>
                   <span className="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded font-semibold">
-                    Read-Only
+                    {t('editProfile.readOnly')}
                   </span>
                 </div>
                 {profile.location ? (
                   <p className="text-xs text-gray-700 font-mono">
-                    Latitude: {profile.location.lat} | Longitude: {profile.location.lng}
+                    {t('editProfile.latitude')} {profile.location.lat} | {t('editProfile.longitude')} {profile.location.lng}
                   </p>
                 ) : (
-                  <p className="text-xs text-gray-500">No location coordinates registered.</p>
+                  <p className="text-xs text-gray-500">{t('editProfile.noCoordinates')}</p>
                 )}
               </div>
 
@@ -339,17 +341,17 @@ export const EditProfilePage: React.FC = () => {
                   onClick={() => navigate('/hospital/profile')}
                   className="px-5 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-semibold text-xs transition-colors"
                 >
-                  Cancel
+                  {t('dialog.cancel')}
                 </button>
 
                 <Button
                   type="submit"
                   isLoading={submitting}
-                  loadingText="Saving Profile..."
+                  loadingText={t('editProfile.saving')}
                   className="px-6 gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  <span>Save Changes</span>
+                  <span>{t('editProfile.save')}</span>
                 </Button>
               </div>
             </form>

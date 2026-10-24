@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 import { 
   AlertCircle, 
   CheckCircle2, 
@@ -32,6 +34,7 @@ interface ActiveDialogState {
 }
 
 export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   const [activeDialog, setActiveDialog] = useState<ActiveDialogState | null>(null);
   const [promptInput, setPromptInput] = useState('');
   const [promptError, setPromptError] = useState<string | null>(null);
@@ -44,11 +47,11 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return new Promise<boolean>((resolve) => {
       setActiveDialog({
         mode: 'confirm',
-        title: options.title || 'Please Confirm',
+        title: options.title || i18n.t('dialog.confirmTitle'),
         message: options.message,
         type: options.type || 'warning',
-        confirmText: options.confirmText || 'Confirm',
-        cancelText: options.cancelText || 'Cancel',
+        confirmText: options.confirmText || i18n.t('dialog.confirm'),
+        cancelText: options.cancelText || i18n.t('dialog.cancel'),
         confirmVariant: options.confirmVariant || (options.type === 'danger' ? 'danger' : 'primary'),
         resolve: (val?: unknown) => {
           setActiveDialog(null);
@@ -61,16 +64,16 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // --- ALERT ---
   const alert = useCallback((options: AlertOptions | string): Promise<void> => {
     const opts: AlertOptions = typeof options === 'string' 
-      ? { message: options, title: 'Notification', type: 'info', buttonText: 'OK' } 
+      ? { message: options, title: i18n.t('dialog.notification'), type: 'info', buttonText: i18n.t('dialog.ok') } 
       : options;
 
     return new Promise<void>((resolve) => {
       setActiveDialog({
         mode: 'alert',
-        title: opts.title || (opts.type === 'error' ? 'Error' : opts.type === 'success' ? 'Success' : 'Notice'),
+        title: opts.title || (opts.type === 'error' ? i18n.t('dialog.error') : opts.type === 'success' ? i18n.t('dialog.success') : i18n.t('dialog.notice')),
         message: opts.message,
         type: opts.type || 'info',
-        confirmText: opts.buttonText || 'OK',
+        confirmText: opts.buttonText || i18n.t('dialog.ok'),
         resolve: () => {
           setActiveDialog(null);
           resolve();
@@ -86,11 +89,11 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setPromptError(null);
       setActiveDialog({
         mode: 'prompt',
-        title: options.title || 'Input Required',
+        title: options.title || i18n.t('dialog.inputRequired'),
         message: options.message,
         type: 'info',
-        confirmText: options.confirmText || 'Submit',
-        cancelText: options.cancelText || 'Cancel',
+        confirmText: options.confirmText || i18n.t('dialog.submit'),
+        cancelText: options.cancelText || i18n.t('dialog.cancel'),
         defaultValue: options.defaultValue || '',
         placeholder: options.placeholder || '',
         inputType: options.inputType || 'text',
@@ -238,7 +241,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               <button
                 type="button"
                 onClick={() => dismissToast(t.id)}
-                aria-label="Dismiss notification"
+                aria-label={t('common.dismissNotification')}
                 className="shrink-0 p-1 text-ink-soft/40 hover:text-ink hover:bg-paper rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -311,7 +314,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     onClick={() => activeDialog.resolve(false)}
                     className="px-5 py-2.5 rounded-full border border-line-soft text-xs sm:text-sm font-semibold text-ink-soft hover:text-ink hover:bg-paper transition-all cursor-pointer"
                   >
-                    {activeDialog.cancelText || 'Cancel'}
+                    {activeDialog.cancelText || t('dialog.cancel')}
                   </button>
                   <button
                     type="button"
@@ -336,7 +339,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     onClick={() => activeDialog.resolve(null)}
                     className="px-5 py-2.5 rounded-full border border-line-soft text-xs sm:text-sm font-semibold text-ink-soft hover:text-ink hover:bg-paper transition-all cursor-pointer"
                   >
-                    {activeDialog.cancelText || 'Cancel'}
+                    {activeDialog.cancelText || t('dialog.cancel')}
                   </button>
                   <button
                     type="button"

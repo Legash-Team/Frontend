@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -15,6 +16,7 @@ type CallbackState =
 // Backend integration (POST /api/auth/google) is pending contract verification.
 
 export const AuthCallbackPage = () => {
+  const { t } = useTranslation();
   const [state, setState] = useState<CallbackState>({ status: 'loading' });
   const hasHandled = useRef(false);
 
@@ -25,7 +27,7 @@ export const AuthCallbackPage = () => {
     if (!supabase) {
       setState({
         status: 'error',
-        message: 'Authentication is not configured. Please contact support.',
+        message: t('authCallback.notConfigured'),
       });
       return;
     }
@@ -61,7 +63,7 @@ export const AuthCallbackPage = () => {
       } catch (err: any) {
         setState({
           status: 'error',
-          message: err?.message || 'An unexpected error occurred.',
+          message: err?.message || t('authCallback.unexpectedError'),
         });
       }
     };
@@ -73,7 +75,7 @@ export const AuthCallbackPage = () => {
     return (
       <div className="min-h-screen bg-paper flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-white rounded-2xl border border-line-soft shadow-xs">
-          <LoadingState text="Completing sign-in..." />
+          <LoadingState text={t('authCallback.completingSignIn')} />
         </div>
       </div>
     );
@@ -84,10 +86,10 @@ export const AuthCallbackPage = () => {
       <div className="min-h-screen bg-paper flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-white rounded-2xl border border-line-soft shadow-xs p-6">
           <ErrorState
-            title="Sign-in failed"
+            title={t('authCallback.signInFailed')}
             message={state.message}
             onRetry={() => (window.location.href = '/login')}
-            retryLabel="Back to Login"
+            retryLabel={t('authCallback.backToLogin')}
           />
         </div>
       </div>
@@ -99,10 +101,10 @@ export const AuthCallbackPage = () => {
       <div className="min-h-screen bg-paper flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-white rounded-2xl border border-line-soft shadow-xs p-6">
           <ErrorState
-            title="No session found"
-            message="We could not find a valid sign-in session. Please try signing in again."
+            title={t('authCallback.noSessionTitle')}
+            message={t('authCallback.noSessionMessage')}
             onRetry={() => (window.location.href = '/login')}
-            retryLabel="Back to Login"
+            retryLabel={t('authCallback.backToLogin')}
           />
         </div>
       </div>
@@ -118,15 +120,15 @@ export const AuthCallbackPage = () => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-xl font-serif font-bold text-ink mb-2">Google Account Verified</h2>
+        <h2 className="text-xl font-serif font-bold text-ink mb-2">{t('authCallback.verifiedTitle')}</h2>
         <p className="text-sm text-ink-soft mb-6">
-          Your Google account has been verified, but this sign-in method isn't available on LEGASH yet. Please check back later or use email/password login.
+          {t('authCallback.verifiedBody')}
         </p>
         <Link
           to="/login"
           className="inline-flex items-center justify-center px-6 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-sm font-semibold transition-colors"
         >
-          Back to Login
+          {t('authCallback.backToLogin')}
         </Link>
       </div>
     </div>

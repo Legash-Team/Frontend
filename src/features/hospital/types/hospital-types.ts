@@ -195,3 +195,33 @@ export interface DonationRecordPayload {
   recordedBy: string;
 }
 
+// --- DONATION QUEUE (hospital dashboard pending-donation notifications) ---
+// Paired with Backend's donation-history workflow. The dashboard indicator only
+// uses the lightweight count endpoint; the full donor queue is fetched on demand
+// when the hospital opens the notification modal.
+
+export type DonationQueueOutcome = 'donated' | 'did_not_donate';
+
+export interface PendingDonation {
+  id: string;
+  shortId: string;
+  name: string;
+  acceptedRequest: string; // reference of the request the donor accepted
+}
+
+export interface DonationOutcomePayload {
+  outcome: DonationQueueOutcome;
+  // Only supplied when outcome === 'donated'
+  donorBloodType?: BloodType;
+  donatedToBloodType?: BloodType;
+  heightCm?: number;
+  weightKg?: number;
+  healthStatus?: string;
+  peopleSaved?: number;
+  thankYouMessage?: string;
+}
+
+export interface PendingCountResponse {
+  count: number;
+}
+

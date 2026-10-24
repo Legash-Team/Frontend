@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Mail, RefreshCcw } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -9,6 +10,7 @@ import { verifyHospitalOTP, resendHospitalOTP } from '@/features/auth/api/auth-a
 const VerifyOTPPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -51,7 +53,7 @@ const VerifyOTPPage = () => {
     ? userEmail.replace(/^(..)(.*)(?=@)/, (_match: string, a: string, b: string) =>
         a + b.replace(/./g, '*')
       )
-    : userEmail || 'No email specified';
+    : userEmail || t('verifyOtp.noEmail');
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -88,7 +90,7 @@ const VerifyOTPPage = () => {
   const handleSaveEmail = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputEmail || !inputEmail.includes('@')) {
-      setError('Please enter a valid email address.');
+      setError(t('verifyOtp.errorEmailInvalid'));
       return;
     }
     setUserEmail(inputEmail.trim());
@@ -99,7 +101,7 @@ const VerifyOTPPage = () => {
   // 2. REAL BACKEND INTEGRATION
   const handleVerify = async () => {
     if (!userEmail || !userEmail.includes('@')) {
-      setError('Please provide your registered email address.');
+      setError(t('verifyOtp.errorEmailRequired'));
       setIsEditingEmail(true);
       return;
     }
@@ -116,11 +118,11 @@ const VerifyOTPPage = () => {
         sessionStorage.removeItem('pending_verification_email');
         localStorage.removeItem('pending_verification_email');
         navigate('/login', { 
-          state: { message: "Email verified successfully. Please log in." } 
+          state: { message: t('verifyOtp.verifiedSuccess') } 
         });
       }
     } catch (err: any) {
-      setError(err || "The code is incorrect or expired.");
+      setError(err || t('verifyOtp.errorWrongCode'));
     } finally {
       setIsVerifying(false);
     }
@@ -139,7 +141,7 @@ const handleResend = async () => {
       // Start the 60s cooldown timer again
       setTimeLeft(60);
       // Show success feedback
-      setResendMessage("A new code has been dispatched to your email.");
+      setResendMessage(t('verifyOtp.resendSuccess'));
       // Hide message after 5 seconds
       setTimeout(() => setResendMessage(null), 5000);
     }
@@ -155,7 +157,7 @@ const handleResend = async () => {
       <div className="w-full max-w-lg mb-6 sm:mb-8">
         <Link to="/register" className="inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-crimson transition-colors group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          Back to registration
+          {t('verifyOtp.backToRegistration')}
         </Link>
       </div>
 
@@ -168,10 +170,10 @@ const handleResend = async () => {
           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-crimson">
             <Mail size={28} strokeWidth={1.5} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink mb-3 sm:mb-4">Verify your email</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink mb-3 sm:mb-4">{t('verifyOtp.title')}</h1>
           
           <p className="text-ink-soft text-sm sm:text-[15px] leading-relaxed px-1 sm:px-2">
-            A 6-digit verification code has been sent to your registered email: <br/>
+            {t('verifyOtp.codeSent')} <br/>
             <span className="text-ink font-bold font-mono tracking-tight">{maskedEmail}</span>.
             {!isEditingEmail && (
               <button
@@ -182,7 +184,7 @@ const handleResend = async () => {
                 }}
                 className="ml-2 text-xs text-crimson font-medium hover:underline inline-block"
               >
-                (Change)
+                {t('verifyOtp.change')}
               </button>
             )}
           </p>
@@ -193,21 +195,21 @@ const handleResend = async () => {
                 type="email"
                 value={inputEmail}
                 onChange={(e) => setInputEmail(e.target.value)}
-                placeholder="Enter your registered email"
+                placeholder={t('verifyOtp.emailPlaceholder')}
                 className="px-3 py-1.5 text-xs rounded-lg border border-line-soft focus:border-crimson outline-none w-64 font-mono"
               />
               <button
                 type="submit"
                 className="px-3 py-1.5 text-xs bg-crimson text-white font-bold rounded-lg hover:bg-crimson/90"
               >
-                Set
+                {t('verifyOtp.setEmail')}
               </button>
               <button
                 type="button"
                 onClick={() => setIsEditingEmail(false)}
                 className="px-2 py-1.5 text-xs text-ink-soft hover:text-ink"
               >
-                Cancel
+                {t('verifyOtp.cancel')}
               </button>
             </form>
           )}
@@ -257,13 +259,13 @@ const handleResend = async () => {
           disabled={otp.some(d => !d)}
           className="w-full h-14 rounded-2xl text-base font-bold shadow-md border-2 border-crimson disabled:opacity-100 mb-8"
         >
-          Verify Account
+          {t('verifyOtp.verifyAccount')}
         </Button>
 
         <div className="text-center">
           {timeLeft > 0 ? (
             <div className="flex items-center justify-center gap-2">
-               <span className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">Resend code in</span>
+               <span className="text-[10px] font-mono font-bold text-ink-soft/40 uppercase tracking-widest">{t('verifyOtp.resendIn')}</span>
                <span className="text-sm font-bold text-ink-soft">{timeLeft}s</span>
             </div>
           ) : (
@@ -271,7 +273,7 @@ const handleResend = async () => {
               onClick={handleResend}
               className="inline-flex items-center gap-2 text-xs font-bold text-crimson hover:text-crimson-dark transition-colors uppercase tracking-widest"
             >
-              <RefreshCcw size={14} /> Resend Code
+              <RefreshCcw size={14} /> {t('verifyOtp.resendCode')}
             </button>
           )}
         </div>

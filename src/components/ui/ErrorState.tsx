@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AlertCircle } from 'lucide-react';
 
 interface ErrorStateProps {
@@ -9,12 +10,16 @@ interface ErrorStateProps {
 }
 
 export const ErrorState = ({
-  title = 'Something went wrong',
+  title,
   message,
   onRetry,
-  retryLabel = 'Retry',
+  retryLabel,
   className = '',
 }: ErrorStateProps) => {
+  const { t } = useTranslation();
+  const heading = title ?? t('common.somethingWentWrong');
+  const retry = retryLabel ?? t('common.retry');
+
   return (
     <div
       role="alert"
@@ -23,7 +28,7 @@ export const ErrorState = ({
       <div className="flex items-center gap-3">
         <AlertCircle className="w-5 h-5 text-crimson shrink-0" />
         <div>
-          <p className="font-serif font-bold text-ink">{title}</p>
+          <p className="font-serif font-bold text-ink">{heading}</p>
           <p className="text-crimson text-xs mt-0.5 font-sans">{message}</p>
         </div>
       </div>
@@ -33,7 +38,7 @@ export const ErrorState = ({
           onClick={onRetry}
           className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider bg-crimson/10 hover:bg-crimson/20 text-crimson px-3 py-1.5 rounded-lg transition-colors shrink-0"
         >
-          {retryLabel}
+          {retry}
         </button>
       )}
     </div>

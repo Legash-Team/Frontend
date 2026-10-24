@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export const HospitalSearchPage: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedBloodType, setSelectedBloodType] = useState<BloodType | ''>('');
   const [quantityNeeded, setQuantityNeeded] = useState<string>('1');
   const [searchedQuantity, setSearchedQuantity] = useState<number | null>(null);
@@ -35,30 +37,30 @@ export const HospitalSearchPage: React.FC = () => {
 
     // 1. Validate Blood Type Selection
     if (!selectedBloodType) {
-      setValidationError('Please select a blood type filter before searching.');
+      setValidationError(t('hospitalSearch.errorSelectType'));
       return;
     }
 
     if (!ALLOWED_BLOOD_TYPES.includes(selectedBloodType as BloodType)) {
-      setValidationError('Invalid blood type filter.');
+      setValidationError(t('hospitalSearch.errorInvalidType'));
       return;
     }
 
     // 2. Validate Quantity Needed
     const qtyStr = quantityNeeded.trim();
     if (!qtyStr) {
-      setValidationError('Please specify the quantity of blood units needed.');
+      setValidationError(t('hospitalSearch.errorQuantityRequired'));
       return;
     }
 
     if (!/^\d+$/.test(qtyStr)) {
-      setValidationError('Quantity needed must be a whole positive integer.');
+      setValidationError(t('hospitalSearch.errorQuantityWhole'));
       return;
     }
 
     const numQty = parseInt(qtyStr, 10);
     if (isNaN(numQty) || numQty < 1) {
-      setValidationError('Quantity needed must be at least 1 unit.');
+      setValidationError(t('hospitalSearch.errorQuantityMin'));
       return;
     }
 
@@ -85,7 +87,7 @@ export const HospitalSearchPage: React.FC = () => {
 
       setResults(hospitalsList);
     } catch (err: unknown) {
-      let message = 'Failed to search hospitals.';
+      let message = t('hospitalSearch.errorSearchFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -102,11 +104,11 @@ export const HospitalSearchPage: React.FC = () => {
   const resultsList = Array.isArray(results) ? results : [];
   const hospitalCount = resultsList.length;
 
-  let resultCountLabel = `${hospitalCount} hospitals found`;
+  let resultCountLabel = t('hospitalSearch.resultCountMany', { count: hospitalCount });
   if (hospitalCount === 0) {
-    resultCountLabel = 'No hospitals found';
+    resultCountLabel = t('hospitalSearch.resultCountZero');
   } else if (hospitalCount === 1) {
-    resultCountLabel = '1 hospital found';
+    resultCountLabel = t('hospitalSearch.resultCountOne');
   }
 
   return (
@@ -118,10 +120,10 @@ export const HospitalSearchPage: React.FC = () => {
           {/* Header */}
           <div className="pb-4 border-b border-gray-200">
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              <span>Hospital Search</span>
+              <span>{t('hospitalSearch.title')}</span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Search regional hospitals by blood group and required quantity of units for emergency dispatch.
+              {t('hospitalSearch.description')}
             </p>
           </div>
 
@@ -131,9 +133,9 @@ export const HospitalSearchPage: React.FC = () => {
             <div className="space-y-3">
               <label className="text-sm font-bold text-gray-900 flex items-center justify-between">
                 <span>
-                  1. Select Blood Group <span className="text-red-500">*</span>
+                  {t('hospitalSearch.step1Label')} <span className="text-red-500">*</span>
                 </span>
-                <span className="text-xs font-normal text-gray-500">Required before searching</span>
+                <span className="text-xs font-normal text-gray-500">{t('hospitalSearch.step1Hint')}</span>
               </label>
 
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -166,14 +168,14 @@ export const HospitalSearchPage: React.FC = () => {
                 <Input
                   type="text"
                   inputMode="numeric"
-                  label="2. Quantity / Units Needed *"
+                  label={t('hospitalSearch.step2Label')}
                   value={quantityNeeded}
                   onChange={(e) => {
                     setQuantityNeeded(e.target.value);
                     setValidationError(null);
                   }}
-                  placeholder="e.g. 3"
-                  helperText="Specify how many blood units your patient requires"
+                  placeholder={t('hospitalSearch.quantityPlaceholder')}
+                  helperText={t('hospitalSearch.quantityHelper')}
                 />
               </div>
 
@@ -182,11 +184,11 @@ export const HospitalSearchPage: React.FC = () => {
                   type="button"
                   onClick={handleSearch}
                   isLoading={loading}
-                  loadingText="Searching Hospitals..."
+                  loadingText={t('hospitalSearch.searchingButton')}
                   className="w-full sm:w-auto px-8 gap-2"
                 >
                   <Search className="w-4 h-4" />
-                  <span>Search Hospitals</span>
+                  <span>{t('hospitalSearch.searchButton')}</span>
                 </Button>
               </div>
             </div>
@@ -205,7 +207,9 @@ export const HospitalSearchPage: React.FC = () => {
             <div className="bg-white rounded-2xl p-12 text-center border border-gray-200 shadow-xs">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-red-600 border-t-transparent"></div>
               <p className="mt-3 text-sm text-gray-600 font-medium">
-                Searching hospitals for {quantityNeeded} unit{parseInt(quantityNeeded, 10) === 1 ? '' : 's'} of {selectedBloodType} blood...
+                {parseInt(quantityNeeded, 10) === 1
+                  ? t('hospitalSearch.searchingOne', { qty: quantityNeeded, type: selectedBloodType })
+                  : t('hospitalSearch.searchingMany', { qty: quantityNeeded, type: selectedBloodType })}
               </p>
             </div>
           )}
@@ -226,11 +230,14 @@ export const HospitalSearchPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-600 font-medium">
                   <span>
-                    Group: <span className="font-bold text-red-600">{selectedBloodType}</span>
+                    {t('hospitalSearch.groupLabel')} <span className="font-bold text-red-600">{selectedBloodType}</span>
                   </span>
                   <span>|</span>
                   <span>
-                    Requested: <span className="font-bold text-gray-900">{searchedQuantity} unit{searchedQuantity === 1 ? '' : 's'}</span>
+                    {t('hospitalSearch.requestedLabel')}{' '}
+                    <span className="font-bold text-gray-900">
+                      {searchedQuantity} {searchedQuantity === 1 ? t('hospitalSearch.unit') : t('hospitalSearch.units')}
+                    </span>
                   </span>
                 </div>
               </div>
@@ -238,9 +245,9 @@ export const HospitalSearchPage: React.FC = () => {
               {hospitalCount === 0 ? (
                 <div className="bg-white rounded-2xl p-12 text-center border border-gray-200 shadow-xs space-y-3">
                   <Building2 className="w-10 h-10 text-gray-400 mx-auto" />
-                  <p className="text-sm font-semibold text-gray-800">No Hospitals Found</p>
+                  <p className="text-sm font-semibold text-gray-800">{t('hospitalSearch.noHospitalsTitle')}</p>
                   <p className="text-xs text-gray-500 max-w-md mx-auto">
-                    No hospitals currently report available inventory for blood group {selectedBloodType}.
+                    {t('hospitalSearch.noHospitalsBody', { type: selectedBloodType })}
                   </p>
                 </div>
               ) : (
@@ -249,9 +256,9 @@ export const HospitalSearchPage: React.FC = () => {
                     if (!h || typeof h !== 'object') return null;
 
                     const itemObj = h as unknown as Record<string, unknown>;
-                    const hospitalName = h.name || (itemObj.hospitalName as string) || 'Unnamed Hospital';
-                    const hospitalEmail = h.email || 'No email recorded';
-                    const hospitalPhone = h.phone || 'No phone recorded';
+                    const hospitalName = h.name || (itemObj.hospitalName as string) || t('hospitalSearch.unnamedHospital');
+                    const hospitalEmail = h.email || t('hospitalSearch.noEmail');
+                    const hospitalPhone = h.phone || t('hospitalSearch.noPhone');
                     const hospitalLicense = h.licenseNumber || (itemObj.license_number as string) || null;
 
                     let availableQuantityNum: number = 0;
@@ -291,24 +298,27 @@ export const HospitalSearchPage: React.FC = () => {
                             }`}
                           >
                             <Droplets className={`w-3.5 h-3.5 ${hasSufficientStock ? 'text-emerald-600' : 'text-amber-600'}`} />
-                            <span>{availableQuantityNum} units available</span>
+                            <span>{t('hospitalSearch.unitsAvailable', { count: availableQuantityNum })}</span>
                           </span>
                         </div>
 
                         {/* Stock vs Requirement Comparison Badge */}
                         <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between text-xs">
                           <span className="text-gray-600 font-medium">
-                            Required: <span className="font-bold text-gray-900">{reqQty} units</span>
+                            {t('hospitalSearch.requiredLabel')}{' '}
+                            <span className="font-bold text-gray-900">
+                              {reqQty} {reqQty === 1 ? t('hospitalSearch.unit') : t('hospitalSearch.units')}
+                            </span>
                           </span>
                           {hasSufficientStock ? (
                             <span className="text-emerald-700 font-bold flex items-center gap-1">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Sufficient Stock</span>
+                              <span>{t('hospitalSearch.sufficientStock')}</span>
                             </span>
                           ) : (
                             <span className="text-amber-700 font-bold flex items-center gap-1">
                               <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                              <span>Partial Stock ({availableQuantityNum}/{reqQty})</span>
+                              <span>{t('hospitalSearch.partialStock', { have: availableQuantityNum, need: reqQty })}</span>
                             </span>
                           )}
                         </div>
@@ -322,7 +332,7 @@ export const HospitalSearchPage: React.FC = () => {
                           {hospitalLicense && (
                             <div className="flex items-center gap-2">
                               <FileText className="w-3.5 h-3.5 text-gray-400" />
-                              <span>License: {hospitalLicense}</span>
+                              <span>{t('hospitalSearch.licenseLabel')} {hospitalLicense}</span>
                             </div>
                           )}
 
@@ -337,7 +347,7 @@ export const HospitalSearchPage: React.FC = () => {
                           ) : (
                             <div className="flex items-center gap-2 text-gray-400">
                               <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                              <span>Location coordinates not listed</span>
+                              <span>{t('hospitalSearch.noCoordinates')}</span>
                             </div>
                           )}
                         </div>

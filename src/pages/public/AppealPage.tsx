@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MessageSquare, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -7,6 +8,7 @@ import { submitHospitalFeedback } from '@/features/auth/api/auth-api';
 
 const AppealPage = () => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   // Parse email from query parameter if present
   const queryParams = new URLSearchParams(location.search);
@@ -32,7 +34,7 @@ const AppealPage = () => {
     setSuccessMsg(null);
 
     if (!email.trim() || !message.trim()) {
-      setErrorMsg('Email address and appeal message are required.');
+      setErrorMsg(t('appeal.errorRequired'));
       return;
     }
 
@@ -46,7 +48,7 @@ const AppealPage = () => {
 
       if (response.success) {
         setSuccessMsg(
-          response.message || 'Your appeal has been successfully submitted. The System Administrator will review it soon.'
+          response.message || t('appeal.successDefault')
         );
         setMessage('');
         // If email was not preset, keep it, otherwise clear form
@@ -56,7 +58,7 @@ const AppealPage = () => {
         }
       }
     } catch (err: any) {
-      setErrorMsg(err || 'Failed to submit your appeal. Please try again.');
+      setErrorMsg(err || t('appeal.submitError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,7 +72,7 @@ const AppealPage = () => {
           className="inline-flex items-center gap-2 text-sm font-bold text-ink-soft hover:text-crimson transition-colors group"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          <span>Back to login</span>
+          <span>{t('appeal.backToLogin')}</span>
         </Link>
       </div>
 
@@ -83,9 +85,9 @@ const AppealPage = () => {
           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-crimson/5 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-crimson">
             <MessageSquare size={28} strokeWidth={1.5} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink mb-3 sm:mb-4">Registration Appeal</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ink mb-3 sm:mb-4">{t('appeal.title')}</h1>
           <p className="text-ink-soft text-sm sm:text-[15px] leading-relaxed">
-            If your hospital registration request was rejected, you can submit an appeal or inquiry here for Super Admin review.
+            {t('appeal.description')}
           </p>
         </div>
 
@@ -118,14 +120,14 @@ const AppealPage = () => {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-              Registered Hospital Email
+              {t('appeal.emailLabel')}
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. contact@hospital.org"
+              placeholder={t('appeal.emailPlaceholder')}
               className="w-full h-13 px-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson text-sm"
               disabled={isSubmitting}
             />
@@ -133,13 +135,13 @@ const AppealPage = () => {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-              Hospital Name <span className="text-ink-soft/40">(Optional)</span>
+              {t('appeal.hospitalLabel')} <span className="text-ink-soft/40">({t('appeal.optional')})</span>
             </label>
             <input
               type="text"
               value={hospitalName}
               onChange={(e) => setHospitalName(e.target.value)}
-              placeholder="e.g. Semera General Hospital"
+              placeholder={t('appeal.hospitalPlaceholder')}
               className="w-full h-13 px-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson text-sm"
               disabled={isSubmitting}
             />
@@ -147,14 +149,14 @@ const AppealPage = () => {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
-              Appeal Message
+              {t('appeal.messageLabel')}
             </label>
             <textarea
               required
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Please explain why your hospital registration should be approved or describe changes you have made."
+              placeholder={t('appeal.messagePlaceholder')}
               className="w-full p-4 bg-paper border border-line-soft rounded-md outline-none focus:border-crimson text-sm resize-none"
               disabled={isSubmitting}
             />
@@ -166,7 +168,7 @@ const AppealPage = () => {
             disabled={!email.trim() || !message.trim()}
             className="w-full h-14 rounded-2xl text-base font-bold shadow-lg mt-4"
           >
-            Submit Appeal
+            {t('appeal.submit')}
           </Button>
         </form>
       </motion.div>

@@ -1,0 +1,25 @@
+{
+  "bloodStockPage": {
+    "title": "Qabeenya Dhiigaa",
+    "description": "Kutaa meeshaa dhiigaa aangii dhiigaa 8 hundatti bulchi. Kaardoonni gabaabii qabeenya ammee keessani agarsiisu.",
+    "refresh": "Haarsi",
+    "currentStock": "Qabeenya Ammee Galchamee",
+    "unsavedBelow": "Jijjiirraan gadii hin olkaa'amne",
+    "staged": "Olkaa'aa jira:",
+    "editorTitle": "Meezhee Qabeenya Aangii Dhiigaa",
+    "unsavedChanges": "Jijjiirraan Hin Olkaa'amne",
+    "upToDate": "Haaraa",
+    "loading": "Odeeffannoo qabeenya fe'aa jira...",
+    "outOfStock": "Qabeenya hin jiru",
+    "unitsCount": "Kutaa {{count}}",
+    "decrease": "Hamma hundisi",
+    "increase": "Hamma dabalchi",
+    "infoNote": "Jijjiirraan ammaa hin olkaa'amne. Gosa dhiigaa 8 hundaa olkaa'uu 'Qabeenya Dhiigaa Olkaa'i' cuqaasi.",
+    "resetChanges": "Jijjiirraa Haqi",
+    "saving": "Qabeenya Dhiigaa hunda olkaa'a jira...",
+    "save": "Qabeenya Dhiigaa Olkaa'i",
+    "loadFailed": "Qabeenya dhiigaa fe'uun hin danda'amne.",
+    "updateFailed": "Qabeenya dhiigaa haaromsuun hin danda'amne.",
+    "updateSuccess": "Qabeenya dhiigaa aangii dhiigaa hundaatti milkaa'uun haarameera!"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "hospitalDashboard": {
+    "title": "የሆስፒታል ዳሽቦርድ",
+    "description": "የተቋሙ መረጃና የአስቸኳይ የደም ክምችት ቀጥታ እይታ።",
+    "viewProfile": "መገለጫ ይመልከቱ",
+    "manageStock": "የደም ክምችት ያስተዳድሩ",
+    "loading": "የሆስፒታል ዳሽቦርድ በመጫን ላይ...",
+    "errorTitle": "ዳሽቦርድን መጫን አልተቻለም",
+    "loadFailed": "የሆስፒታል ዳሽቦርድ መረጃ መጫን አልተቻለም።",
+    "defaultName": "የሕክምና ተቋም",
+    "networkBadge": "ለጋሽ የአስቸኳይ የደም አውታረስራር",
+    "welcome": "እንኳን ደህና መጡ፣ {{name}}",
+    "welcomeDesc": "የደም ክምችትን በቀጥታ ይቆጣጠሩ፣ የአስቸኳይ ልውውጥ ጥያቄዎችን ይያዙ እና የተቋሙን የመገናኛ መረጃ በቀጥታ ያስተዳድሩ።",
+    "updateInventory": "የደም ክምችት አዘምን",
+    "stockSummary": "የደም ክምችት ማጠቃለያ",
+    "stockSummaryDesc": "በሁሉም 8 መደበኛ የደም ቡድኖች ላይ ቀጥታ የክምችት ክፍሎች።",
+    "manageStockLink": "ክምችት አስተዳድር",
+    "lowStock": "ዝቅተኛ ክምችት",
+    "adequate": "በቂ",
+    "units": "ክፍሎች"
+  }
+}
