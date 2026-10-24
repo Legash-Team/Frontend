@@ -241,7 +241,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               <button
                 type="button"
                 onClick={() => dismissToast(t.id)}
-                aria-label={t('common.dismissNotification')}
+                aria-label={i18n.t('common.dismissNotification')}
                 className="shrink-0 p-1 text-ink-soft/40 hover:text-ink hover:bg-paper rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
