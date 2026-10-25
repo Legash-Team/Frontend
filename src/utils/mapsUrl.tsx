@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { ExternalLink, MapPin } from 'lucide-react';
 
@@ -38,8 +39,9 @@ export function getGoogleMapsUrl(location?: {
     lng = location.coordinates[0];
     lat = location.coordinates[1];
   } else if (location.coordinates && typeof location.coordinates === 'object') {
-    lat = (location.coordinates as any).lat ?? lat;
-    lng = (location.coordinates as any).lng ?? lng;
+    const coords = location.coordinates as { lat?: number | null; lng?: number | null };
+    lat = coords.lat ?? lat;
+    lng = coords.lng ?? lng;
   }
 
   if (isValidCoordinates(lat, lng)) {

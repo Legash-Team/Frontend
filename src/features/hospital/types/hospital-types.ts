@@ -212,3 +212,32 @@ export interface DonationRecordPayload {
   recordedBy: string;
 }
 
+// --- DONATION QUEUE (hospital dashboard pending-donation notifications) ---
+export type DonationQueueOutcome = 'donated' | 'did_not_donate';
+
+export interface PendingDonation {
+  id: string;
+  shortId: string;
+  name: string;
+  acceptedRequest: string;
+  bloodRequestId?: string;
+  bloodRequestResponseId?: string;
+}
+
+export interface DonationOutcomePayload {
+  outcome: DonationQueueOutcome;
+  bloodRequestId?: string;
+  bloodRequestResponseId?: string;
+  donorBloodType?: BloodType;
+  donatedToBloodType?: BloodType;
+  heightCm?: number;
+  weightKg?: number;
+  healthStatus?: string;
+  peopleSaved?: number;
+  thankYouMessage?: string;
+}
+
+export interface PendingCountResponse {
+  success?: boolean;
+  count: number;
+}

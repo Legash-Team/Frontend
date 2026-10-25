@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
 import { ALLOWED_BLOOD_TYPES, ADEQUATE_BLOOD_STOCK_THRESHOLD } from '@/features/hospital/types/hospital-types';
 import type { DashboardData } from '@/features/hospital/types/hospital-types';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { DonationQueueModal } from '@/pages/hospital/components/DonationQueueModal';
+import { getPendingDonationCount } from '@/pages/hospital/services/donationQueueService';
 import {
   LayoutDashboard,
   Building2,
   Droplets,
   Eye,
   Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 
 export const HospitalDashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingCount, setPendingCount] = useState<number>(0);
+  const [queueOpen, setQueueOpen] = useState<boolean>(false);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -39,9 +46,19 @@ export const HospitalDashboardPage: React.FC = () => {
     }
   };
 
+  const fetchPendingCount = useCallback(async () => {
+    try {
+      const count = await getPendingDonationCount();
+      setPendingCount(count);
+    } catch {
+      // Non-blocking dashboard check
+    }
+  }, []);
+
   useEffect(() => {
     fetchDashboard();
-  }, []);
+    fetchPendingCount();
+  }, [fetchPendingCount]);
 
   const rawData = (data as unknown as Record<string, unknown>) || {};
   const rawHospital =
@@ -72,10 +89,10 @@ export const HospitalDashboardPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-line-soft gap-4">
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
-              <span>Hospital Dashboard</span>
+              <span>{t('hospitalDashboard.title', 'Hospital Dashboard')}</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Live Overview of Facility Information and Emergency Blood Inventory.
+              {t('hospitalDashboard.subtitle', 'Live Overview of Facility Information and Emergency Blood Inventory.')}
             </p>
           </div>
 
@@ -85,7 +102,7 @@ export const HospitalDashboardPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft rounded-xl text-xs font-sans font-semibold transition-colors"
             >
               <Eye className="w-4 h-4 text-ink-soft stroke-[1.75]" />
-              <span>View Profile</span>
+              <span>{t('hospitalDashboard.viewProfile', 'View Profile')}</span>
             </Link>
 
             <Link
@@ -93,10 +110,40 @@ export const HospitalDashboardPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-sans font-semibold transition-colors shadow-xs"
             >
               <Droplets className="w-4 h-4 stroke-[1.75]" />
-              <span>Manage Blood Stock</span>
+              <span>{t('hospitalDashboard.manageStock', 'Manage Blood Stock')}</span>
             </Link>
           </div>
         </div>
+
+        {/* Donation Queue Notification Banner */}
+        {pendingCount > 0 && (
+          <div className="bg-crimson/5 border border-crimson/20 rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-crimson shrink-0" />
+              <div>
+                <h3 className="font-serif font-bold text-ink text-sm sm:text-base leading-tight">
+                  {t('dashboard.donationQueue.banner', {
+                    count: pendingCount,
+                    defaultValue: `You have ${pendingCount} donation record${pendingCount > 1 ? 's' : ''} to confirm`,
+                  })}
+                </h3>
+                <p className="text-xs text-ink-soft/80 leading-relaxed mt-0.5">
+                  {t(
+                    'dashboard.donationQueue.bannerDesc',
+                    "Review and record each pending donor's donation outcome."
+                  )}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setQueueOpen(true)}
+              className="px-4 py-2 bg-crimson text-white text-xs font-sans font-bold rounded-xl hover:bg-crimson-dark transition-colors shadow-xs whitespace-nowrap"
+            >
+              {t('dashboard.donationQueue.viewQueue', 'View queue')}
+            </button>
+          </div>
+        )}
 
         {/* Loading State */}
         {loading && (
@@ -207,6 +254,12 @@ export const HospitalDashboardPage: React.FC = () => {
           </>
         )}
       </div>
+
+      <DonationQueueModal
+        open={queueOpen}
+        onClose={() => setQueueOpen(false)}
+        onCountRefresh={fetchPendingCount}
+      />
     </DashboardLayout>
   );
 };

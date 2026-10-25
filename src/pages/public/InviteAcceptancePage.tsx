@@ -155,8 +155,14 @@ const InviteAcceptancePage: React.FC = () => {
         // No verification step — go straight to the login page
         navigate('/login', { replace: true });
       }
-    } catch (err: any) {
-      setSubmitError(typeof err === 'string' ? err : err?.message || t('auth.invite.failed'));
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : t('auth.invite.failed');
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
