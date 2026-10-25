@@ -1,0 +1,30 @@
+{
+  "editProfile": {
+    "breadcrumbProfile": "Ibsoo",
+    "breadcrumbEdit": "Haaromsi",
+    "title": "Ibsa Hospitalii Haaromsi",
+    "description": "Odeeffannoo qunnamtii dhaabbataa haaromsi. Lakkoofsa heeyyamaa fi iddoo dhabanii qofa dubbisa.",
+    "cancelBack": "Dhaabi & Deebi'i",
+    "loading": "Odeeffannoo foomii fe'aa jira...",
+    "formTitle": "Foomii Odeeffannoo Hospitalii",
+    "verificationSent": "Gaaffii Mirkaneessuu Ergame",
+    "phoneLabel": "Lakkoofsa Bilbila (haala +251)",
+    "phoneHelper": "Haala Itoopiyaa (+251...)",
+    "emailHelper": "Email haaromsuun hoiiwwan mirkaneessuu uuma",
+    "licenseLabel": "Heeyyamaa / Lakkoofsa Galmee",
+    "readOnly": "Dubbisa Qofa",
+    "licenseFixed": "Lakkoofsa heeyyamaa dhaabbamee jijjiiramu hin danda'u.",
+    "coordinatesLabel": "Iddoo Hospitalii",
+    "latitude": "Latitude:",
+    "longitude": "Longitude:",
+    "noCoordinates": "Iddoo gidguutti hin galchamne.",
+    "saving": "Ibsa olkaa'a jira...",
+    "save": "Jijjiirraa Olkaa'i",
+    "loadFailed": "Odeeffannoo ibsa hospitalii haaromsuuf fe'uun hin danda'amne.",
+    "updateFailed": "Ibsa hospitalii haaromsuun hin danda'amne.",
+    "verificationNotice": "Jijjiirraa email gaafameera! Hoiiwwan mirkaneessuu gara email haaraa keessaniitti ergameera. Jijjiirraa xumuruuf mirkaneessaa.",
+    "updateSuccess": "Ibsa hospitalii milkaa'uun haarameera!",
+    "phonePrefix": "Lakkoofsa bilbila +251 qofa jalqabuu qaba",
+    "phoneInvalid": "Haala bilbila Itoopiyaa hin sirrii. Fkn. +251911234567"
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getBloodRequests, getBloodRequestResponses } from '@/features/hospital/api/hospital-api';
 import type { BloodRequest, AcceptedDonor } from '@/features/hospital/types/hospital-types';
@@ -15,6 +16,7 @@ import {
   Calendar,
   Layers,
   User,
+  Phone,
   Mail,
   X,
   Eye,
@@ -24,6 +26,7 @@ import {
 import { useDialog } from '@/context/DialogContext';
 
 export const AllRequestsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { confirm, toast } = useDialog();
   const navigate = useNavigate();
   type FilterOption = 'All' | 'Emergency' | 'Standard';
@@ -75,7 +78,7 @@ export const AllRequestsPage: React.FC = () => {
 
       setRequests(list);
     } catch (err: unknown) {
-      let message = 'Failed to load blood requests.';
+      let message = t('allRequests.loadFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -94,7 +97,7 @@ export const AllRequestsPage: React.FC = () => {
   }, [filter]);
 
   const formatDate = (isoString?: string): string => {
-    if (!isoString) return 'N/A';
+    if (!isoString) return t('common.notAvailable');
     try {
       const date = new Date(isoString);
       if (isNaN(date.getTime())) return isoString;
@@ -111,8 +114,26 @@ export const AllRequestsPage: React.FC = () => {
   };
 
   const getDisplayRequestType = (type: string) => {
-    if (type === 'Normal') return 'Standard';
+    if (type === 'Normal') return t('allRequests.typeStandard');
+    if (type === 'Emergency') return t('allRequests.typeEmergency');
     return type;
+  };
+
+  const getStatusLabel = (s: string) => {
+    switch (s) {
+      case 'ACCEPTED':
+        return t('allRequests.statusAccepted');
+      case 'FULFILLED':
+        return t('allRequests.statusFulfilled');
+      case 'CLOSED':
+        return t('allRequests.statusClosed');
+      case 'CANCELLED':
+        return t('allRequests.statusCancelled');
+      case 'EMERGENCY':
+        return t('allRequests.statusEmergency');
+      default:
+        return t('allRequests.statusActive');
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -123,28 +144,28 @@ export const AllRequestsPage: React.FC = () => {
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-verified/10 text-verified border border-verified/20">
             <CheckCircle2 className="w-3 h-3" />
-            <span>{s}</span>
+            <span>{getStatusLabel(s)}</span>
           </span>
         );
       case 'CLOSED':
       case 'CANCELLED':
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-paper-dim text-ink-soft border border-line-soft">
-            <span>{s}</span>
+            <span>{getStatusLabel(s)}</span>
           </span>
         );
       case 'EMERGENCY':
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-crimson/10 text-crimson border border-crimson/20">
             <AlertTriangle className="w-3 h-3" />
-            <span>{s}</span>
+            <span>{getStatusLabel(s)}</span>
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
             <Clock className="w-3 h-3" />
-            <span>{s}</span>
+            <span>{getStatusLabel(s)}</span>
           </span>
         );
     }
@@ -159,10 +180,10 @@ export const AllRequestsPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-line-soft">
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
-              <span>All Blood Requests</span>
+              <span>{t('allRequests.title')}</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Review and monitor all active, fulfilled, and emergency blood requisitions.
+              {t('allRequests.description')}
             </p>
           </div>
 
@@ -174,7 +195,7 @@ export const AllRequestsPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-3.5 py-2 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
+              <span>{t('bloodStockPage.refresh')}</span>
             </button>
 
             <Link
@@ -182,7 +203,7 @@ export const AllRequestsPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs"
             >
               <Plus className="w-4 h-4" />
-              <span>New Blood Request</span>
+              <span>{t('allRequests.newRequest')}</span>
             </Link>
           </div>
         </div>
@@ -198,7 +219,7 @@ export const AllRequestsPage: React.FC = () => {
                   : 'text-ink-soft hover:text-ink hover:bg-paper-dim'
                 }`}
             >
-              All
+              {t('allRequests.filterAll')}
             </button>
 
             <button
@@ -210,7 +231,7 @@ export const AllRequestsPage: React.FC = () => {
                 }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Emergency</span>
+              <span>{t('allRequests.filterEmergency')}</span>
             </button>
 
             <button
@@ -221,26 +242,28 @@ export const AllRequestsPage: React.FC = () => {
                   : 'text-ink-soft hover:text-ink hover:bg-paper-dim'
                 }`}
             >
-              Not Urgent
+              {t('allRequests.filterStandard')}
             </button>
           </div>
 
           <div className="text-xs font-mono text-ink-soft px-2">
-            Showing <span className="font-bold text-ink">{requests.length}</span> request{requests.length === 1 ? '' : 's'}
+            {requests.length === 1
+              ? t('allRequests.showingOne', { count: requests.length })
+              : t('allRequests.showingMany', { count: requests.length })}
           </div>
         </div>
 
         {/* Loading State */}
         {loading && (
           <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
-            <LoadingState text="Fetching blood requisitions..." />
+            <LoadingState text={t('allRequests.loading')} />
           </div>
         )}
 
         {/* Error State */}
         {error && !loading && (
           <ErrorState
-            title="Unable to load requests"
+            title={t('allRequests.errorTitle')}
             message={error}
             onRetry={() => fetchRequests(filter)}
           />
@@ -250,11 +273,16 @@ export const AllRequestsPage: React.FC = () => {
         {!loading && !error && requests.length === 0 && (
           <EmptyState
             icon={<Layers className="w-6 h-6" />}
-            title="No blood requests found."
+            title={t('allRequests.emptyTitle')}
             description={
               filter === 'All'
-                ? 'Your facility has not broadcast any blood requisitions yet.'
-                : `No ${filter.toLowerCase()} blood requests found.`
+                ? t('allRequests.emptyDescAll')
+                : t('allRequests.emptyDescFilter', {
+                    filter:
+                      filter === 'Emergency'
+                        ? t('allRequests.filterEmergency')
+                        : t('allRequests.filterStandard'),
+                  })
             }
             action={
               <Link
@@ -262,7 +290,7 @@ export const AllRequestsPage: React.FC = () => {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl font-sans font-semibold text-xs transition-colors shadow-xs"
               >
                 <Plus className="w-4 h-4" />
-                <span>Create First Request</span>
+                <span>{t('allRequests.createFirst')}</span>
               </Link>
             }
           />
@@ -311,7 +339,7 @@ export const AllRequestsPage: React.FC = () => {
                           {req.quantity}
                         </span>
                         <span className="text-xs font-mono text-ink-soft font-medium">
-                          kits requested
+                          {t('allRequests.kitsRequested')}
                         </span>
                       </div>
 
@@ -328,7 +356,7 @@ export const AllRequestsPage: React.FC = () => {
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="flex items-center gap-1 text-ink-soft/70">
                         <Calendar className="w-3.5 h-3.5 text-ink-soft/50" />
-                        Created:
+                        {t('allRequests.createdLabel')}
                       </span>
                       <span className="font-mono text-ink">{formatDate(req.createdAt)}</span>
                     </div>
@@ -336,7 +364,7 @@ export const AllRequestsPage: React.FC = () => {
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="flex items-center gap-1 text-ink-soft/70">
                         <Clock className="w-3.5 h-3.5 text-crimson/70" />
-                        Closes:
+                        {t('allRequests.closesLabel')}
                       </span>
                       <span className="font-mono text-crimson font-medium">
                         {formatDate(req.closingDateTime)}
@@ -347,10 +375,12 @@ export const AllRequestsPage: React.FC = () => {
                       <div className="p-2 bg-verified/5 border border-verified/15 rounded-lg flex items-center justify-between text-[11px]">
                         <span className="text-verified font-medium flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
-                          Accepted Donors:
+                          {t('allRequests.acceptedDonorsLabel')}
                         </span>
                         <span className="font-mono font-bold text-verified">
-                          {donorsCount} volunteer{donorsCount === 1 ? '' : 's'}
+                          {donorsCount === 1
+                            ? t('allRequests.volunteerOne', { count: donorsCount })
+                            : t('allRequests.volunteerMany', { count: donorsCount })}
                         </span>
                       </div>
                     )}
@@ -361,7 +391,7 @@ export const AllRequestsPage: React.FC = () => {
                       className="w-full mt-2 py-2 px-3 bg-paper hover:bg-paper-dim border border-line-soft text-ink rounded-xl font-sans font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <Eye className="w-3.5 h-3.5 text-crimson" />
-                      <span>View Full Requisition Details</span>
+                      <span>{t('allRequests.viewDetails')}</span>
                     </button>
                   </div>
                 </div>
@@ -393,7 +423,9 @@ export const AllRequestsPage: React.FC = () => {
                   {getStatusBadge(selectedRequest.status)}
                 </div>
                 <h3 className="font-serif font-bold text-xl text-ink">
-                  Requisition #{selectedRequest.id ? selectedRequest.id.slice(-8) : 'DETAILS'}
+                  {t('allRequests.requisitionNumber', {
+                    id: selectedRequest.id ? selectedRequest.id.slice(-8) : t('allRequests.detailsFallback'),
+                  })}
                 </h3>
               </div>
 
@@ -410,25 +442,25 @@ export const AllRequestsPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="p-3.5 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                 <span className="text-ink-soft/70 font-mono uppercase text-[10px] block">
-                  Required Kits
+                  {t('allRequests.requiredKits')}
                 </span>
                 <p className="text-base font-serif font-bold text-ink">
-                  {selectedRequest.quantity} units / kits
+                  {t('allRequests.unitsKits', { count: selectedRequest.quantity })}
                 </p>
               </div>
 
               <div className="p-3.5 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                 <span className="text-ink-soft/70 font-mono uppercase text-[10px] block">
-                  Requisition Priority
+                  {t('allRequests.priority')}
                 </span>
                 <p className="text-base font-sans font-semibold text-ink">
-                  {getDisplayRequestType(selectedRequest.requestType)} Requisition
+                  {t('allRequests.priorityValue', { type: getDisplayRequestType(selectedRequest.requestType) })}
                 </p>
               </div>
 
               <div className="p-3.5 bg-paper/60 border border-line-soft rounded-xl space-y-1">
                 <span className="text-ink-soft/70 font-mono uppercase text-[10px] block">
-                  Created Date & Time
+                  {t('allRequests.createdDateTime')}
                 </span>
                 <p className="font-mono text-ink font-medium">
                   {formatDate(selectedRequest.createdAt)}
@@ -437,7 +469,7 @@ export const AllRequestsPage: React.FC = () => {
 
               <div className="p-3.5 bg-crimson/5 border border-crimson/15 rounded-xl space-y-1">
                 <span className="text-crimson font-mono uppercase text-[10px] block">
-                  Closing Date & Time
+                  {t('allRequests.closingDateTime')}
                 </span>
                 <p className="font-mono text-crimson font-bold">
                   {formatDate(selectedRequest.closingDateTime)}
@@ -449,7 +481,7 @@ export const AllRequestsPage: React.FC = () => {
             {selectedRequest.description && (
               <div className="p-4 bg-paper/40 border border-line-soft rounded-xl space-y-1.5">
                 <span className="text-[11px] font-mono font-bold uppercase text-ink-soft tracking-wider block">
-                  Clinical Notes & Description
+                  {t('allRequests.clinicalNotes')}
                 </span>
                 <p className="text-xs font-sans text-ink leading-relaxed">
                   {selectedRequest.description}
@@ -462,10 +494,12 @@ export const AllRequestsPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <h4 className="font-serif font-bold text-ink text-sm flex items-center gap-2">
                   <User className="w-4 h-4 text-crimson" />
-                  <span>Accepted Donor Responses</span>
+                  <span>{t('allRequests.acceptedResponses')}</span>
                 </h4>
                 <span className="text-xs font-mono text-ink-soft font-bold">
-                  {selectedRequest.acceptedDonors ? selectedRequest.acceptedDonors.length : 0} accepted
+                  {t('allRequests.acceptedCount', {
+                    count: selectedRequest.acceptedDonors ? selectedRequest.acceptedDonors.length : 0,
+                  })}
                 </span>
               </div>
 
@@ -487,16 +521,18 @@ export const AllRequestsPage: React.FC = () => {
                         </div>
                         {donor.acceptedAt && (
                           <p className="text-[10px] text-ink-soft/70 font-mono">
-                            Accepted: {formatDate(donor.acceptedAt)}
+                            {t('allRequests.acceptedOn')} {formatDate(donor.acceptedAt)}
                           </p>
                         )}
                       </div>
 
                       <div className="flex items-center gap-3 text-ink-soft text-xs">
-                        <div className="flex items-center gap-1 font-mono text-[11px] bg-paper px-2.5 py-1 rounded-lg border border-line-soft">
-                          <span className="text-ink-soft/70">Donor ID:</span>
-                          <span className="font-bold text-ink">{donor.donorId || donor.shortId || donor.id}</span>
-                        </div>
+                        {donor.phone && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3.5 h-3.5 text-ink-soft/60" />
+                            <span className="font-mono">{donor.phone}</span>
+                          </div>
+                        )}
                         {donor.email && (
                           <div className="flex items-center gap-1">
                             <Mail className="w-3.5 h-3.5 text-ink-soft/60" />
@@ -505,40 +541,28 @@ export const AllRequestsPage: React.FC = () => {
                         )}
                       </div>
 
-                      {selectedRequest.status?.toUpperCase() === 'CLOSED' ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate('/hospital/medical-records', {
-                              state: { request: selectedRequest, donor },
-                            })
-                          }
-                          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-crimson/10 hover:bg-crimson text-crimson hover:text-white border border-crimson/20 rounded-lg font-sans font-semibold transition-colors"
-                        >
-                          <FileHeart className="w-3.5 h-3.5" />
-                          <span>Record Donation</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled
-                          title="Donation records can only be created after the blood request is closed"
-                          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-paper text-ink-soft/50 border border-line-soft rounded-lg font-sans font-semibold cursor-not-allowed text-[11px]"
-                        >
-                          <FileHeart className="w-3.5 h-3.5" />
-                          <span>Close Request to Record</span>
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate('/hospital/medical-records', {
+                            state: { request: selectedRequest, donor },
+                          })
+                        }
+                        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-crimson/10 hover:bg-crimson text-crimson hover:text-white border border-crimson/20 rounded-lg font-sans font-semibold transition-colors"
+                      >
+                        <FileHeart className="w-3.5 h-3.5" />
+                        <span>{t('donationRecords.recordDonation')}</span>
+                      </button>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="p-6 bg-paper/40 border border-line-soft rounded-xl text-center space-y-1">
                   <p className="text-xs font-sans text-ink-soft font-medium">
-                    No donor responses recorded yet.
+                    {t('allRequests.noDonorResponses')}
                   </p>
                   <p className="text-[11px] font-sans text-ink-soft/60">
-                    Emergency notifications have been broadcast across the network.
+                    {t('allRequests.noDonorResponsesHint')}
                   </p>
                 </div>
               )}
@@ -551,28 +575,28 @@ export const AllRequestsPage: React.FC = () => {
                   type="button"
                   onClick={async () => {
                     const ok = await confirm({
-                      title: 'Close Blood Request',
-                      message: 'Are you sure you want to close this blood request on the network? Once closed, nearby matching donors will no longer be alerted.',
+                      title: t('allRequests.closeConfirmTitle'),
+                      message: t('allRequests.closeConfirmMessage'),
                       type: 'danger',
-                      confirmText: 'Yes, Close Request',
+                      confirmText: t('allRequests.closeConfirmYes'),
                     });
                     if (ok) {
                       try {
                         const { closeBloodRequest } = await import('@/features/hospital/api/hospital-api');
                         const res = await closeBloodRequest(selectedRequest.id);
                         if (res.success) {
-                          toast.success('Blood request successfully closed!');
+                          toast.success(t('allRequests.closeSuccess'));
                           setSelectedRequest(null);
                           fetchRequests(filter);
                         }
                       } catch (err: any) {
-                        toast.error(err || 'Failed to close blood request.');
+                        toast.error(err || t('allRequests.closeFailed'));
                       }
                     }
                   }}
                   className="px-4 py-2 border border-crimson text-crimson hover:bg-crimson/5 rounded-xl text-xs font-sans font-semibold transition-all cursor-pointer"
                 >
-                  Close Request
+                  {t('allRequests.closeRequest')}
                 </button>
               ) : (
                 <div />
@@ -582,7 +606,7 @@ export const AllRequestsPage: React.FC = () => {
                 onClick={() => setSelectedRequest(null)}
                 className="px-5 py-2 bg-ink text-white rounded-xl text-xs font-sans font-semibold hover:bg-ink/90 transition-colors"
               >
-                Close Requisition
+                {t('allRequests.closeRequisition')}
               </button>
             </div>
           </div>

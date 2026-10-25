@@ -1,5 +1,6 @@
 import React, { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -22,6 +23,7 @@ import {
 
 export const BloodRequestPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Form State
   const [selectedBloodType, setSelectedBloodType] = useState<BloodType | ''>('');
@@ -45,7 +47,7 @@ export const BloodRequestPage: React.FC = () => {
   };
 
   const formatDisplayDateTime = (dateTimeStr: string): string => {
-    if (!dateTimeStr) return 'N/A';
+    if (!dateTimeStr) return t('common.notAvailable');
     try {
       const date = new Date(dateTimeStr);
       if (isNaN(date.getTime())) return dateTimeStr;
@@ -65,20 +67,20 @@ export const BloodRequestPage: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!selectedBloodType) {
-      newErrors.bloodType = 'Please select a blood group.';
+      newErrors.bloodType = t('bloodRequest.errorBloodType');
     }
 
     const qty = parseInt(quantityKits.trim(), 10);
     if (!quantityKits.trim() || isNaN(qty) || qty < 1) {
-      newErrors.quantity = 'Quantity must be at least 1 blood kit.';
+      newErrors.quantity = t('bloodRequest.errorQuantity');
     }
 
     if (!closingDateTime) {
-      newErrors.closingDateTime = 'Please specify when this request should close.';
+      newErrors.closingDateTime = t('bloodRequest.errorClosingRequired');
     } else {
       const chosenDate = new Date(closingDateTime);
       if (chosenDate.getTime() <= Date.now()) {
-        newErrors.closingDateTime = 'Closing date & time must be in the future.';
+        newErrors.closingDateTime = t('bloodRequest.errorClosingFuture');
       }
     }
 
@@ -114,10 +116,15 @@ export const BloodRequestPage: React.FC = () => {
 
       const response = await createBloodRequest(payload);
 
-      const displayTypeName = requestType === 'Normal' ? 'Standard' : 'Emergency';
+      const displayTypeName =
+        requestType === 'Normal' ? t('allRequests.typeStandard') : t('allRequests.typeEmergency');
       setSuccessMsg(
         response.message ||
-        `Blood request for ${quantityKits} kit(s) of ${selectedBloodType} (${displayTypeName}) created successfully!`
+        t('bloodRequest.successMessage', {
+          qty: quantityKits,
+          type: selectedBloodType,
+          displayType: displayTypeName,
+        })
       );
 
       // Close modal and reset form
@@ -129,7 +136,7 @@ export const BloodRequestPage: React.FC = () => {
       setClosingDateTime('');
       setErrors({});
     } catch (err: unknown) {
-      let message = 'Failed to create blood request. Please try again.';
+      let message = t('bloodRequest.createFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string; error?: string } } };
         message = axiosErr.response?.data?.message || axiosErr.response?.data?.error || message;
@@ -143,7 +150,8 @@ export const BloodRequestPage: React.FC = () => {
     }
   };
 
-  const displayRequestType = requestType === 'Normal' ? 'Standard' : 'Emergency';
+  const displayRequestType =
+    requestType === 'Normal' ? t('allRequests.typeStandard') : t('allRequests.typeEmergency');
 
   return (
     <DashboardLayout
@@ -155,16 +163,16 @@ export const BloodRequestPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-ink-soft mb-1">
               <Link to="/hospital/dashboard" className="hover:text-crimson transition-colors">
-                Dashboard
+                {t('nav.hospital.dashboard')}
               </Link>
               <span>/</span>
-              <span className="text-ink">Blood Request</span>
+              <span className="text-ink">{t('nav.hospital.bloodRequest')}</span>
             </div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight">
-              <span>Create Blood Request</span>
+              <span>{t('bloodRequest.title')}</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Dispatch requests for donor kits to emergency volunteers and affiliated healthcare centers.
+              {t('bloodRequest.description')}
             </p>
           </div>
 
@@ -172,7 +180,7 @@ export const BloodRequestPage: React.FC = () => {
             to="/hospital/all-requests"
             className="inline-flex items-center gap-2 px-4 py-2 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft rounded-xl font-sans font-semibold text-xs transition-colors"
           >
-            <span>View All Requests</span>
+            <span>{t('donationRecords.viewAllRequests')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -182,10 +190,10 @@ export const BloodRequestPage: React.FC = () => {
           <div className="bg-gradient-to-r from-crimson to-crimson-dark px-6 py-4 text-white flex items-center justify-between">
             <h2 className="text-base font-serif font-bold flex items-center gap-2">
               <FileText className="w-5 h-5 stroke-[1.75]" />
-              <span>New Clinical Blood Requisition</span>
+              <span>{t('bloodRequest.formTitle')}</span>
             </h2>
             <span className="text-[11px] font-mono text-red-100 uppercase tracking-wider">
-              Emergency Network Dispatch
+              {t('bloodRequest.networkDispatch')}
             </span>
           </div>
 
@@ -196,7 +204,7 @@ export const BloodRequestPage: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-verified shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-serif font-bold text-ink">Requisition Submitted</p>
+                    <p className="font-serif font-bold text-ink">{t('bloodRequest.submittedTitle')}</p>
                     <p className="text-xs mt-0.5">{successMsg}</p>
                   </div>
                 </div>
@@ -205,7 +213,7 @@ export const BloodRequestPage: React.FC = () => {
                   onClick={() => navigate('/hospital/all-requests')}
                   className="text-xs font-mono font-bold uppercase tracking-wider text-verified underline shrink-0"
                 >
-                  View in All Requests &rarr;
+                  {t('bloodRequest.viewInAllRequests')} &rarr;
                 </button>
               </div>
             )}
@@ -220,7 +228,7 @@ export const BloodRequestPage: React.FC = () => {
             {/* Request Type (Emergency vs Standard) */}
             <div className="space-y-2">
               <label className="text-xs font-mono font-bold text-ink-soft uppercase tracking-wider block">
-                1. Request Priority / Type <span className="text-crimson">*</span>
+                {t('bloodRequest.step1Label')} <span className="text-crimson">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
@@ -238,9 +246,9 @@ export const BloodRequestPage: React.FC = () => {
                     <Clock className="w-4 h-4 stroke-[1.75]" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-serif font-bold text-ink">Not Urgent Requisition</h3>
+                    <h3 className="text-sm font-serif font-bold text-ink">{t('bloodRequest.standardTitle')}</h3>
                     <p className="text-xs text-ink-soft mt-0.5">
-                      Standard scheduled patient procedures and non-critical buffer restock.
+                      {t('bloodRequest.standardDesc')}
                     </p>
                   </div>
                 </button>
@@ -263,13 +271,13 @@ export const BloodRequestPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-sm font-serif font-bold text-crimson flex items-center gap-1.5">
-                      <span>Emergency Priority</span>
+                      <span>{t('bloodRequest.emergencyTitle')}</span>
                       <span className="text-[10px] font-mono uppercase tracking-wider bg-crimson text-white px-1.5 py-0.5 rounded">
-                        Urgent
+                        {t('bloodRequest.urgentBadge')}
                       </span>
                     </h3>
                     <p className="text-xs text-ink-soft mt-0.5">
-                      High priority critical trauma, ICU, surgery, or immediate transfusion need.
+                      {t('bloodRequest.emergencyDesc')}
                     </p>
                   </div>
                 </button>
@@ -280,7 +288,7 @@ export const BloodRequestPage: React.FC = () => {
             <div className="space-y-2.5 pt-2 border-t border-line-soft">
               <label className="text-xs font-mono font-bold text-ink-soft uppercase tracking-wider flex items-center justify-between">
                 <span>
-                  2. Required Blood Group <span className="text-crimson">*</span>
+                  {t('bloodRequest.step2Label')} <span className="text-crimson">*</span>
                 </span>
                 {errors.bloodType && (
                   <span className="text-xs font-sans text-crimson font-normal">
@@ -317,7 +325,7 @@ export const BloodRequestPage: React.FC = () => {
               {/* Number of Kits */}
               <div>
                 <Input
-                  label="3. Number of Blood Kits / Units Needed"
+                  label={t('bloodRequest.step3Label')}
                   type="number"
                   min="1"
                   name="quantity"
@@ -327,8 +335,8 @@ export const BloodRequestPage: React.FC = () => {
                     setErrors((prev) => ({ ...prev, quantity: '' }));
                   }}
                   error={errors.quantity}
-                  placeholder="e.g. 2"
-                  helperText="Enter integer number of required donor kits"
+                  placeholder={t('bloodRequest.quantityPlaceholder')}
+                  helperText={t('bloodRequest.quantityHelper')}
                   requiredBadge
                   disabled={submitting}
                 />
@@ -339,7 +347,7 @@ export const BloodRequestPage: React.FC = () => {
                 <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-crimson" />
-                    4. Requisition Closing Date & Time
+                    {t('bloodRequest.step4Label')}
                     <span className="text-crimson ml-1">*</span>
                   </span>
                 </label>
@@ -364,7 +372,7 @@ export const BloodRequestPage: React.FC = () => {
                   <p className="text-xs text-crimson font-medium">{errors.closingDateTime}</p>
                 ) : (
                   <p className="text-xs text-gray-500">
-                    Hospital defines custom closing deadline (must be in future)
+                    {t('bloodRequest.closingHint')}
                   </p>
                 )}
               </div>
@@ -373,16 +381,16 @@ export const BloodRequestPage: React.FC = () => {
             {/* Description / Clinical Notes */}
             <div className="space-y-1.5 pt-2 border-t border-line-soft">
               <label className="text-xs font-mono font-bold text-ink-soft uppercase tracking-wider flex items-center justify-between">
-                <span>5. Clinical Notes / Details (Optional)</span>
+                <span>{t('bloodRequest.step5Label')}</span>
                 <span className="text-[10px] text-ink-soft/60 font-sans">
-                  Visible to authorized responders
+                  {t('bloodRequest.notesVisibility')}
                 </span>
               </label>
               <textarea
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. Scheduled cardiac bypass surgery, patient blood type verified O-negative. Deliver to Floor 3 Emergency Ward."
+                placeholder={t('bloodRequest.notesPlaceholder')}
                 disabled={submitting}
                 className="w-full p-3.5 bg-paper/60 border border-line-soft rounded-xl text-sm font-sans text-ink outline-none focus:border-crimson resize-none"
               />
@@ -391,7 +399,7 @@ export const BloodRequestPage: React.FC = () => {
             {/* Submit Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-line-soft">
               <div className="flex items-center gap-2 text-xs font-sans text-ink-soft">
-                <span className="text-[#d2854b]">Hospitals can create multiple simultaneous blood requests.</span>
+                <span className="text-[#d2854b]">{t('bloodRequest.multipleNote')}</span>
               </div>
 
               <Button
@@ -399,7 +407,7 @@ export const BloodRequestPage: React.FC = () => {
                 className="px-8 gap-2"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>Broadcast Blood Request</span>
+                <span>{t('bloodRequest.broadcastButton')}</span>
               </Button>
             </div>
           </form>
@@ -417,8 +425,8 @@ export const BloodRequestPage: React.FC = () => {
                   <ShieldAlert className="w-5 h-5 stroke-[1.75]" />
                 </div>
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-ink">Please confirm your blood request</h3>
-                  <p className="text-xs text-ink-soft font-sans">Review details before dispatching to network</p>
+                  <h3 className="font-serif font-bold text-lg text-ink">{t('bloodRequest.confirmTitle')}</h3>
+                  <p className="text-xs text-ink-soft font-sans">{t('bloodRequest.confirmSubtitle')}</p>
                 </div>
               </div>
               <button
@@ -435,7 +443,7 @@ export const BloodRequestPage: React.FC = () => {
             <div className="p-5 bg-paper/70 border border-line-soft rounded-xl space-y-3.5 text-sm font-sans">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
-                  Blood Group
+                  {t('bloodRequest.bloodGroup')}
                 </span>
                 <span className="text-base font-mono font-bold text-white bg-crimson px-3 py-0.5 rounded-lg shadow-xs">
                   {selectedBloodType}
@@ -444,16 +452,18 @@ export const BloodRequestPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
-                  Kits Requested
+                  {t('bloodRequest.kitsRequested')}
                 </span>
                 <span className="text-base font-serif font-bold text-ink">
-                  {quantityKits} kit{parseInt(quantityKits, 10) > 1 ? 's' : ''}
+                  {parseInt(quantityKits, 10) > 1
+                    ? t('bloodRequest.kitsMany', { count: quantityKits })
+                    : t('bloodRequest.kitsOne', { count: quantityKits })}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
-                  Request Type
+                  {t('bloodRequest.requestType')}
                 </span>
                 <span
                   className={`text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${requestType === 'Emergency'
@@ -467,7 +477,7 @@ export const BloodRequestPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider">
-                  Closing Deadline
+                  {t('bloodRequest.closingDeadline')}
                 </span>
                 <span className="font-mono text-xs font-semibold text-crimson">
                   {formatDisplayDateTime(closingDateTime)}
@@ -477,7 +487,7 @@ export const BloodRequestPage: React.FC = () => {
               {description.trim() && (
                 <div className="pt-2 border-t border-line-soft space-y-1">
                   <span className="text-xs font-mono font-bold uppercase text-ink-soft tracking-wider block">
-                    Clinical Notes
+                    {t('bloodRequest.clinicalNotes')}
                   </span>
                   <p className="text-xs text-ink bg-white p-2.5 rounded-lg border border-line-soft leading-relaxed">
                     {description.trim()}
@@ -494,7 +504,7 @@ export const BloodRequestPage: React.FC = () => {
                 disabled={submitting}
                 className="px-5 py-2.5 border border-line-soft text-ink-soft hover:text-ink rounded-xl text-xs font-sans font-semibold hover:bg-paper transition-colors"
               >
-                Cancel
+                {t('dialog.cancel')}
               </button>
 
               <Button
@@ -502,11 +512,11 @@ export const BloodRequestPage: React.FC = () => {
                 variant="primary"
                 onClick={handleConfirmSubmit}
                 isLoading={submitting}
-                loadingText="Broadcasting Request..."
+                loadingText={t('bloodRequest.broadcasting')}
                 className="px-6 text-xs gap-2"
               >
                 <Droplets className="w-4 h-4" />
-                <span>Confirm Request</span>
+                <span>{t('bloodRequest.confirmButton')}</span>
               </Button>
             </div>
           </div>

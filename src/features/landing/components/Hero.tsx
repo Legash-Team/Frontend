@@ -1,7 +1,10 @@
 import { Button } from '@/components/ui/Button';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
+import { useTranslation } from 'react-i18next';
 
 export const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="relative pt-[104px] pb-16 sm:pt-[128px] sm:pb-24 min-h-[calc(100vh-76px)] flex items-center justify-center overflow-hidden bg-paper">
       {/* Full-width ECG heartbeat line with large center gap to avoid text */}
@@ -23,15 +26,15 @@ export const Hero = () => {
       <div className="relative z-10 max-w-[860px] mx-auto px-4 sm:px-6 md:px-8 text-center flex flex-col items-center justify-center">
         <ScrollReveal className="inline-flex items-center gap-2 text-[0.76rem] font-bold text-crimson-dark uppercase mb-4 sm:mb-5">
           <span className="w-[7px] h-[7px] rounded-full bg-crimson animate-[blip_1.8s_ease-in-out_infinite]" />
-          Matched by blood type &amp; distance
+          {t('landing.heroBadge')}
         </ScrollReveal>
 
         <ScrollReveal as="h1" delay={100} className="text-[clamp(2.2rem,5.5vw,4.25rem)] leading-[1.08] text-ink mb-5 sm:mb-6">
-          The right blood type,<br className="hidden sm:inline" /> close enough, <em className="italic text-crimson font-serif">in time</em>.
+          {t('landing.heroTitleLead')}<br className="hidden sm:inline" /> {t('landing.heroTitleMid')} <em className="italic text-crimson font-serif">{t('landing.heroTitleEmphasis')}</em>
         </ScrollReveal>
 
         <ScrollReveal as="p" delay={200} className="text-base sm:text-[1.13rem] leading-relaxed text-ink-soft max-w-[48ch] mx-auto mb-8 sm:mb-10">
-          LEGASH connects donors and hospitals directly. When a hospital posts an urgent request, every nearby donor with a matching blood type hears about it.
+          {t('landing.heroDescription')}
         </ScrollReveal>
 
         <ScrollReveal delay={300} className="flex justify-center gap-3.5 flex-wrap mb-8 sm:mb-10">
@@ -41,16 +44,16 @@ export const Hero = () => {
             href="/register"
             className="bg-crimson border-2 border-crimson hover:bg-ink hover:border-ink transition-all duration-300 shadow-md w-full sm:w-auto justify-center"
           >
-            Register your hospital
+            {t('landing.registerHospital')}
           </Button>
         </ScrollReveal>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <ScrollReveal delay={400}>
-            <Fact text="Every donor account starts with email verification." />
+            <Fact text={t('landing.factVerifyEmail')} />
           </ScrollReveal>
           <ScrollReveal delay={500}>
-            <Fact text="Hospitals are reviewed by an admin before they go live." />
+            <Fact text={t('landing.factAdminReview')} />
           </ScrollReveal>
         </div>
       </div>

@@ -1,0 +1,30 @@
+{
+  "editProfile": {
+    "breadcrumbProfile": "Profile",
+    "breadcrumbEdit": "Edit",
+    "title": "Edit Hospital Profile",
+    "description": "Update facility contact info. License number and geolocation pin are read-only.",
+    "cancelBack": "Cancel & Back",
+    "loading": "Loading form data...",
+    "formTitle": "Hospital Information Form",
+    "verificationSent": "Verification Request Sent",
+    "phoneLabel": "Phone Number (+251 format)",
+    "phoneHelper": "Ethiopian format (+251...)",
+    "emailHelper": "Updating email triggers verification link",
+    "licenseLabel": "License / Reg. Number",
+    "readOnly": "Read-Only",
+    "licenseFixed": "License number is fixed and cannot be changed.",
+    "coordinatesLabel": "Hospital Coordinates",
+    "latitude": "Latitude:",
+    "longitude": "Longitude:",
+    "noCoordinates": "No location coordinates registered.",
+    "saving": "Saving Profile...",
+    "save": "Save Changes",
+    "loadFailed": "Failed to load hospital profile data for editing.",
+    "updateFailed": "Failed to update hospital profile.",
+    "verificationNotice": "Email change requested! A verification link has been sent to your new email address. Please verify to complete the change.",
+    "updateSuccess": "Hospital profile updated successfully!",
+    "phonePrefix": "Phone number must start with +251",
+    "phoneInvalid": "Invalid Ethiopian phone format. Example: +251911234567"
+  }
+}

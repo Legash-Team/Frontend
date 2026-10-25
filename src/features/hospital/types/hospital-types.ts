@@ -1,12 +1,5 @@
-export interface HospitalLocation {
-  lat?: number | null;
-  lng?: number | null;
-  address?: string | null;
-  mapsUrl?: string | null;
-  coordinates?: number[] | { lat: number; lng: number } | null;
-}
-
-export type LocationData = HospitalLocation;
+import type { LocationData } from '@/features/registration/types/registration-types';
+export type { LocationData };
 
 export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 
@@ -21,8 +14,6 @@ export const ALLOWED_BLOOD_TYPES: readonly BloodType[] = [
   'O-',
 ] as const;
 
-export const ADEQUATE_BLOOD_STOCK_THRESHOLD = 50;
-
 export type BloodStock = Record<BloodType, number>;
 
 export interface HospitalProfile {
@@ -31,7 +22,7 @@ export interface HospitalProfile {
   email: string;
   phone: string;
   licenseNumber: string;
-  location: HospitalLocation | null;
+  location: LocationData | null;
 }
 
 export interface DashboardData {
@@ -95,9 +86,6 @@ export type BloodRequestStatus = 'ACTIVE' | 'PENDING' | 'ACCEPTED' | 'FULFILLED'
 
 export interface AcceptedDonor {
   id?: string;
-  donorId?: string;
-  shortId?: string;
-  responseId?: string;
   name: string;
   bloodType?: BloodType;
   phone?: string;
@@ -146,17 +134,16 @@ export interface HospitalSearchResult {
   email: string;
   phone: string;
   licenseNumber?: string;
-  location: HospitalLocation | null;
-  hasStock?: boolean;
+  location: LocationData | null;
   stockQuantity?: number;
   availableStock?: BloodStock;
-  mapsUrl?: string | null;
   [key: string]: unknown;
 }
 
 // --- DONATION MEDICAL RECORDS ---
 // Captured when a donor who accepted a blood request actually donates at the
-// facility: units collected plus the screening/vitals record.
+// facility: units collected plus the screening/vitals record, since every
+// unit is tested in the lab before it can be transfused.
 
 export type ScreeningResult = 'non_reactive' | 'reactive' | 'pending';
 
@@ -176,13 +163,11 @@ export interface DonationVitals {
   temperature: number | null;
 }
 
-export type DonationOutcome = 'donated' | 'did_not_donate';
+export type DonationOutcome = 'cleared' | 'deferred' | 'rejected';
 
 export interface DonationRecord {
   id: string;
   requestId?: string | null;
-  responseId?: string | null;
-  donorId?: string | null;
   donorName: string;
   donorPhone?: string;
   bloodType?: BloodType | null;
@@ -198,8 +183,6 @@ export interface DonationRecord {
 
 export interface DonationRecordPayload {
   requestId?: string | null;
-  responseId?: string | null;
-  donorId?: string | null;
   donorName: string;
   donorPhone?: string;
   bloodType?: BloodType | null;
@@ -213,21 +196,22 @@ export interface DonationRecordPayload {
 }
 
 // --- DONATION QUEUE (hospital dashboard pending-donation notifications) ---
+// Paired with Backend's donation-history workflow. The dashboard indicator only
+// uses the lightweight count endpoint; the full donor queue is fetched on demand
+// when the hospital opens the notification modal.
+
 export type DonationQueueOutcome = 'donated' | 'did_not_donate';
 
 export interface PendingDonation {
   id: string;
   shortId: string;
   name: string;
-  acceptedRequest: string;
-  bloodRequestId?: string;
-  bloodRequestResponseId?: string;
+  acceptedRequest: string; // reference of the request the donor accepted
 }
 
 export interface DonationOutcomePayload {
   outcome: DonationQueueOutcome;
-  bloodRequestId?: string;
-  bloodRequestResponseId?: string;
+  // Only supplied when outcome === 'donated'
   donorBloodType?: BloodType;
   donatedToBloodType?: BloodType;
   heightCm?: number;
@@ -238,6 +222,6 @@ export interface DonationOutcomePayload {
 }
 
 export interface PendingCountResponse {
-  success?: boolean;
   count: number;
 }
+

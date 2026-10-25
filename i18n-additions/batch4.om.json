@@ -1,0 +1,22 @@
+{
+  "hospitalDashboard": {
+    "title": "Dashboordii Hospitalii",
+    "description": "Ibsa Amaanuu Odeeffannoon Dhaabbataa fi Qabeenya Dhiigaa Afurummaa.",
+    "viewProfile": "Ibsoo Ilaali",
+    "manageStock": "Qabeenya Dhiigaa Bulchi",
+    "loading": "Dashboordii hospitalii fe'aa jira...",
+    "errorTitle": "Dashboordii fe'uun hin danda'amne",
+    "loadFailed": "Odeeffannoo dashboordii hospitalii fe'uun hin danda'amne.",
+    "defaultName": "Dhaabbata Caafii",
+    "networkBadge": "Walfaayii Dhiigaa Afurummaa LEGASH",
+    "welcome": "Baga nagaan dhuftan, {{name}}",
+    "welcomeDesc": "Qabeenya dhiigaa ammaa ilaali, gaaffii dabalamummaa galchi, odeeffannoo qunnamtii dhaabbataa yeroo ammee bulchi.",
+    "updateInventory": "Qabeenya Dhiigaa Haaromsi",
+    "stockSummary": "Gabaabii Qabeenya Dhiigaa",
+    "stockSummaryDesc": "Qabeenya kutaa aangii dhiigaa 8 hundatti.",
+    "manageStockLink": "Qabeenya Bulchi",
+    "lowStock": "Qabeenya Xiqqaa",
+    "adequate": "Guutuu",
+    "units": "kutaalee"
+  }
+}

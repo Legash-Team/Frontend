@@ -85,12 +85,11 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
     if (!form.donorBloodType) {
-      errors.donorBloodType = t('dashboard.donationQueue.form.required', 'Required');
+      errors.donorBloodType = t('dashboard.donationQueue.form.required');
     }
     if (!form.donatedToBloodType) {
       errors.donatedToBloodType = t(
-        'dashboard.donationQueue.form.required',
-        'Required'
+        'dashboard.donationQueue.form.required'
       );
     }
     setFormErrors(errors);
@@ -103,15 +102,10 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
   };
 
   const submitOutcome = async (outcome: DonationQueueOutcome) => {
-    if (!current) return;
     if (outcome === 'donated' && !validateForm()) return;
     setSubmitting(true);
     try {
-      const payload: DonationOutcomePayload = {
-        outcome,
-        bloodRequestId: current.bloodRequestId,
-        bloodRequestResponseId: current.bloodRequestResponseId || current.id,
-      };
+      const payload: DonationOutcomePayload = { outcome };
       if (outcome === 'donated') {
         payload.donorBloodType = form.donorBloodType as BloodType;
         payload.donatedToBloodType = form.donatedToBloodType as BloodType;
@@ -168,9 +162,9 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
         className="bg-white border border-line-soft rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 pb-4 border-b border-line-soft">
+        <div className="flex items-center justify-between pb-4 border-b border-line-soft pr-4">
           <h3 className="font-serif font-bold text-xl text-ink">
-            {t('dashboard.donationQueue.modal.title', 'Confirm Pending Donations')}
+            {t('dashboard.donationQueue.modal.title')}
           </h3>
           <button
             type="button"
@@ -186,7 +180,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <AlertCircle className="w-8 h-8 text-crimson animate-spin mb-3" />
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft">
-                {t('common.loading', 'Loading...')}
+                {t('common.loading')}
               </span>
             </div>
           ) : error ? (
@@ -195,9 +189,9 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
               <button
                 type="button"
                 onClick={loadQueue}
-                className="mt-3 block mx-auto text-xs font-sans font-bold underline underline-offset-2 hover:text-crimson-dark"
+                className="mt-3 text-xs font-sans font-bold underline underline-offset-2 hover:text-crimson-dark"
               >
-                {t('common.retry', 'Retry')}
+                {t('common.retry')}
               </button>
             </div>
           ) : queue.length === 0 ? (
@@ -206,17 +200,17 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <h3 className="font-serif font-bold text-ink">
-                {t('dashboard.donationQueue.noMore', 'Queue Cleared')}
+                {t('dashboard.donationQueue.noMore')}
               </h3>
               <p className="text-sm text-ink-soft mt-1">
-                {t('dashboard.donationQueue.closed', 'All pending donation confirmations have been recorded.')}
+                {t('dashboard.donationQueue.closed')}
               </p>
               <button
                 type="button"
                 onClick={onClose}
                 className="mt-6 px-4 py-2 bg-ink text-white text-xs font-sans font-bold rounded-xl hover:bg-ink/90 transition-colors"
               >
-                {t('dashboard.donationQueue.close', 'Close')}
+                {t('dashboard.donationQueue.close')}
               </button>
             </div>
           ) : (
@@ -228,7 +222,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft">
-                    {t('dashboard.donationQueue.modal.donor', 'Donor')}
+                    {t('dashboard.donationQueue.modal.donor')}
                   </p>
                   <p className="font-serif font-bold text-ink leading-snug">
                     {current.name}
@@ -236,7 +230,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                   {current.acceptedRequest && (
                     <div className="mt-2">
                       <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft">
-                        {t('dashboard.donationQueue.modal.request', 'Request')}
+                        {t('dashboard.donationQueue.modal.request')}
                       </p>
                       <p className="text-sm text-ink-soft truncate">
                         {current.acceptedRequest}
@@ -255,8 +249,8 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                     className="px-4 py-3 bg-crimson text-white text-xs font-sans font-bold rounded-xl hover:bg-crimson-dark transition-colors disabled:opacity-60 shadow-xs"
                   >
                     {submitting
-                      ? t('dashboard.donationQueue.submitting', 'Submitting...')
-                      : t('dashboard.donationQueue.modal.markDonated', 'Donor Donated')}
+                      ? t('dashboard.donationQueue.submitting')
+                      : t('dashboard.donationQueue.modal.markDonated')}
                   </button>
                   <button
                     type="button"
@@ -264,19 +258,19 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                     disabled={submitting}
                     className="px-4 py-3 border border-line-soft text-ink-soft font-sans font-bold text-xs rounded-xl hover:bg-paper/50 transition-colors disabled:opacity-60"
                   >
-                    {t('dashboard.donationQueue.modal.markDidNotDonate', "Didn't Donate")}
+                    {t('dashboard.donationQueue.modal.markDidNotDonate')}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmitDonated} className="space-y-4">
                   <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft">
-                    {t('dashboard.donationQueue.form.title', 'Donation Details')}
+                    {t('dashboard.donationQueue.form.title')}
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 sm:gap-5">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                        {t('dashboard.donationQueue.form.donorBloodType', 'Donor Blood Type')} <span className="text-crimson">*</span>
+                        {t('dashboard.donationQueue.form.donorBloodType')} <span className="text-crimson">*</span>
                       </label>
                       <select
                         value={form.donorBloodType}
@@ -289,7 +283,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                         className="w-full h-10 px-3 bg-white border border-line-soft rounded-xl outline-none text-sm font-medium focus:border-crimson"
                       >
                         <option value="">
-                          {t('dashboard.donationQueue.form.selectType', 'Select')}
+                          {t('dashboard.donationQueue.form.selectType')}
                         </option>
                         {ALLOWED_BLOOD_TYPES.map((type) => (
                           <option key={type} value={type}>
@@ -305,7 +299,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                        {t('dashboard.donationQueue.form.donatedToBloodType', 'Donated To Blood Type')} <span className="text-crimson">*</span>
+                        {t('dashboard.donationQueue.form.donatedToBloodType')} <span className="text-crimson">*</span>
                       </label>
                       <select
                         value={form.donatedToBloodType}
@@ -318,7 +312,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                         className="w-full h-10 px-3 bg-white border border-line-soft rounded-xl outline-none text-sm font-medium focus:border-crimson"
                       >
                         <option value="">
-                          {t('dashboard.donationQueue.form.selectType', 'Select')}
+                          {t('dashboard.donationQueue.form.selectType')}
                         </option>
                         {ALLOWED_BLOOD_TYPES.map((type) => (
                           <option key={type} value={type}>
@@ -337,7 +331,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                   <div className="grid grid-cols-2 gap-4 sm:gap-5">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                        {t('dashboard.donationQueue.form.height', 'Height')}
+                        {t('dashboard.donationQueue.form.height')}
                       </label>
                       <input
                         type="number"
@@ -351,7 +345,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                        {t('dashboard.donationQueue.form.weight', 'Weight')}
+                        {t('dashboard.donationQueue.form.weight')}
                       </label>
                       <input
                         type="number"
@@ -367,7 +361,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
 
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                      {t('dashboard.donationQueue.form.healthStatus', 'Health Status')}
+                      {t('dashboard.donationQueue.form.healthStatus')}
                     </label>
                     <input
                       type="text"
@@ -385,7 +379,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
 
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                      {t('dashboard.donationQueue.form.peopleSaved', 'People Saved')}
+                      {t('dashboard.donationQueue.form.peopleSaved')}
                     </label>
                     <input
                       type="number"
@@ -403,7 +397,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
 
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft block">
-                      {t('dashboard.donationQueue.form.thankYouMessage', 'Thank You Message')}
+                      {t('dashboard.donationQueue.form.thankYouMessage')}
                     </label>
                     <textarea
                       rows={3}
@@ -426,7 +420,7 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                       disabled={submitting}
                       className="px-5 py-2.5 border border-line-soft text-ink-soft text-xs font-sans font-bold rounded-xl hover:bg-paper/50 transition-colors disabled:opacity-60"
                     >
-                      {t('dashboard.donationQueue.form.cancel', 'Cancel')}
+                      {t('dashboard.donationQueue.form.cancel')}
                     </button>
                     <button
                       type="submit"
@@ -434,8 +428,8 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
                       className="px-5 py-2.5 bg-ink text-white text-xs font-sans font-bold rounded-xl hover:bg-ink/90 transition-colors disabled:opacity-60 shadow-xs"
                     >
                       {submitting
-                        ? t('dashboard.donationQueue.submitting', 'Submitting...')
-                        : t('dashboard.donationQueue.form.confirm', 'Confirm')}
+                        ? t('dashboard.donationQueue.submitting')
+                        : t('dashboard.donationQueue.form.confirm')}
                     </button>
                   </div>
                 </form>
@@ -447,5 +441,3 @@ export const DonationQueueModal: React.FC<DonationQueueModalProps> = ({
     </div>
   );
 };
-
-export default DonationQueueModal;

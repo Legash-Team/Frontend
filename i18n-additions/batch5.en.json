@@ -1,0 +1,25 @@
+{
+  "bloodStockPage": {
+    "title": "Blood Stock Inventory",
+    "description": "Manage blood kit quantities across all 8 standard blood groups. Overview cards display your current stock.",
+    "refresh": "Refresh",
+    "currentStock": "Current Registered Stock",
+    "unsavedBelow": "Unsaved changes below",
+    "staged": "Staged:",
+    "editorTitle": "Blood Group Stock Editor",
+    "unsavedChanges": "Unsaved Changes",
+    "upToDate": "Up to date",
+    "loading": "Loading inventory data...",
+    "outOfStock": "Out of stock",
+    "unitsCount": "{{count}} units",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "infoNote": "Edits are not saved yet. Click 'Save Stock Inventory' to save all 8 blood types.",
+    "resetChanges": "Reset Changes",
+    "saving": "Saving All Blood Stock...",
+    "save": "Save Stock Inventory",
+    "loadFailed": "Failed to load blood stock inventory.",
+    "updateFailed": "Failed to update blood stock inventory.",
+    "updateSuccess": "Blood stock inventory updated successfully across all blood groups!"
+  }
+}

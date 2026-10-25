@@ -1,0 +1,22 @@
+{
+  "hospitalDashboard": {
+    "title": "Hospital Dashboard",
+    "description": "Live Overview of Facility Information and Emergency Blood Inventory.",
+    "viewProfile": "View Profile",
+    "manageStock": "Manage Blood Stock",
+    "loading": "Loading hospital dashboard...",
+    "errorTitle": "Unable to fetch dashboard",
+    "loadFailed": "Failed to load hospital dashboard data.",
+    "defaultName": "Medical Facility",
+    "networkBadge": "Legash Emergency blood Network",
+    "welcome": "Welcome, {{name}}",
+    "welcomeDesc": "Monitor live blood inventory, request emergency transfers, and manage facility contact information in real-time.",
+    "updateInventory": "Update Blood Inventory",
+    "stockSummary": "Blood Stock Summary",
+    "stockSummaryDesc": "Live inventory units across all 8 standard blood groups.",
+    "manageStockLink": "Manage Stock",
+    "lowStock": "Low Stock",
+    "adequate": "Adequate",
+    "units": "units"
+  }
+}

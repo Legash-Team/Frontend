@@ -12,9 +12,13 @@ import type {
  * the lightweight count endpoint to decide whether to show the banner — it
  * never pulls every pending donor's full details just for the indicator.
  *
- * Backend endpoints:
+ * Backend contract (endpoints not live yet — swap any stub/mock behavior for
+ * fetch() against these endpoints when the backend ships, without touching
+ * call sites):
+ *
  *   GET  /api/hospital/donation-records/pending/count  -> { count }
  *   GET  /api/hospital/donation-records/pending        -> PendingDonation[]
+ *                                                          (oldest acceptance first)
  *   POST /api/hospital/donation-records                -> records the outcome
  */
 

@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 export const Impact = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 sm:py-28 bg-paper" id="impact">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
@@ -9,13 +12,13 @@ export const Impact = () => {
         {/* Section Header */}
         <ScrollReveal className="max-w-[640px] mb-12 sm:mb-16">
           <span className="font-mono text-[0.76rem] font-bold text-crimson-dark uppercase tracking-widest block mb-3.5">
-            Our impact
+            {t('landing.impactBadge')}
           </span>
           <h2 className="text-[clamp(1.75rem,3vw,2.6rem)] font-serif font-bold text-ink leading-[1.15]">
-            The blood shortage is real.
+            {t('landing.impactTitle')}
           </h2>
           <p className="mt-3 sm:mt-4 text-sm sm:text-[1.03rem] text-ink-soft leading-relaxed">
-            Every day, the gap between need and supply costs lives. Here's what the numbers tell us.
+            {t('landing.impactDescription')}
           </p>
         </ScrollReveal>
 
@@ -24,15 +27,15 @@ export const Impact = () => {
           <ScrollReveal delay={0} className="h-full">
             <CountingStat
               target={18000}
-              label="units of blood needed daily"
-              description="This is the national demand for blood across hospitals and healthcare facilities every single day."
+              label={t('landing.stat1Label')}
+              description={t('landing.stat1Description')}
             />
           </ScrollReveal>
           <ScrollReveal delay={150} className="h-full">
             <CountingStat
               target={1100}
-              label="units collected on average"
-              description="Despite the need, only a fraction of what's required is actually collected each day."
+              label={t('landing.stat2Label')}
+              description={t('landing.stat2Description')}
             />
           </ScrollReveal>
         </div>
@@ -45,23 +48,23 @@ export const Impact = () => {
 
             <div className="pl-6">
               <span className="font-mono text-[0.76rem] font-bold text-crimson-dark uppercase tracking-widest block mb-4">
-                About Us
+                {t('landing.aboutUs')}
               </span>
 
               <h3 className="text-[1.5rem] sm:text-[1.75rem] font-serif font-bold text-ink leading-[1.15] mb-5">
-                We're bridging the gap.
+                {t('landing.aboutTitle')}
               </h3>
 
               <p className="text-[0.98rem] sm:text-[1.05rem] text-ink-soft leading-[1.7] mb-6">
-                LEGASH is a dedicated team of developers and health advocates building the connection Ethiopia desperately needs. We've created a system that instantly matches hospitals with nearby donors who have the right blood type — eliminating the chaos of manual outreach and social media pleas.
+                {t('landing.aboutParagraph1')}
               </p>
 
               <p className="text-[0.98rem] sm:text-[1.05rem] text-ink-soft leading-[1.7] mb-6">
-                Our platform is simple: hospitals post urgent requests, matching donors receive immediate alerts, and connections happen in seconds. No more families scrambling to find donors. No more preventable delays. Just a direct, secure link between those who can give and those who need it most.
+                {t('landing.aboutParagraph2')}
               </p>
 
               <p className="text-[0.98rem] sm:text-[1.05rem] text-ink-soft leading-[1.7]">
-                We're not just building software — we're building a lifeline for Ethiopia's healthcare system, one match at a time.
+                {t('landing.aboutParagraph3')}
               </p>
             </div>
           </div>
@@ -75,15 +78,15 @@ export const Impact = () => {
 
             <div className="pl-6">
               <span className="font-mono text-[0.76rem] font-bold text-crimson-dark uppercase tracking-widest block mb-4">
-                Privacy
+                {t('landing.privacy')}
               </span>
 
               <h3 className="text-[1.5rem] sm:text-[1.75rem] font-serif font-bold text-ink leading-[1.15] mb-5">
-                Your data stays yours.
+                {t('landing.privacyTitle')}
               </h3>
 
               <p className="text-[0.98rem] sm:text-[1.05rem] text-ink-soft leading-[1.7] mb-8">
-                Hospitals can see you're nearby with the right blood type — but they can't see who you are until you choose to reveal yourself. Click below to see how it works.
+                {t('landing.privacyDescription')}
               </p>
 
               {/* Interactive Privacy Demo */}
@@ -172,6 +175,7 @@ const DataField = ({ label, value, visible, actualValue }: { label: string; valu
 );
 
 const PrivacyDemo = () => {
+  const { t } = useTranslation();
   const [isRevealed, setIsRevealed] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
@@ -196,10 +200,10 @@ const PrivacyDemo = () => {
         )}
 
         <div className="space-y-4">
-          <DataField label="Blood Type" value="O+" visible={true} />
-          <DataField label="Distance" value="2.3 km" visible={true} />
-          <DataField label="Name" value="Hidden" visible={isRevealed} actualValue="Abebe Bikila" />
-          <DataField label="Phone" value="Hidden" visible={isRevealed} actualValue="+251 911 234 567" />
+          <DataField label={t('landing.demoBloodType')} value="O+" visible={true} />
+          <DataField label={t('landing.demoDistance')} value="2.3 km" visible={true} />
+          <DataField label={t('landing.demoName')} value={t('landing.demoHidden')} visible={isRevealed} actualValue="Abebe Bikila" />
+          <DataField label={t('landing.demoPhone')} value={t('landing.demoHidden')} visible={isRevealed} actualValue="+251 911 234 567" />
         </div>
 
         {/* Status Badge */}
@@ -208,7 +212,7 @@ const PrivacyDemo = () => {
             ? 'bg-verified/10 text-verified border border-verified/20'
             : 'bg-sand/30 text-ink-soft border border-line-soft'
         }`}>
-          {isRevealed ? "IDENTITY REVEALED" : "IDENTITY PROTECTED"}
+          {isRevealed ? t('landing.identityRevealed') : t('landing.identityProtected')}
         </div>
       </div>
 
@@ -224,7 +228,7 @@ const PrivacyDemo = () => {
             : 'bg-crimson text-paper hover:bg-ink'
         }`}
       >
-        {isScanning ? "Revealing..." : isRevealed ? "Reset Privacy" : "Reveal Identity"}
+        {isScanning ? t('landing.revealing') : isRevealed ? t('landing.resetPrivacy') : t('landing.revealIdentity')}
       </button>
     </>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Logo } from '@/components/ui/Logo';
 import { Button } from '@/components/ui/Button';
 import { Menu, X } from 'lucide-react';
@@ -7,12 +8,13 @@ import { Menu, X } from 'lucide-react';
 
 export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const navLinks = [
-    { name: 'How it works', href: '#how' },
-    { name: 'About Us', href: '#about' },
-    { name: 'Privacy', href: '#privacy' },
-    { name: 'For hospitals', href: '#hospitals' },
+    { name: t('landing.howItWorks'), href: '#how' },
+    { name: t('landing.aboutUs'), href: '#about' },
+    { name: t('landing.privacy'), href: '#privacy' },
+    { name: t('landing.forHospitals'), href: '#hospitals' },
   ];
 
   return (
@@ -43,7 +45,7 @@ export const Navbar = () => {
               className="hover:bg-crimson-dark"
               href="/login"
             >
-              Log in
+              {t('landing.login')}
             </Button>
 
             {/* Mobile Menu Hamburger Button */}
@@ -51,7 +53,7 @@ export const Navbar = () => {
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
               className="md:hidden p-2 rounded-xl text-ink-soft hover:text-ink hover:bg-paper-dim transition-colors"
-              aria-label="Toggle Menu"
+              aria-label={t('common.toggleMenu')}
             >
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -91,14 +93,14 @@ export const Navbar = () => {
                 href="/register"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Register Facility
+                {t('landing.registerFacility')}
               </Button>
               <Link 
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 text-xs font-bold uppercase tracking-widest text-ink-soft hover:text-crimson"
               >
-                Sign In
+                {t('landing.signIn')}
               </Link>
             </div>
           </div>

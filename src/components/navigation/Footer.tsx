@@ -1,5 +1,6 @@
 import { Logo } from '@/components/ui/Logo';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import type { ReactNode } from 'react';
 
@@ -63,6 +64,8 @@ const SOCIALS: Social[] = [
 ];
 
 export const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-ink pt-12 sm:pt-20 pb-8 sm:pb-10 text-paper border-t border-white/5">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-8">
@@ -74,7 +77,7 @@ export const Footer = () => {
           <ScrollReveal className="lg:col-span-6 flex flex-col items-start">
             <Logo className="text-paper mb-5 sm:mb-6" />
             <p className="text-paper/50 text-sm sm:text-[0.95rem] max-w-sm leading-relaxed">
-              The link between Ethiopia's health care and a verififed network of donors. Optimized to help the health care system and donors to connect and work together to save lives.
+              {t('landing.footerDescription')}
             </p>
           </ScrollReveal>
 
@@ -82,22 +85,22 @@ export const Footer = () => {
           <div className="lg:col-span-6 grid grid-cols-2 gap-8 sm:gap-12">
             <ScrollReveal delay={100}>
               <FooterGroup
-                title="Company"
+                title={t('landing.footerCompany')}
                 links={[
-                  { label: 'How it works', href: '#how' },
-                  { label: 'About Us', href: '#about' },
-                  { label: 'Privacy Protocol', href: '#privacy' }
+                  { label: t('landing.howItWorks'), href: '#how' },
+                  { label: t('landing.aboutUs'), href: '#about' },
+                  { label: t('landing.privacyProtocol'), href: '#privacy' }
                 ]}
               />
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
               <FooterGroup
-                title="Facilities"
+                title={t('landing.footerFacilities')}
                 links={[
-                  { label: 'For Hospitals', href: '#hospitals' },
-                  { label: 'Register Facility', href: '/register' },
-                  { label: 'Hospital Login', href: '/login' }
+                  { label: t('landing.forHospitals'), href: '#hospitals' },
+                  { label: t('landing.registerFacility'), href: '/register' },
+                  { label: t('landing.hospitalLogin'), href: '/login' }
                 ]}
               />
             </ScrollReveal>
@@ -108,13 +111,13 @@ export const Footer = () => {
         <ScrollReveal className="pt-8 sm:pt-10 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8 text-center sm:text-left">
           <div className="flex flex-col items-center sm:items-start gap-2">
             <div className="text-[10px] font-mono font-bold tracking-[0.15em] text-paper/40 uppercase">
-              © {new Date().getFullYear()} LEGASH. All rights reserved.
+              © {t('landing.copyright', { year: new Date().getFullYear() })}
             </div>
             
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-8">
-            <nav aria-label="Social links" className="flex items-center gap-2.5">
+            <nav aria-label={t('landing.socialLinks')} className="flex items-center gap-2.5">
               {SOCIALS.map((social) => (
                 <a
                   key={social.label}
@@ -145,7 +148,7 @@ export const Footer = () => {
               href="mailto:contact@legash.com"
               className="text-paper/40 hover:text-crimson transition-all duration-300 text-[11px] font-bold uppercase tracking-widest"
             >
-              Contact
+              {t('landing.contact')}
             </a>
           </div>
         </ScrollReveal>
