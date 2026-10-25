@@ -6,22 +6,39 @@ import { TEMP_OPEN_ACCESS } from '@/lib/temporaryAccess';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'superadmin' | 'admin' | 'hospital' | 'bloodcenter';
+  allowedRoles?: ('superadmin' | 'admin' | 'hospital' | 'bloodcenter')[];
   requireCanApproveHospitals?: boolean;
   requireCanPostEvents?: boolean;
 }
 
+const getDefaultRedirect = (role?: string): string => {
+  if (role === 'admin' || role === 'bloodcenter') {
+    return '/blood-center/dashboard';
+  }
+  if (role === 'superadmin') {
+    return '/admin/dashboard';
+  }
+  return '/hospital/dashboard';
+};
+
+const matchesRole = (userRole?: string, targetRole?: string): boolean => {
+  if (!userRole || !targetRole) return false;
+  if (targetRole === 'admin' || targetRole === 'bloodcenter') {
+    return userRole === 'admin' || userRole === 'bloodcenter';
+  }
+  return userRole === targetRole;
+};
+
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredRole,
+  allowedRoles,
   requireCanApproveHospitals,
   requireCanPostEvents,
 }) => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
 
-  // TEMPORARY: register/login don't work until the backend auth flow is done,
-  // so while TEMP_OPEN_ACCESS is on every protected URL opens directly by
-  // changing the address. Set the flag to false to restore the checks below.
   if (TEMP_OPEN_ACCESS) {
     return <>{children}</>;
   }
@@ -30,41 +47,29 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
-    // If they don't have the right role, bounce them to their default dashboard
-    const redirectPath = user?.role === 'bloodcenter'
-      ? '/blood-center/dashboard'
-      : user?.role === 'superadmin' || user?.role === 'admin'
-        ? '/admin/dashboard'
-        : '/hospital/dashboard';
-    return <Navigate to={redirectPath} replace />;
+  if (allowedRoles && allowedRoles.length > 0) {
+    const hasAllowedRole = allowedRoles.some((role) => matchesRole(user?.role, role));
+    if (!hasAllowedRole) {
+      return <Navigate to={getDefaultRedirect(user?.role)} replace />;
+    }
+  } else if (requiredRole && !matchesRole(user?.role, requiredRole)) {
+    return <Navigate to={getDefaultRedirect(user?.role)} replace />;
   }
 
   if (requireCanApproveHospitals) {
     const isSuperAdmin = user?.role === 'superadmin';
-    // Blood centers only get approval powers when the Super Admin granted them
     const canApprove = isSuperAdmin || Boolean(user?.permissions?.canApproveHospitals);
     if (!canApprove) {
-      const redirectPath = user?.role === 'bloodcenter'
-        ? '/blood-center/dashboard'
-        : user?.role === 'superadmin' || user?.role === 'admin'
-          ? '/admin/dashboard'
-          : '/hospital/dashboard';
-      return <Navigate to={redirectPath} replace />;
+      return <Navigate to={getDefaultRedirect(user?.role)} replace />;
     }
   }
 
   if (requireCanPostEvents) {
     const isSuperAdmin = user?.role === 'superadmin';
-    const isBloodCenter = user?.role === 'bloodcenter';
+    const isBloodCenter = user?.role === 'admin' || user?.role === 'bloodcenter';
     const canPost = isSuperAdmin || isBloodCenter || Boolean(user?.permissions?.canPostEvents);
     if (!canPost) {
-      const redirectPath = user?.role === 'bloodcenter'
-        ? '/blood-center/dashboard'
-        : user?.role === 'superadmin' || user?.role === 'admin'
-          ? '/admin/dashboard'
-          : '/hospital/dashboard';
-      return <Navigate to={redirectPath} replace />;
+      return <Navigate to={getDefaultRedirect(user?.role)} replace />;
     }
   }
 

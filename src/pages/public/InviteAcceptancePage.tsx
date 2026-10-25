@@ -24,8 +24,9 @@ const InviteAcceptancePage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const inviteToken = pathToken || searchParams.get('token') || '';
 
-  // --- FORM STATE ---
   const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -71,12 +72,12 @@ const InviteAcceptancePage: React.FC = () => {
     );
   };
 
-  // --- VALIDATION (mirrors register page rules) ---
+  // --- VALIDATION (mirrors backend adminSetup rules) ---
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
 
-    if (!name.trim()) {
-      errors.name = t('auth.invite.errors.nameRequired');
+    if (!name.trim() || name.trim().length < 2) {
+      errors.name = 'Center/admin name must be at least 2 characters.';
     }
 
     const hasUppercase = /[A-Z]/.test(password);
@@ -109,6 +110,14 @@ const InviteAcceptancePage: React.FC = () => {
       errors.location = t('auth.invite.errors.locationRequired');
     }
 
+    if (!address.trim() || address.trim().length < 3) {
+      errors.address = 'Physical address must be between 3 and 200 characters.';
+    }
+
+    if (!termsAccepted) {
+      errors.termsAccepted = 'You must agree to the Terms of Service and Privacy Policy.';
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -127,19 +136,33 @@ const InviteAcceptancePage: React.FC = () => {
     setIsSubmitting(true);
     try {
       const res = await acceptInvitation({
+        setupToken: inviteToken,
         token: inviteToken,
+        centerName: name.trim(),
         name: name.trim(),
         password,
+        confirmPassword,
         phone: `+251${phone.trim()}`,
-        location: location!,
+        termsAccepted: true,
+        location: {
+          lat: location!.lat,
+          lng: location!.lng,
+          address: address.trim(),
+        },
       });
 
       if (res.success !== false) {
         // No verification step — go straight to the login page
         navigate('/login', { replace: true });
       }
-    } catch (err: any) {
-      setSubmitError(typeof err === 'string' ? err : err?.message || t('auth.invite.failed'));
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : t('auth.invite.failed');
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -330,6 +353,41 @@ const InviteAcceptancePage: React.FC = () => {
           <p className="text-[10px] text-ink-soft/50 italic leading-relaxed">
             {t('auth.invite.locationHint')}
           </p>
+        </div>
+
+        {/* Physical Address */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+            Facility / Physical Address <span className="text-crimson">*</span>
+          </label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="e.g. Churchill Ave, Sub-city, Addis Ababa"
+            className={inputClass(!!fieldErrors.address)}
+          />
+          {fieldErrors.address && (
+            <p className="text-[10px] text-crimson font-bold uppercase">{fieldErrors.address}</p>
+          )}
+        </div>
+
+        {/* Terms of Service */}
+        <div className="space-y-1">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-line-soft text-crimson focus:ring-crimson"
+            />
+            <span className="text-xs text-ink leading-relaxed">
+              I agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong> for blood center operations on the Legash Network.
+            </span>
+          </label>
+          {fieldErrors.termsAccepted && (
+            <p className="text-[10px] text-crimson font-bold uppercase">{fieldErrors.termsAccepted}</p>
+          )}
         </div>
 
         {/* Submit — no verification afterwards, straight to login */}

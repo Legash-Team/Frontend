@@ -1,72 +1,78 @@
+import axiosInstance from '@/api/axiosInstance';
 import type { DonationRecord, DonationRecordPayload } from '@/features/hospital/types/hospital-types';
 
 /**
- * DONATION MEDICAL RECORD SERVICE — device-local storage.
+ * DONATION MEDICAL RECORD SERVICE — connected to real backend API.
+ * The backend is the authoritative source of truth.
  *
- * Flow: a hospital posts a blood request → a donor accepts it → the donor
- * comes to the facility and donates. Because every unit is laboratory-tested
- * before transfusion anyway, the hospital records the collection here:
- * units taken, infectious-disease screening, vitals, and the collection
- * outcome (cleared / deferred / rejected).
- *
- * The backend endpoints are not live yet, so records are persisted in this
- * browser's localStorage instead. The function signatures below are the
- * intended API contract — swap the localStorage calls for fetch() against
- * these endpoints when the backend ships, without touching call sites:
- *
- *   GET    /api/hospital/donations        -> list records (newest first)
- *   POST   /api/hospital/donations        -> create record
- *   DELETE /api/hospital/donations/:id    -> remove a mistaken entry
- *
- * Records saved here are real data entered by hospital staff on this device;
- * they are never synced anywhere until the backend endpoints exist.
+ * GET    /api/hospital/donation-records     -> list records
+ * POST   /api/hospital/donation-records     -> create record
+ * DELETE /api/hospital/donation-records/:id -> remove record
  */
 
-const STORAGE_KEY = 'legash_donation_records';
-
-const readStore = (): DonationRecord[] => {
+/** GET /api/hospital/donation-records — newest first. */
+export const listDonationRecords = async (): Promise<DonationRecord[]> => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as DonationRecord[]) : [];
-  } catch {
-    return [];
+    const res = await axiosInstance.get<{
+      success: boolean;
+      records?: DonationRecord[];
+      data?: DonationRecord[];
+    }>('/api/hospital/donation-records');
+
+    const list = res.data?.records || res.data?.data || [];
+    return list.sort((a, b) => {
+      const left = new Date(a.donatedOn || a.recordedAt).getTime();
+      const right = new Date(b.donatedOn || b.recordedAt).getTime();
+      return right - left;
+    });
+  } catch (err: any) {
+    throw new Error(err?.response?.data?.error || err?.message || 'Failed to fetch donation records.');
   }
 };
 
-const writeStore = (records: DonationRecord[]): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-};
-
-/** GET /api/hospital/donations — newest first. */
-export const listDonationRecords = async (): Promise<DonationRecord[]> => {
-  return [...readStore()].sort((a, b) => {
-    const left = new Date(a.donatedOn || a.recordedAt).getTime();
-    const right = new Date(b.donatedOn || b.recordedAt).getTime();
-    return right - left;
-  });
-};
-
-/** POST /api/hospital/donations */
+/** POST /api/hospital/donation-records */
 export const createDonationRecord = async (
   payload: DonationRecordPayload
 ): Promise<DonationRecord> => {
-  const record: DonationRecord = {
-    ...payload,
-    id:
-      typeof crypto !== 'undefined' && 'randomUUID' in crypto
-        ? crypto.randomUUID()
-        : `dr_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-    recordedAt: new Date().toISOString(),
-  };
-  writeStore([record, ...readStore()]);
-  return record;
+  try {
+    const res = await axiosInstance.post<{
+      success: boolean;
+      message?: string;
+      record: DonationRecord;
+    }>('/api/hospital/donation-records', {
+      bloodRequestId: payload.requestId,
+      requestId: payload.requestId,
+      bloodRequestResponseId: payload.responseId,
+      responseId: payload.responseId,
+      outcome: payload.outcome,
+      donationDate: payload.donatedOn,
+      donatedOn: payload.donatedOn,
+      donorBloodType: payload.bloodType,
+      bloodType: payload.bloodType,
+      unitsCollected: payload.unitsCollected,
+      pulse: payload.vitals?.pulse,
+      hemoglobin: payload.vitals?.hemoglobin,
+      systolic: payload.vitals?.systolic,
+      diastolic: payload.vitals?.diastolic,
+      temperature: payload.vitals?.temperature,
+      screening: payload.screening,
+      notes: payload.notes,
+      recordedBy: payload.recordedBy,
+    });
+
+    return res.data.record;
+  } catch (err: any) {
+    throw new Error(err?.response?.data?.error || err?.message || 'Failed to save donation record.');
+  }
 };
 
-/** DELETE /api/hospital/donations/:id */
+/** DELETE /api/hospital/donation-records/:id */
 export const deleteDonationRecord = async (id: string): Promise<void> => {
-  writeStore(readStore().filter((record) => record.id !== id));
+  try {
+    await axiosInstance.delete(`/api/hospital/donation-records/${id}`);
+  } catch (err: any) {
+    throw new Error(err?.response?.data?.error || err?.message || 'Failed to delete donation record.');
+  }
 };
 
 export default { listDonationRecords, createDonationRecord, deleteDonationRecord };

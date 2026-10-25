@@ -37,6 +37,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
     { label: t('nav.hospital.bloodStock'), path: '/hospital/blood-stock', icon: Droplets },
     { label: t('nav.hospital.bloodRequest'), path: '/hospital/blood-request', icon: PlusCircle },
     { label: t('nav.hospital.allRequests'), path: '/hospital/all-requests', icon: ClipboardList },
+    { label: 'Center Requests', path: '/hospital/blood-center-requests', icon: Building2 },
     { label: t('nav.hospital.hospitalSearch'), path: '/hospital/search', icon: Search },
     { label: t('nav.hospital.medicalRecords'), path: '/hospital/medical-records', icon: FileHeart },
     {

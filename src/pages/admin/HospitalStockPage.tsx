@@ -8,6 +8,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import type { HospitalStockItem } from './models/hospital-stock-types';
 import { Filter, ArrowUpDown } from 'lucide-react';
+import { LocationLink } from '@/utils/mapsUrl';
 
 const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -123,7 +124,7 @@ const HospitalStockPage = () => {
                         <div className="font-serif font-bold text-ink">{item.hospitalName}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-ink-soft">{item.location?.address || 'N/A'}</div>
+                        <LocationLink location={item.location} className="text-sm" />
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-ink-soft">{item.phone}</div>

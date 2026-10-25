@@ -31,7 +31,6 @@ import {
   Eye,
   AlertTriangle,
   CheckCircle2,
-  Clock,
   FlaskConical,
   User,
   Stethoscope,
@@ -90,7 +89,7 @@ const defaultForm = (): FormState => {
     systolic: '',
     diastolic: '',
     temperature: '',
-    outcome: 'cleared',
+    outcome: 'donated',
     notes: '',
     recordedBy: '',
   };
@@ -202,13 +201,25 @@ export const DonationRecordsPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const isRequestOpen = Boolean(
+    formContext.request &&
+    formContext.request.status &&
+    formContext.request.status.toUpperCase() !== 'CLOSED'
+  );
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isRequestOpen) {
+      toast.error('Cannot record outcome on an open request. The blood request must be closed first.');
+      return;
+    }
     if (!validateForm()) return;
     setSaving(true);
     try {
       const payload = {
         requestId: formContext.request?.id ?? null,
+        responseId: formContext.donor?.responseId ?? null,
+        donorId: formContext.donor?.donorId || formContext.donor?.id || null,
         donorName: form.donorName.trim(),
         donorPhone: form.donorPhone.trim() || undefined,
         bloodType: (form.bloodType || null) as BloodType | null,
@@ -222,12 +233,52 @@ export const DonationRecordsPage: React.FC = () => {
           diastolic: toNumberOrNull(form.diastolic),
           temperature: toNumberOrNull(form.temperature),
         },
-        outcome: form.outcome,
+        outcome: 'donated' as const,
         notes: form.notes.trim() || undefined,
         recordedBy: form.recordedBy.trim(),
       };
       await createDonationRecord(payload);
       toast.success(t('donationRecords.savedSuccess'));
+      setFormOpen(false);
+      setFormContext({});
+      loadRecords();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDidNotDonate = async () => {
+    if (isRequestOpen) {
+      toast.error('Cannot record outcome on an open request. The blood request must be closed first.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        requestId: formContext.request?.id ?? null,
+        responseId: formContext.donor?.responseId ?? null,
+        donorId: formContext.donor?.donorId || formContext.donor?.id || null,
+        donorName: form.donorName.trim() || 'Anonymous Donor',
+        donorPhone: form.donorPhone.trim() || undefined,
+        bloodType: (form.bloodType || null) as BloodType | null,
+        unitsCollected: 0,
+        donatedOn: new Date().toISOString(),
+        screening: { ...form.screening },
+        vitals: {
+          hemoglobin: null,
+          pulse: null,
+          systolic: null,
+          diastolic: null,
+          temperature: null,
+        },
+        outcome: 'did_not_donate' as const,
+        notes: form.notes.trim() || undefined,
+        recordedBy: form.recordedBy.trim() || 'Hospital Staff',
+      };
+      await createDonationRecord(payload);
+      toast.success("Recorded donor as didn't donate.");
       setFormOpen(false);
       setFormContext({});
       loadRecords();
@@ -266,27 +317,19 @@ export const DonationRecordsPage: React.FC = () => {
     return { label: t('donationRecords.allClear'), tone: 'clear' };
   };
 
-  const outcomeBadge = (outcome: DonationOutcome) => {
-    if (outcome === 'cleared') {
+  const outcomeBadge = (outcome: DonationOutcome | string) => {
+    if (outcome === 'donated' || outcome === 'cleared') {
       return (
         <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-verified/10 text-verified border border-verified/20">
           <CheckCircle2 className="w-3 h-3" />
-          {t('donationRecords.outcomeCleared')}
-        </span>
-      );
-    }
-    if (outcome === 'deferred') {
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-          <Clock className="w-3 h-3" />
-          {t('donationRecords.outcomeDeferred')}
+          Donated
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-crimson/10 text-crimson border border-crimson/20">
-        <AlertTriangle className="w-3 h-3" />
-        {t('donationRecords.outcomeRejected')}
+      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-paper text-ink-soft border border-line-soft">
+        <X className="w-3 h-3" />
+        Didn't donate
       </span>
     );
   };
@@ -479,6 +522,18 @@ export const DonationRecordsPage: React.FC = () => {
               </button>
             </div>
 
+            {isRequestOpen && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 text-amber-800 text-xs">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+                <div>
+                  <p className="font-bold">Request is currently open</p>
+                  <p className="mt-0.5 text-amber-700">
+                    A donation record can only be created after the associated blood request is closed. Please close the blood request before recording donor outcomes.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSave} noValidate className="space-y-6">
               {/* Donor & collection */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -646,37 +701,15 @@ export const DonationRecordsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Outcome */}
-              <div className="space-y-3">
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink block">
-                  {t('donationRecords.form.outcomeTitle')}
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {(['cleared', 'deferred', 'rejected'] as DonationOutcome[]).map((outcome) => (
-                    <label
-                      key={outcome}
-                      className={`flex items-start gap-2.5 p-3 border rounded-xl cursor-pointer transition-all ${
-                        form.outcome === outcome
-                          ? outcome === 'cleared'
-                            ? 'border-verified bg-verified/5'
-                            : outcome === 'deferred'
-                            ? 'border-amber-400 bg-amber-50'
-                            : 'border-crimson bg-crimson/5'
-                          : 'border-line-soft bg-white hover:bg-paper/60'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="outcome"
-                        checked={form.outcome === outcome}
-                        onChange={() => setField('outcome', outcome)}
-                        className="mt-0.5 accent-crimson"
-                      />
-                      <span className="text-xs font-sans font-semibold text-ink leading-snug">
-                        {t(`donationRecords.form.outcome${outcome.charAt(0).toUpperCase()}${outcome.slice(1)}`)}
-                      </span>
-                    </label>
-                  ))}
+              {/* Outcome guidance */}
+              <div className="p-3.5 bg-paper/60 border border-line-soft rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-ink block">
+                    Donation Outcome
+                  </span>
+                  <p className="text-xs text-ink-soft mt-0.5">
+                    Click <strong>Save Record</strong> if the donation was completed, or <strong>Didn't donate</strong> if the donor did not donate.
+                  </p>
                 </div>
               </div>
 
@@ -709,7 +742,7 @@ export const DonationRecordsPage: React.FC = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end gap-3 pt-3 border-t border-line-soft">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-line-soft">
                 <button
                   type="button"
                   onClick={() => setFormOpen(false)}
@@ -717,13 +750,23 @@ export const DonationRecordsPage: React.FC = () => {
                 >
                   {t('donationRecords.form.cancel')}
                 </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-sans font-semibold transition-colors shadow-xs disabled:opacity-60"
-                >
-                  {saving ? t('donationRecords.form.saving') : t('donationRecords.form.saveRecord')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDidNotDonate}
+                    disabled={saving || isRequestOpen}
+                    className="px-4 py-2.5 border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl text-xs font-sans font-semibold transition-colors disabled:opacity-50"
+                  >
+                    Didn't donate
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || isRequestOpen}
+                    className="px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-sans font-semibold transition-colors shadow-xs disabled:opacity-50"
+                  >
+                    {saving ? t('donationRecords.form.saving') : t('donationRecords.form.saveRecord')}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -842,7 +885,7 @@ export const DonationRecordsPage: React.FC = () => {
               <span>
                 {t('donationRecords.recordedAtLabel')}: {formatDate(detailRecord.recordedAt)}
               </span>
-              {detailRecord.outcome !== 'cleared' && outcomeBadge(detailRecord.outcome)}
+              {outcomeBadge(detailRecord.outcome)}
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
