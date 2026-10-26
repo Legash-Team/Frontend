@@ -26,6 +26,7 @@ import AllRequestsPage from './pages/hospital/AllRequestsPage';
 import HospitalSearchPage from './pages/hospital/HospitalSearchPage';
 import DonationRecordsPage from './pages/hospital/DonationRecordsPage';
 import HospitalBloodCenterRequestsPage from './pages/hospital/HospitalBloodCenterRequestsPage';
+import HospitalFaqPage from './pages/hospital/HospitalFaqPage';
 
 // --- 4. ADMIN DASHBOARD PAGES (Ensure these paths are correct) ---
 import DashboardPage from './pages/admin/DashboardPage';
@@ -38,6 +39,7 @@ import HospitalAnalyticsPage from './pages/admin/HospitalAnalyticsPage';
 import BloodCenterDashboardPage from './pages/admin/BloodCenterDashboardPage';
 import BloodCenterHospitalsPage from './pages/admin/BloodCenterHospitalsPage';
 import BloodCenterIncomingRequestsPage from './pages/admin/BloodCenterIncomingRequestsPage';
+import BloodCenterProfilePage from './pages/admin/BloodCenterProfilePage';
 
 const AdminSetupRedirect: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -137,12 +139,20 @@ export const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/hospital/faq"
+              element={
+                <ProtectedRoute requiredRole="hospital">
+                  <HospitalFaqPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* --- ADMIN DASHBOARD ROUTES --- */}
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute requiredRole="superadmin">
+                <ProtectedRoute allowedRoles={['superadmin', 'admin']} requireCanApproveHospitals>
                   <DashboardPage />
                 </ProtectedRoute>
               }
@@ -166,7 +176,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/feedbacks"
               element={
-                <ProtectedRoute requiredRole="superadmin">
+                <ProtectedRoute allowedRoles={['superadmin', 'admin']} requireCanApproveHospitals>
                   <FeedbackPage />
                 </ProtectedRoute>
               }
@@ -174,7 +184,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/hospital-stock"
               element={
-                <ProtectedRoute requiredRole="superadmin" requireCanApproveHospitals>
+                <ProtectedRoute requiredRole="superadmin">
                   <HospitalStockPage />
                 </ProtectedRoute>
               }
@@ -182,7 +192,7 @@ export const App: React.FC = () => {
             <Route
               path="/admin/hospital-analytics"
               element={
-                <ProtectedRoute requiredRole="superadmin" requireCanApproveHospitals>
+                <ProtectedRoute requiredRole="superadmin">
                   <HospitalAnalyticsPage />
                 </ProtectedRoute>
               }
@@ -230,6 +240,22 @@ export const App: React.FC = () => {
               }
             />
             <Route
+              path="/blood-center/profile"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']}>
+                  <BloodCenterProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blood-center/profile/edit"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']}>
+                  <BloodCenterProfilePage isEditMode={true} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/blood-center/hospitals"
               element={
                 <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']} requireCanApproveHospitals>
@@ -240,7 +266,7 @@ export const App: React.FC = () => {
             <Route
               path="/blood-center/feedbacks"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']}>
+                <ProtectedRoute allowedRoles={['admin', 'bloodcenter', 'superadmin']} requireCanApproveHospitals>
                   <FeedbackPage />
                 </ProtectedRoute>
               }

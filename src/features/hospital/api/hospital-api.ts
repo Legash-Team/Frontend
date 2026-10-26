@@ -26,6 +26,10 @@ export interface LoginResponse {
   token?: string;
   auth_token?: string;
   role?: string;
+  permissions?: {
+    canApproveHospitals?: boolean;
+    canPostEvents?: boolean;
+  } | null;
   message?: string;
   verificationStatus?: string;
   refreshToken?: string;
@@ -33,6 +37,12 @@ export interface LoginResponse {
     id?: string;
     name?: string;
     email?: string;
+    centerName?: string;
+    role?: string;
+    permissions?: {
+      canApproveHospitals?: boolean;
+      canPostEvents?: boolean;
+    } | null;
   };
   hospital?: HospitalProfile;
 }
@@ -79,7 +89,21 @@ export const loginHospital = async (
       success: boolean;
       token?: string;
       role?: string;
-      user?: { id: string; name: string; email: string };
+      permissions?: {
+        canApproveHospitals?: boolean;
+        canPostEvents?: boolean;
+      } | null;
+      user?: {
+        id: string;
+        name: string;
+        email: string;
+        centerName?: string;
+        role?: string;
+        permissions?: {
+          canApproveHospitals?: boolean;
+          canPostEvents?: boolean;
+        } | null;
+      };
       error?: string;
       message?: string;
     }>('/api/auth/login', payload);
@@ -89,6 +113,10 @@ export const loginHospital = async (
         success: true,
         token: response.data.token,
         role: response.data.role || 'hospital',
+        permissions:
+          response.data.permissions ||
+          response.data.user?.permissions ||
+          null,
         user: response.data.user,
         message: response.data.message || 'Login successful',
       };
@@ -704,25 +732,33 @@ export const searchHospitals = async (
         h.location?.lng !== null &&
         !(h.location.lat === 0 && h.location.lng === 0);
 
-      const lat = hasCoords ? Number(h.location?.lat) : null;
-      const lng = hasCoords ? Number(h.location?.lng) : null;
       const mapsUrl = h.mapsUrl || h.location?.mapsUrl || null;
+      const locationObj = h.location
+        ? {
+            lat: hasCoords && h.location.lat != null ? Number(h.location.lat) : null,
+            lng: hasCoords && h.location.lng != null ? Number(h.location.lng) : null,
+            address: h.location.address || '',
+            mapsUrl,
+          }
+        : (mapsUrl ? { lat: null, lng: null, address: '', mapsUrl } : null);
+
+      const hAny = h as any;
+      const stock = typeof hAny.stockQuantity === 'number'
+        ? hAny.stockQuantity
+        : (typeof hAny.availableUnits === 'number' ? hAny.availableUnits : 0);
 
       return {
         id: String(h.id),
         name: h.name,
         phone: h.phone,
         email: h.email,
-        location: h.location
-          ? {
-              lat,
-              lng,
-              address: h.location.address || '',
-              mapsUrl,
-            }
-          : null,
+        licenseNumber: hAny.licenseNumber,
+        location: locationObj,
         mapsUrl,
-        hasStock: h.hasStock ?? true,
+        stockQuantity: stock,
+        availableUnits: stock,
+        availableStock: hAny.availableStock,
+        hasStock: h.hasStock ?? (stock >= quantity),
       };
     });
   } catch (err: any) {

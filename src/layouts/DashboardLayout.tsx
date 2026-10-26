@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Building2,
   FileHeart,
+  HelpCircle,
 } from 'lucide-react';
 
 export interface DashboardLayoutProps {
@@ -37,7 +38,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
     { label: t('nav.hospital.bloodStock'), path: '/hospital/blood-stock', icon: Droplets },
     { label: t('nav.hospital.bloodRequest'), path: '/hospital/blood-request', icon: PlusCircle },
     { label: t('nav.hospital.allRequests'), path: '/hospital/all-requests', icon: ClipboardList },
-    { label: 'Center Requests', path: '/hospital/blood-center-requests', icon: Building2 },
+    { label: t('nav.hospital.centerRequests'), path: '/hospital/blood-center-requests', icon: Building2 },
     { label: t('nav.hospital.hospitalSearch'), path: '/hospital/search', icon: Search },
     { label: t('nav.hospital.medicalRecords'), path: '/hospital/medical-records', icon: FileHeart },
     {
@@ -45,6 +46,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
       path: '/hospital/profile',
       icon: User
     },
+    { label: t('nav.hospital.helpFaq'), path: '/hospital/faq', icon: HelpCircle },
   ];
 
   const handleSignOut = () => {
@@ -67,6 +69,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+          <Link
+            to="/hospital/faq"
+            className="p-2 text-gray-600 hover:text-crimson rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
+            title="Hospital FAQ & Help"
+            aria-label="Hospital FAQ & Help"
+          >
+            <HelpCircle className="w-5 h-5 stroke-[1.75]" />
+          </Link>
           <button
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -258,6 +268,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, icon
 
           <div className="flex items-center gap-3 shrink-0">
             <LanguageSwitcher />
+            <Link
+              to="/hospital/faq"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-line-soft bg-paper hover:bg-paper-dim text-ink-soft hover:text-crimson transition-colors"
+              title="Hospital FAQ & Help"
+              aria-label="Hospital FAQ & Help"
+            >
+              <HelpCircle className="w-4 h-4 stroke-[1.75]" />
+            </Link>
             <span className="text-[10px] font-mono font-bold px-2.5 py-1 bg-crimson/10 text-crimson rounded-full uppercase whitespace-nowrap">
               {t('badge.hospital')}
             </span>

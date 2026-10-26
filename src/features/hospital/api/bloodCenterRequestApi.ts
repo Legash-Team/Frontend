@@ -29,6 +29,17 @@ export interface AcceptedBloodCenter {
   respondedAt?: string;
 }
 
+export interface SenderHospitalInfo {
+  id: string;
+  hospitalName: string;
+  email: string;
+  phone: string;
+  location?: {
+    address?: string;
+    coordinates?: [number, number];
+  };
+}
+
 export interface IncomingBloodCenterRequest {
   requestId: string;
   bloodType: BloodType;
@@ -38,6 +49,7 @@ export interface IncomingBloodCenterRequest {
   closesAt: string;
   responseStatus: 'pending' | 'accepted' | 'denied';
   respondedAt?: string;
+  hospital?: SenderHospitalInfo | null;
 }
 
 // Hospital API calls

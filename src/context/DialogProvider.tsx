@@ -110,16 +110,24 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // --- TOAST NOTIFICATIONS ---
   const addToast = useCallback((type: ToastItem['type'], message: React.ReactNode, title?: string, duration = 4000) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const newToast: ToastItem = { id, type, message, title, duration };
+    setToasts((prev) => {
+      // Prevent duplicate error or warning notifications when the same failed request is triggered more than once
+      const isDuplicate = prev.some((t) => t.type === type && String(t.message) === String(message));
+      if (isDuplicate) {
+        return prev;
+      }
 
-    setToasts((prev) => [...prev, newToast]);
+      const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newToast: ToastItem = { id, type, message, title, duration };
 
-    if (duration > 0) {
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, duration);
-    }
+      if (duration > 0) {
+        setTimeout(() => {
+          setToasts((current) => current.filter((t) => t.id !== id));
+        }, duration);
+      }
+
+      return [...prev, newToast];
+    });
   }, []);
 
   const dismissToast = useCallback((id: string) => {

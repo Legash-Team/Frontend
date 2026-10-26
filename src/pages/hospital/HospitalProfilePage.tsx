@@ -28,6 +28,7 @@ import {
   KeyRound,
   ShieldCheck,
 } from 'lucide-react';
+import { LocationLink } from '@/utils/mapsUrl';
 
 export const HospitalProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -350,12 +351,12 @@ export const HospitalProfilePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Geolocation Pin Coordinates (Read-Only) */}
+                {/* Facility Location (Read-Only) */}
                 <div className="p-5 bg-crimson/5 border border-crimson/15 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-serif font-bold text-ink tracking-tight flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-crimson stroke-[1.75]" />
-                      {t('hospitalProfile.coordinatesLabel')}
+                      <span>{t('hospitalProfile.locationLabel', { defaultValue: 'Facility Location' })}</span>
                     </span>
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-crimson/10 text-crimson px-2 py-0.5 rounded">
                       {t('editProfile.readOnly')}
@@ -363,13 +364,15 @@ export const HospitalProfilePage: React.FC = () => {
                   </div>
 
                   {profile.location ? (
-                    <div className="text-xs font-sans text-ink-soft">
-                      <p className="font-semibold text-ink">
-                        {t('editProfile.latitude')} <span className="font-mono text-crimson font-bold">{profile.location.lat}</span> |{' '}
-                        {t('editProfile.longitude')} <span className="font-mono text-crimson font-bold">{profile.location.lng}</span>
-                      </p>
+                    <div className="text-xs font-sans text-ink-soft space-y-2">
+                      {profile.location.address && (
+                        <p className="font-semibold text-ink text-sm">
+                          {profile.location.address}
+                        </p>
+                      )}
+                      <LocationLink location={profile.location} />
                       <p className="text-[11px] font-sans text-ink-soft/70 mt-1">
-                        {t('hospitalProfile.coordinatesFixed')}
+                        {t('hospitalProfile.coordinatesFixed', { defaultValue: 'Location is verified for automated nearest-facility emergency dispatching.' })}
                       </p>
                     </div>
                   ) : (

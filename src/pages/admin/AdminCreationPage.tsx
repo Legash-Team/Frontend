@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,7 +11,7 @@ import {
   Mail
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { inviteAdmin, listAdmins, deleteAdmin } from './api/admin-api';
+import { inviteAdmin, listAdmins, deleteAdmin, updateAdminPermissions } from './api/admin-api';
 
 interface AdminEntry {
   id: string;
@@ -22,6 +23,7 @@ interface AdminEntry {
 }
 
 const AdminCreationPage = () => {
+  const { t } = useTranslation();
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
   const [loadingAdmins, setLoadingAdmins] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -30,11 +32,9 @@ const AdminCreationPage = () => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Form State — email only; the invited person sets their own name/password via the link
   const [email, setEmail] = useState('');
   const [canApproveHospitals, setCanApproveHospitals] = useState(false);
 
-  // Load the live admin list from backend
   const loadAdmins = async () => {
     setLoadingAdmins(true);
     setLoadError(null);
@@ -46,7 +46,7 @@ const AdminCreationPage = () => {
         setAdmins([]);
       }
     } catch (err: any) {
-      setLoadError(err || 'Failed to load staff list.');
+      setLoadError(err || t('adminCreation.loadingStaff'));
     } finally {
       setLoadingAdmins(false);
     }
@@ -58,14 +58,35 @@ const AdminCreationPage = () => {
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
+  const handleToggleApprove = async (admin: AdminEntry) => {
+    const nextVal = !admin.permissions?.canApproveHospitals;
+    try {
+      const res = await updateAdminPermissions(admin.id, {
+        canApproveHospitals: nextVal,
+      });
+      if (res.success) {
+        setSuccessMsg(
+          nextVal
+            ? t('adminCreation.grantSuccess', { name: admin.name || admin.email })
+            : t('adminCreation.revokeSuccess', { name: admin.name || admin.email })
+        );
+        setTimeout(() => setSuccessMsg(null), 4000);
+        await loadAdmins();
+      }
+    } catch (err: any) {
+      setCreateError(typeof err === 'string' ? err : 'Failed to update permissions.');
+      setTimeout(() => setCreateError(null), 4000);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await deleteAdmin(id);
-      setSuccessMsg("Invitation/account removed successfully.");
+      setSuccessMsg(t('adminCreation.deleteSuccess'));
       setTimeout(() => setSuccessMsg(null), 3000);
       loadAdmins();
     } catch (err: any) {
-      setCreateError(err || "Failed to remove account.");
+      setCreateError(err || 'Failed to remove account.');
       setTimeout(() => setCreateError(null), 3000);
     } finally {
       setConfirmDeleteId(null);
@@ -88,13 +109,10 @@ const AdminCreationPage = () => {
       });
 
       if (res.success) {
-        setSuccessMsg(res.message || `Invitation link sent to ${email.trim()}. Check their inbox.`);
-        // Reset Form
+        setSuccessMsg(res.message || t('adminCreation.deleteSuccess'));
         setEmail('');
         setCanApproveHospitals(false);
-        // Refresh the admin list
         await loadAdmins();
-        // Hide success message after 5 seconds
         setTimeout(() => setSuccessMsg(null), 5000);
       }
     } catch (err: any) {
@@ -104,16 +122,8 @@ const AdminCreationPage = () => {
     }
   };
 
-  const getRoleLabel = (permissions: AdminEntry['permissions']) => {
-    const { canApproveHospitals, canPostEvents } = permissions;
-    if (canApproveHospitals && canPostEvents) return 'Full Access';
-    if (canApproveHospitals) return 'Hospital Verifier';
-    if (canPostEvents) return 'Event Coordinator';
-    return 'No Permissions';
-  };
-
   return (
-    <AdminLayout title="Invite Admin" icon={<Send size={16} className="stroke-[1.75]" />}>
+    <AdminLayout title={t('adminCreation.title')} icon={<Send size={16} className="stroke-[1.75]" />}>
       <div className="space-y-8">
 
         {/* 1. INVITATION BANNER */}
@@ -124,31 +134,26 @@ const AdminCreationPage = () => {
                 <Send size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-serif font-bold text-ink">Invite an Admin</h2>
-                <p className="text-xs text-ink-soft">Send an invitation link — they set up their own name, password, location and phone when they open it. No OTP verification required.</p>
+                <h2 className="text-xl font-serif font-bold text-ink">{t('adminCreation.title')}</h2>
+                <p className="text-xs text-ink-soft">{t('adminCreation.description')}</p>
               </div>
             </div>
 
             <form onSubmit={handleInviteAdmin} className="grid lg:grid-cols-3 gap-8">
-              {/* Inputs */}
               <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">Email Address</label>
+                  <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">{t('adminCreation.emailLabel')}</label>
                   <div className="relative">
                     <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40" />
                     <input
                       type="email" required value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@legash.et"
+                      placeholder={t('adminCreation.emailPlaceholder')}
                       className="w-full h-12 pl-12 pr-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                     />
                   </div>
-                  <p className="text-[10px] text-ink-soft/50 italic">
-                    Only their email is needed — everything else is collected through the invitation link.
-                  </p>
                 </div>
 
-                {/* Permission Checkbox — MUST be kept per super admin requirement */}
                 <div className="md:col-span-2">
                   <label className="inline-flex items-start gap-3 cursor-pointer select-none">
                     <input
@@ -158,29 +163,25 @@ const AdminCreationPage = () => {
                       className="mt-0.5 h-4 w-4 rounded border-line-soft text-crimson focus:ring-crimson accent-crimson cursor-pointer"
                     />
                     <span className="text-sm text-ink-soft leading-snug">
-                      Grant hospital-approval access (approve, decline & send feedback)
+                      {t('adminCreation.canApproveLabel')}
                     </span>
                   </label>
                   <p className="text-[10px] text-ink-soft/50 italic mt-1.5 ml-7">
-                    Only invited admins with this access can approve or decline hospitals.
+                    {t('adminCreation.canApproveDesc')}
                   </p>
                 </div>
               </div>
 
-              {/* Submit Side */}
               <div className="flex flex-col justify-end">
                 <Button
                   type="submit"
                   isLoading={isSending}
-                  loadingText="Sending Link..."
+                  loadingText={t('adminCreation.sendingBtn')}
                   disabled={!email}
                   className="w-full"
                 >
-                  Send Invitation Link
+                  {t('adminCreation.sendBtn')}
                 </Button>
-                <p className="text-[10px] text-ink-soft/50 text-center mt-4 italic">
-                  A secure invitation link will be sent to the email above.
-                </p>
               </div>
             </form>
           </div>
@@ -211,7 +212,7 @@ const AdminCreationPage = () => {
         {/* 3. STAFF TABLE */}
         <div className="bg-white border border-line-soft rounded-[32px] overflow-hidden shadow-sm">
           <div className="p-6 border-b border-line-soft bg-paper/30 flex justify-between items-center">
-            <h3 className="text-sm font-mono font-bold text-ink-soft uppercase tracking-widest">Invited Administrative Staff</h3>
+            <h3 className="text-sm font-mono font-bold text-ink-soft uppercase tracking-widest">{t('adminCreation.staffDirectoryTitle')}</h3>
             <div className="flex items-center gap-3">
               <div className="px-3 py-1 rounded-full bg-paper border border-line-soft text-[10px] font-bold text-ink-soft uppercase tracking-tighter">
                 {loadingAdmins ? '...' : `${admins.length} Total`}
@@ -220,7 +221,7 @@ const AdminCreationPage = () => {
                 onClick={loadAdmins}
                 disabled={loadingAdmins}
                 className="p-2 text-ink-soft/40 hover:text-crimson transition-colors"
-                title="Refresh list"
+                title={t('adminCreation.refreshBtn')}
               >
                 <RefreshCw size={14} className={loadingAdmins ? 'animate-spin' : ''} />
               </button>
@@ -230,7 +231,7 @@ const AdminCreationPage = () => {
           {loadingAdmins ? (
             <div className="py-12 text-center">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-crimson border-t-transparent" />
-              <p className="mt-3 text-xs text-ink-soft">Loading staff list...</p>
+              <p className="mt-3 text-xs text-ink-soft">{t('adminCreation.loadingStaff')}</p>
             </div>
           ) : loadError ? (
             <div className="p-6 text-center text-crimson text-sm">
@@ -240,7 +241,7 @@ const AdminCreationPage = () => {
             </div>
           ) : admins.length === 0 ? (
             <div className="py-16 text-center">
-              <p className="text-ink-soft font-serif italic">No invitations sent yet. Invite your first admin above.</p>
+              <p className="text-ink-soft font-serif italic">{t('adminCreation.noStaff')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto no-scrollbar">
@@ -254,32 +255,39 @@ const AdminCreationPage = () => {
                             {(admin.name || admin.email || '?').split(' ').map(n => n[0]).join('').slice(0, 2)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-ink truncate">{admin.name || 'Invited (setup pending)'}</p>
+                            <p className="text-sm font-bold text-ink truncate">{admin.name || 'Invited'}</p>
                             <p className="text-xs text-ink-soft font-mono truncate">{admin.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-4 sm:p-6">
-                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border whitespace-nowrap ${
-                          getRoleLabel(admin.permissions) === 'Full Access'
-                            ? 'bg-crimson/5 border-crimson/20 text-crimson'
-                            : 'bg-paper border-line-soft text-ink-soft'
-                        }`}>
-                          {getRoleLabel(admin.permissions)}
-                        </span>
+                        <div className="flex flex-col gap-1 items-start">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleApprove(admin)}
+                            title={t('adminCreation.canApproveLabel')}
+                            className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border transition-all ${
+                              admin.permissions?.canApproveHospitals
+                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100'
+                                : 'bg-paper border-line-soft text-ink-soft hover:bg-paper-dim'
+                            }`}
+                          >
+                            {admin.permissions?.canApproveHospitals ? '✓ ' + t('adminCreation.canApproveLabel') : '✗ ' + t('adminCreation.canApproveLabel')}
+                          </button>
+                        </div>
                       </td>
                       <td className="p-4 sm:p-6">
                         <div className="flex items-center gap-2 whitespace-nowrap">
                           <div className={`w-1.5 h-1.5 rounded-full ${admin.emailVerified ? 'bg-verified animate-pulse' : 'bg-amber-400'}`} />
                           <span className="text-[10px] font-black uppercase tracking-widest text-ink-soft/40">
-                            {admin.emailVerified ? 'Active' : 'Invite Sent'}
+                            {admin.emailVerified ? t('adminCreation.statusVerified') : t('adminCreation.statusPending')}
                           </span>
                         </div>
                       </td>
                       <td className="p-4 sm:p-6 text-right whitespace-nowrap">
                         {confirmDeleteId === admin.id ? (
                           <div className="flex items-center justify-end gap-2 animate-in fade-in zoom-in duration-200">
-                            <span className="text-[10px] font-bold text-crimson uppercase mr-1 tracking-widest">Are you sure?</span>
+                            <span className="text-[10px] font-bold text-crimson uppercase mr-1 tracking-widest">{t('adminCreation.deleteConfirm')}</span>
                             <Button
                               variant="outline"
                               size="sm"
@@ -299,7 +307,7 @@ const AdminCreationPage = () => {
                           <button
                             onClick={() => setConfirmDeleteId(admin.id)}
                             className="p-2 text-ink-soft hover:text-crimson hover:bg-crimson/5 rounded-lg transition-colors"
-                            title="Remove Invitation"
+                            title="Remove"
                           >
                             <Trash2 size={16} />
                           </button>

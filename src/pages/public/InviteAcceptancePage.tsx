@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import Button from '@/components/ui/Button';
-import { acceptInvitation } from '@/features/auth/api/auth-api';
+import { acceptInvitation, getInviteContext } from '@/features/auth/api/auth-api';
 import type { LocationData } from '@/features/registration/types/registration-types';
 import {
   User,
@@ -16,6 +16,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ShieldCheck,
+  Mail,
+  Loader2,
 } from 'lucide-react';
 
 const InviteAcceptancePage: React.FC = () => {
@@ -23,6 +25,10 @@ const InviteAcceptancePage: React.FC = () => {
   const { token: pathToken } = useParams();
   const [searchParams] = useSearchParams();
   const inviteToken = pathToken || searchParams.get('token') || '';
+
+  const [email, setEmail] = useState('');
+  const [isValidatingToken, setIsValidatingToken] = useState(true);
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
@@ -40,6 +46,36 @@ const InviteAcceptancePage: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (!inviteToken) {
+      setIsValidatingToken(false);
+      return;
+    }
+    let isMounted = true;
+    getInviteContext(inviteToken)
+      .then((res: any) => {
+        if (isMounted) {
+          if (res?.data?.email) {
+            setEmail(res.data.email);
+          }
+          if (res?.data?.name || res?.data?.centerName) {
+            setName(res.data.name || res.data.centerName);
+          }
+          setIsValidatingToken(false);
+        }
+      })
+      .catch((err: any) => {
+        if (isMounted) {
+          setTokenError(typeof err === 'string' ? err : 'Invalid or expired setup token.');
+          setIsValidatingToken(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [inviteToken]);
 
   // --- LOCATION (same pattern as the register page) ---
   const handleGetLocation = () => {
@@ -173,7 +209,23 @@ const InviteAcceptancePage: React.FC = () => {
       hasError ? 'border-crimson focus:border-crimson' : 'border-line-soft focus:border-crimson focus:ring-1 focus:ring-crimson/10'
     }`;
 
-  if (!inviteToken) {
+  if (isValidatingToken) {
+    return (
+      <AuthLayout
+        title={t('auth.invite.validatingTitle', 'Validating Invitation')}
+        subtitle={t('auth.invite.validatingSubtitle', 'Please wait while we verify your invitation...')}
+      >
+        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-line-soft">
+          <Loader2 className="w-10 h-10 text-crimson animate-spin mb-4" />
+          <p className="text-sm font-medium text-ink-soft">
+            {t('auth.invite.checkingToken', 'Checking invitation token...')}
+          </p>
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  if (!inviteToken || tokenError) {
     return (
       <AuthLayout
         title={t('auth.invite.invalidTitle')}
@@ -182,7 +234,7 @@ const InviteAcceptancePage: React.FC = () => {
         <div className="text-center p-6 bg-crimson/5 rounded-2xl border border-crimson/20">
           <ShieldCheck className="w-12 h-12 text-crimson mx-auto mb-4 opacity-50" />
           <p className="text-ink font-bold">{t('auth.invite.invalidTitle')}</p>
-          <p className="text-ink-soft text-sm">{t('auth.invite.askResend')}</p>
+          <p className="text-ink-soft text-sm mt-1">{tokenError || t('auth.invite.askResend')}</p>
         </div>
       </AuthLayout>
     );
@@ -204,6 +256,24 @@ const InviteAcceptancePage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Invited Email (Prefilled & Read-only) */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[11px] font-mono font-bold text-ink-soft uppercase tracking-wider">
+            {t('auth.invite.email', 'Email Address')}{' '}
+            <span className="text-ink-soft/60 font-normal lowercase">({t('auth.invite.fixedEmail', 'read-only')})</span>
+          </label>
+          <div className="relative group">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/40 transition-colors" size={18} />
+            <input
+              type="email"
+              value={email}
+              readOnly
+              disabled
+              className="w-full h-12 px-4 pl-12 bg-sand/30 border border-line-soft rounded-xl outline-none text-sm font-medium text-ink-soft cursor-not-allowed select-none"
+            />
+          </div>
+        </div>
 
         {/* Full Name */}
         <div className="flex flex-col gap-2">
@@ -382,7 +452,25 @@ const InviteAcceptancePage: React.FC = () => {
               className="mt-1 w-4 h-4 rounded border-line-soft text-crimson focus:ring-crimson"
             />
             <span className="text-xs text-ink leading-relaxed">
-              I agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong> for blood center operations on the Legash Network.
+              I agree to the{' '}
+              <Link
+                to="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-crimson font-bold hover:underline"
+              >
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link
+                to="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-crimson font-bold hover:underline"
+              >
+                Privacy Policy
+              </Link>{' '}
+              for blood center operations on the Legash Network.
             </span>
           </label>
           {fieldErrors.termsAccepted && (

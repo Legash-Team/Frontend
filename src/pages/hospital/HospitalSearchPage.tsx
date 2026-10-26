@@ -12,11 +12,10 @@ import {
   AlertTriangle,
   Building2,
   Phone,
-  FileText,
-  MapPin,
   Droplets,
   CheckCircle2,
 } from 'lucide-react';
+import { LocationLink } from '@/utils/mapsUrl';
 
 export const HospitalSearchPage: React.FC = () => {
   const { t } = useTranslation();
@@ -101,7 +100,20 @@ export const HospitalSearchPage: React.FC = () => {
     }
   };
 
-  const resultsList = Array.isArray(results) ? results : [];
+  const reqQty = searchedQuantity ?? 1;
+  const rawList = Array.isArray(results) ? results : [];
+  const resultsList = rawList.filter((h) => {
+    if (!h) return false;
+    let qty: number | null = null;
+    if (typeof h.stockQuantity === 'number') {
+      qty = h.stockQuantity;
+    } else if (h.availableStock && typeof h.availableStock === 'object' && selectedBloodType) {
+      const s = h.availableStock[selectedBloodType as BloodType];
+      if (typeof s === 'number') qty = s;
+    }
+    if (qty !== null && qty < reqQty) return false;
+    return true;
+  });
   const hospitalCount = resultsList.length;
 
   let resultCountLabel = t('hospitalSearch.resultCountMany', { count: hospitalCount });
@@ -259,11 +271,12 @@ export const HospitalSearchPage: React.FC = () => {
                     const hospitalName = h.name || (itemObj.hospitalName as string) || t('hospitalSearch.unnamedHospital');
                     const hospitalEmail = h.email || t('hospitalSearch.noEmail');
                     const hospitalPhone = h.phone || t('hospitalSearch.noPhone');
-                    const hospitalLicense = h.licenseNumber || (itemObj.license_number as string) || null;
 
                     let availableQuantityNum: number = 0;
                     if (typeof h.stockQuantity === 'number') {
                       availableQuantityNum = h.stockQuantity;
+                    } else if (typeof (h as any).availableUnits === 'number') {
+                      availableQuantityNum = (h as any).availableUnits;
                     } else if (h.availableStock && typeof h.availableStock === 'object' && selectedBloodType) {
                       const stock = h.availableStock[selectedBloodType as BloodType];
                       if (typeof stock === 'number') {
@@ -273,10 +286,6 @@ export const HospitalSearchPage: React.FC = () => {
 
                     const reqQty = searchedQuantity ?? 1;
                     const hasSufficientStock = availableQuantityNum >= reqQty;
-
-                    const loc = h.location && typeof h.location === 'object' ? (h.location as unknown as Record<string, unknown>) : null;
-                    const lat = loc ? (loc.lat ?? loc.latitude ?? null) : null;
-                    const lng = loc ? (loc.lng ?? loc.longitude ?? null) : null;
 
                     const hObj = h as unknown as Record<string, unknown>;
 
@@ -298,7 +307,11 @@ export const HospitalSearchPage: React.FC = () => {
                             }`}
                           >
                             <Droplets className={`w-3.5 h-3.5 ${hasSufficientStock ? 'text-emerald-600' : 'text-amber-600'}`} />
-                            <span>{t('hospitalSearch.unitsAvailable', { count: availableQuantityNum })}</span>
+                            <span>
+                              {availableQuantityNum === 1
+                                ? t('hospitalSearch.unitAvailable', { count: availableQuantityNum, defaultValue: '1 unit available' })
+                                : t('hospitalSearch.unitsAvailable', { count: availableQuantityNum })}
+                            </span>
                           </span>
                         </div>
 
@@ -329,27 +342,9 @@ export const HospitalSearchPage: React.FC = () => {
                             <span>{hospitalPhone}</span>
                           </div>
 
-                          {hospitalLicense && (
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-3.5 h-3.5 text-gray-400" />
-                              <span>{t('hospitalSearch.licenseLabel')} {hospitalLicense}</span>
-                            </div>
-                          )}
-
-                          {lat !== null && lng !== null ? (
-                            <div className="flex items-center gap-2 text-gray-700">
-                              <MapPin className="w-3.5 h-3.5 text-red-600" />
-                              <span>
-                                Lat: <span className="font-mono">{String(lat)}</span> | Lng:{' '}
-                                <span className="font-mono">{String(lng)}</span>
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2 text-gray-400">
-                              <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                              <span>{t('hospitalSearch.noCoordinates')}</span>
-                            </div>
-                          )}
+                          <div className="pt-0.5">
+                            <LocationLink location={h.location} showAddress={true} className="text-xs" />
+                          </div>
                         </div>
                       </div>
                     );

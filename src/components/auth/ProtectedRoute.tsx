@@ -11,12 +11,20 @@ interface ProtectedRouteProps {
   requireCanPostEvents?: boolean;
 }
 
-const getDefaultRedirect = (role?: string): string => {
-  if (role === 'admin' || role === 'bloodcenter') {
-    return '/blood-center/dashboard';
-  }
+const getDefaultRedirect = (user?: any): string => {
+  const role = typeof user === 'string' ? user : user?.role;
+  const centerName = typeof user === 'object' ? user?.centerName : undefined;
   if (role === 'superadmin') {
     return '/admin/dashboard';
+  }
+  if (role === 'admin') {
+    if (centerName) {
+      return '/blood-center/dashboard';
+    }
+    return '/admin/dashboard';
+  }
+  if (role === 'bloodcenter') {
+    return '/blood-center/dashboard';
   }
   return '/hospital/dashboard';
 };
@@ -50,17 +58,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (allowedRoles && allowedRoles.length > 0) {
     const hasAllowedRole = allowedRoles.some((role) => matchesRole(user?.role, role));
     if (!hasAllowedRole) {
-      return <Navigate to={getDefaultRedirect(user?.role)} replace />;
+      return <Navigate to={getDefaultRedirect(user)} replace />;
     }
   } else if (requiredRole && !matchesRole(user?.role, requiredRole)) {
-    return <Navigate to={getDefaultRedirect(user?.role)} replace />;
+    return <Navigate to={getDefaultRedirect(user)} replace />;
   }
 
   if (requireCanApproveHospitals) {
     const isSuperAdmin = user?.role === 'superadmin';
     const canApprove = isSuperAdmin || Boolean(user?.permissions?.canApproveHospitals);
     if (!canApprove) {
-      return <Navigate to={getDefaultRedirect(user?.role)} replace />;
+      return <Navigate to={getDefaultRedirect(user)} replace />;
     }
   }
 
@@ -69,7 +77,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const isBloodCenter = user?.role === 'admin' || user?.role === 'bloodcenter';
     const canPost = isSuperAdmin || isBloodCenter || Boolean(user?.permissions?.canPostEvents);
     if (!canPost) {
-      return <Navigate to={getDefaultRedirect(user?.role)} replace />;
+      return <Navigate to={getDefaultRedirect(user)} replace />;
     }
   }
 

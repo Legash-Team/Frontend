@@ -134,9 +134,17 @@ export interface HospitalSearchResult {
   email: string;
   phone: string;
   licenseNumber?: string;
-  location: LocationData | null;
+  location: {
+    lat?: number | null;
+    lng?: number | null;
+    address?: string;
+    mapsUrl?: string | null;
+  } | LocationData | null;
   stockQuantity?: number;
+  availableUnits?: number;
   availableStock?: BloodStock;
+  mapsUrl?: string | null;
+  hasStock?: boolean;
   [key: string]: unknown;
 }
 
@@ -163,11 +171,13 @@ export interface DonationVitals {
   temperature: number | null;
 }
 
-export type DonationOutcome = 'cleared' | 'deferred' | 'rejected';
+export type DonationOutcome = 'donated' | 'did_not_donate' | 'cleared' | 'deferred' | 'rejected';
 
 export interface DonationRecord {
   id: string;
   requestId?: string | null;
+  responseId?: string | null;
+  donorId?: string | null;
   donorName: string;
   donorPhone?: string;
   bloodType?: BloodType | null;
@@ -183,6 +193,8 @@ export interface DonationRecord {
 
 export interface DonationRecordPayload {
   requestId?: string | null;
+  responseId?: string | null;
+  donorId?: string | null;
   donorName: string;
   donorPhone?: string;
   bloodType?: BloodType | null;
@@ -207,6 +219,29 @@ export interface PendingDonation {
   shortId: string;
   name: string;
   acceptedRequest: string; // reference of the request the donor accepted
+  phone?: string;
+  bloodType?: string;
+  bloodRequestId?: string;
+  bloodRequestResponseId?: string;
+  responseId?: string;
+  donorId?: string;
+  acceptedAt?: string;
+  request?: {
+    id: string;
+    bloodType: string;
+    quantityNeeded?: number;
+    isEmergency?: boolean;
+    status?: string;
+    description?: string;
+    createdAt?: string;
+  };
+  donor?: {
+    id: string;
+    shortId?: string;
+    name?: string;
+    phone?: string;
+    bloodType?: string;
+  };
 }
 
 export interface DonationOutcomePayload {

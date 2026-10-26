@@ -36,6 +36,9 @@ export const AdminSidebar = ({ mobileOpen = false, onMobileClose }: AdminSidebar
 
   if (canApprove) {
     menuItems.push({ icon: LayoutDashboard, label: t('nav.admin.hospitals'), path: '/admin/dashboard' });
+  }
+
+  if (isSuperAdmin) {
     menuItems.push({ icon: Database, label: t('nav.admin.hospitalBloodStock'), path: '/admin/hospital-stock' });
     menuItems.push({ icon: PieChart, label: t('nav.admin.analytics'), path: '/admin/hospital-analytics' });
   }

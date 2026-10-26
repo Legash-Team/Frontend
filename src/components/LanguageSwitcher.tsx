@@ -8,8 +8,9 @@ export const LanguageSwitcher = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const activeCode = (i18n.language || 'en').split('-')[0];
   const currentLanguage = SUPPORTED_LANGUAGES.find(
-    (lang) => lang.code === i18n.language
+    (lang) => lang.code === activeCode
   ) || SUPPORTED_LANGUAGES[0];
 
   useEffect(() => {
@@ -54,17 +55,17 @@ export const LanguageSwitcher = () => {
               key={lang.code}
               type="button"
               role="option"
-              aria-selected={lang.code === i18n.language}
+              aria-selected={lang.code === currentLanguage.code}
               onClick={() => handleLanguageChange(lang.code)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                lang.code === i18n.language
+                lang.code === currentLanguage.code
                   ? 'bg-crimson/5 text-crimson font-semibold'
                   : 'text-ink-soft hover:bg-paper hover:text-ink'
               }`}
             >
               <span className="text-base">{lang.flag}</span>
               <span className="flex-1 text-left">{lang.label}</span>
-              {lang.code === i18n.language && (
+              {lang.code === currentLanguage.code && (
                 <Check className="w-4 h-4 text-crimson" />
               )}
             </button>

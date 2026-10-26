@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -16,13 +17,13 @@ import {
   Activity,
   RefreshCw,
   CalendarPlus,
-  AlertTriangle,
-  Lock,
+  Sparkles
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { fetchPendingHospitals, approveHospital, rejectHospital } from './api/admin-api';
+import { LocationLink } from '@/utils/mapsUrl';
 import { useDialog } from '@/context/DialogContext';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { TEMP_OPEN_ACCESS } from '@/lib/temporaryAccess';
@@ -52,11 +53,10 @@ const getErrorMessage = (err: unknown, fallback: string): string => {
 };
 
 const BloodCenterDashboardPage = () => {
+  const { t } = useTranslation();
   const { toast } = useDialog();
   const { user } = useAuth();
   
-  // Check permissions. TEMP_OPEN_ACCESS grants everything while the backend
-  // auth flow is unfinished so the workspace stays testable by URL.
   const canApprove =
     TEMP_OPEN_ACCESS ||
     user?.role === 'superadmin' ||
@@ -66,10 +66,8 @@ const BloodCenterDashboardPage = () => {
     user?.role === 'superadmin' ||
     Boolean(user?.permissions?.canPostEvents);
   
-  // Base path for blood center routes
   const basePath = '/blood-center';
   
-  // --- HOSPITAL APPROVAL STATE ---
   const [hospitals, setHospitals] = useState<PendingHospital[]>([]);
   const [hospitalsLoading, setHospitalsLoading] = useState(true);
   const [hospitalsError, setHospitalsError] = useState<string | null>(null);
@@ -79,11 +77,9 @@ const BloodCenterDashboardPage = () => {
   const [rejectionReason, setReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
-  // --- EVENTS OVERVIEW STATE (count for the dashboard stat only) ---
   const [events, setEvents] = useState<MockEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
 
-  // --- API CALLS ---
   const loadPendingHospitals = async () => {
     if (!canApprove) return;
     setHospitalsLoading(true);
@@ -96,13 +92,13 @@ const BloodCenterDashboardPage = () => {
         setHospitals([]);
       }
     } catch (err: unknown) {
-      setHospitalsError(getErrorMessage(err, 'Failed to fetch pending applications.'));
+      setHospitalsError(getErrorMessage(err, t('adminDashboard.loadFailed')));
     } finally {
       setHospitalsLoading(false);
     }
   };
 
-  const loadMyPosts = async () => {
+  const loadEvents = async () => {
     if (!canPost) return;
     setEventsLoading(true);
     try {
@@ -116,11 +112,10 @@ const BloodCenterDashboardPage = () => {
   };
 
   useEffect(() => {
-    if (canApprove) loadPendingHospitals();
-    if (canPost) loadMyPosts();
-  }, [canApprove, canPost]);
+    loadPendingHospitals();
+    loadEvents();
+  }, []);
 
-  // --- ACTIONS ---
   const handleApprove = async (id: string) => {
     setActionLoading(true);
     try {
@@ -128,10 +123,10 @@ const BloodCenterDashboardPage = () => {
       if (res.success) {
         setHospitals(prev => prev.filter(h => h.id !== id));
         setSelectedHosp(null);
-        toast.success('Hospital approved successfully! An approval email has been sent.');
+        toast.success(t('adminDashboard.approveSuccess'));
       }
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err, 'Failed to approve hospital.'));
+      toast.error(getErrorMessage(err, t('adminDashboard.loadFailed')));
     } finally {
       setActionLoading(false);
     }
@@ -139,7 +134,7 @@ const BloodCenterDashboardPage = () => {
 
   const handleConfirmReject = async (id: string) => {
     if (!rejectionReason.trim()) {
-      toast.warning('Please provide a rejection reason.');
+      toast.warning(t('adminDashboard.reasonPlaceholder'));
       return;
     }
     setActionLoading(true);
@@ -150,27 +145,27 @@ const BloodCenterDashboardPage = () => {
         setSelectedHosp(null);
         setShowRejectStep(false);
         setReason('');
-        toast.success('Hospital registration declined.');
+        toast.success(t('adminDashboard.rejectSuccess'));
       }
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err, 'Failed to reject hospital.'));
+      toast.error(getErrorMessage(err, t('adminDashboard.loadFailed')));
     } finally {
       setActionLoading(false);
     }
   };
 
   const getDisplayTime = (isoString?: string) => {
-    if (!isoString) return 'New Case';
+    if (!isoString) return t('adminDashboard.newCase');
     try {
       const date = new Date(isoString);
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } catch {
-      return 'New Case';
+      return t('adminDashboard.newCase');
     }
   };
 
   return (
-    <BloodCenterLayout title="Blood Center Dashboard" icon={<Activity size={16} className="stroke-[1.75]" />}>
+    <BloodCenterLayout title={t('bloodCenterDashboard.title')} icon={<Activity size={16} className="stroke-[1.75]" />}>
       <div className="space-y-6">
 
         {/* PAGE HEADER */}
@@ -178,10 +173,10 @@ const BloodCenterDashboardPage = () => {
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
               <Activity className="w-6 h-6 text-crimson stroke-[1.75]" />
-              <span>Blood Center Dashboard</span>
+              <span>{t('bloodCenterDashboard.title')}</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Manage your blood center operations and event broadcasts.
+              {t('bloodCenterDashboard.description')}
             </p>
           </div>
 
@@ -192,7 +187,7 @@ const BloodCenterDashboardPage = () => {
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-sans font-semibold transition-colors shadow-sm shadow-crimson/15"
               >
                 <CalendarPlus className="w-4 h-4" />
-                <span>Post Event</span>
+                <span>{t('bloodCenterDashboard.postNewEvent')}</span>
               </Link>
             )}
           </div>
@@ -204,11 +199,15 @@ const BloodCenterDashboardPage = () => {
           <div className="absolute -left-16 -top-16 w-48 h-48 rounded-full bg-sand/50 blur-3xl pointer-events-none" />
 
           <div className="space-y-2 z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-crimson/[0.06] rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-crimson border border-crimson/15">
+              <Sparkles className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
+              <span>{t('bloodCenterDashboard.networkBadge')}</span>
+            </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-ink">
-              Welcome, {user?.name || 'Blood Center Admin'}
+              {t('bloodCenterDashboard.welcome', { name: user?.name || user?.centerName || 'Blood Center' })}
             </h2>
             <p className="text-sm font-sans text-ink-soft max-w-2xl leading-relaxed">
-              Manage your blood center's event broadcasts and hospital approvals based on your granted permissions.
+              {t('bloodCenterDashboard.welcomeDesc')}
             </p>
           </div>
 
@@ -221,7 +220,7 @@ const BloodCenterDashboardPage = () => {
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft font-sans font-bold rounded-xl text-xs transition-all"
               >
                 <RefreshCw className={`w-4 h-4 stroke-[1.75] ${hospitalsLoading ? 'animate-spin' : ''}`} />
-                <span>Refresh List</span>
+                <span>{t('adminDashboard.refreshList')}</span>
               </button>
             )}
           </div>
@@ -231,55 +230,55 @@ const BloodCenterDashboardPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {canApprove && (
             <AdminStatCard
-              label="Pending Approval"
+              label={t('bloodCenterDashboard.statHospitals')}
               value={hospitalsLoading ? '...' : String(hospitals.length)}
               icon={<Clock />}
               chip={
                 hospitalsLoading
-                  ? { text: 'Loading', tone: 'verified' }
+                  ? { text: t('adminDashboard.statLoading'), tone: 'verified' }
                   : hospitals.length === 0
-                    ? { text: 'Clear', tone: 'verified' }
-                    : { text: 'Awaiting', tone: 'crimson' }
+                    ? { text: t('adminDashboard.statClear'), tone: 'verified' }
+                    : { text: t('adminDashboard.statAwaiting'), tone: 'crimson' }
               }
             />
           )}
           {canPost && (
             <AdminStatCard
-              label="Active Events"
+              label={t('bloodCenterDashboard.statDrives')}
               value={eventsLoading ? '...' : String(events.filter(e => e.status === 'open').length)}
               icon={<CalendarPlus />}
-              chip={{ text: 'Live', tone: 'verified' }}
+              chip={{ text: t('adminDashboard.statLive'), tone: 'verified' }}
             />
           )}
         </div>
 
-        {/* HOSPITAL APPROVAL SECTION - CONDITIONAL */}
-        {canApprove ? (
+        {/* HOSPITAL APPROVAL SECTION */}
+        {canApprove && (
           <>
             <div className="flex items-center justify-between border-b border-line-soft pb-4 gap-4">
               <div>
                 <h2 className="text-base font-serif font-bold text-ink flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-crimson stroke-[1.75]" />
-                  <span>Facilities to Review</span>
+                  <span>{t('adminDashboard.facilitiesTitle')}</span>
                 </h2>
                 <p className="text-xs font-sans text-ink-soft mt-0.5">
-                  New hospital registrations waiting for approval or a rejection reason.
+                  {t('adminDashboard.facilitiesSubtitle')}
                 </p>
               </div>
               {!hospitalsLoading && !hospitalsError && (
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-ink-soft bg-paper border border-line-soft px-2.5 py-1 rounded-lg whitespace-nowrap">
-                  {hospitals.length} pending
+                  {t('adminDashboard.pendingCount', { count: hospitals.length })}
                 </span>
               )}
             </div>
 
             {hospitalsLoading ? (
               <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
-                <LoadingState text="Loading hospitals..." />
+                <LoadingState text={t('adminDashboard.loadingHospitals')} />
               </div>
             ) : hospitalsError ? (
               <ErrorState
-                title="Failed to load hospitals"
+                title={t('adminDashboard.loadFailed')}
                 message={hospitalsError}
                 onRetry={loadPendingHospitals}
               />
@@ -303,7 +302,7 @@ const BloodCenterDashboardPage = () => {
                     <h4 className="text-lg font-serif font-bold text-ink mb-1">{hosp.hospitalName}</h4>
                     <p className="text-xs font-mono text-ink-soft uppercase">{hosp.licenseNumber}</p>
                     <div className="mt-6 pt-4 border-t border-line-soft flex items-center justify-between text-crimson font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                      Inspect Application <ChevronRight size={14} />
+                      {t('adminDashboard.inspectApplication')} <ChevronRight size={14} />
                     </div>
                   </motion.div>
                 ))}
@@ -313,35 +312,15 @@ const BloodCenterDashboardPage = () => {
                 <div className="w-12 h-12 mx-auto rounded-xl bg-verified/10 flex items-center justify-center text-verified mb-3">
                   <CheckCircle2 size={24} className="stroke-[1.75]" />
                 </div>
-                <p className="text-ink-soft font-serif italic text-lg">No hospitals waiting for review.</p>
-                <p className="text-xs font-sans text-ink-soft/70 mt-1">New hospital applications will appear here for review.</p>
+                <p className="text-ink-soft font-serif italic text-lg">{t('adminDashboard.noHospitals')}</p>
+                <p className="text-xs font-sans text-ink-soft/70 mt-1">{t('adminDashboard.noHospitalsDesc')}</p>
               </div>
             )}
           </>
-        ) : (
-          /* NO APPROVAL ACCESS - WARNING BANNER */
-          <div className="flex items-start gap-4 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
-            <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-              <Lock size={24} className="stroke-[1.75]" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-serif font-bold text-amber-900 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                Hospital Approval Access Restricted
-              </h3>
-              <p className="text-sm text-amber-800 mt-2 leading-relaxed">
-                You do not have permission to approve or reject hospital applications. This feature requires the <span className="font-mono font-bold">canApproveHospitals</span> permission, which can be granted by a Super Admin.
-              </p>
-              <p className="text-xs text-amber-700 mt-2 italic">
-                Contact your system administrator to request access to this feature.
-              </p>
-            </div>
-          </div>
         )}
-
       </div>
 
-      {/* --- CENTERED INSPECTION MODAL (for hospital approval) --- */}
+      {/* --- CENTERED INSPECTION MODAL --- */}
       <AnimatePresence>
         {selectedHosp && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
@@ -363,8 +342,8 @@ const BloodCenterDashboardPage = () => {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-serif font-bold text-ink leading-none">Verification Review</h3>
-                    <p className="text-[10px] font-mono font-bold text-ink-soft/50 uppercase mt-1 tracking-widest">Case ID: {selectedHosp.id.toUpperCase()}</p>
+                    <h3 className="text-lg sm:text-xl font-serif font-bold text-ink leading-none">{t('adminDashboard.reviewModalTitle')}</h3>
+                    <p className="text-[10px] font-mono font-bold text-ink-soft/50 uppercase mt-1 tracking-widest">{t('adminDashboard.caseId', { id: selectedHosp.id.toUpperCase() })}</p>
                   </div>
                 </div>
                 <button disabled={actionLoading} onClick={() => { setSelectedHosp(null); setShowRejectStep(false); }} className="p-2 hover:bg-white rounded-full text-ink-soft transition-colors"><X size={20} /></button>
@@ -375,17 +354,16 @@ const BloodCenterDashboardPage = () => {
                   <>
                     <div className="grid md:grid-cols-2 gap-6 sm:gap-10">
                       <div className="space-y-5 sm:space-y-6">
-                        <DetailItem label="Legal Entity" value={selectedHosp.hospitalName} icon={<Building2 />} />
-                        <DetailItem label="Medical License" value={selectedHosp.licenseNumber} icon={<Activity />} />
-                        <DetailItem label="Contact Email" value={selectedHosp.email} icon={<Mail />} />
+                        <DetailItem label={t('adminDashboard.legalEntity')} value={selectedHosp.hospitalName} icon={<Building2 />} />
+                        <DetailItem label={t('adminDashboard.medicalLicense')} value={selectedHosp.licenseNumber} icon={<Activity />} />
+                        <DetailItem label={t('adminDashboard.contactEmail')} value={selectedHosp.email} icon={<Mail />} />
                       </div>
                       <div className="space-y-5 sm:space-y-6">
-                        <DetailItem label="Phone Line" value={selectedHosp.phone} icon={<Phone />} />
-                        <DetailItem label="Facility Address" value={selectedHosp.location?.address || 'N/A'} icon={<MapPin />} />
+                        <DetailItem label={t('adminDashboard.phoneLine')} value={selectedHosp.phone} icon={<Phone />} />
+                        <DetailItem label={t('adminDashboard.facilityAddress')} value={selectedHosp.location?.address || 'N/A'} icon={<MapPin />} />
                         {selectedHosp.location && (
                           <div className="p-3.5 sm:p-4 bg-paper rounded-2xl border border-line-soft">
-                            <p className="text-[9px] font-mono font-bold text-ink-soft/40 uppercase mb-1">Geolocation</p>
-                            <p className="text-xs font-bold text-ink font-mono">{selectedHosp.location.lat}, {selectedHosp.location.lng}</p>
+                            <LocationLink location={selectedHosp.location} showLabel label={t('adminDashboard.facilityMap')} />
                           </div>
                         )}
                       </div>
@@ -398,7 +376,7 @@ const BloodCenterDashboardPage = () => {
                         onClick={() => setShowRejectStep(true)}
                         className="flex-1 border border-crimson text-crimson hover:bg-crimson hover:text-white text-xs font-bold uppercase tracking-widest h-12 sm:h-14 rounded-2xl"
                       >
-                        Decline Application
+                        {t('adminDashboard.declineBtn')}
                       </Button>
                       <Button 
                         variant="primary" 
@@ -406,7 +384,7 @@ const BloodCenterDashboardPage = () => {
                         onClick={() => handleApprove(selectedHosp.id)}
                         className="flex-1 h-12 sm:h-14 rounded-2xl font-bold flex gap-2 items-center justify-center text-xs uppercase tracking-wider"
                       >
-                        <CheckCircle2 size={18} /> Approve Facility
+                        <CheckCircle2 size={18} /> {t('adminDashboard.approveBtn')}
                       </Button>
                     </div>
                   </>
@@ -414,26 +392,26 @@ const BloodCenterDashboardPage = () => {
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                     <div className="flex items-center gap-3 text-crimson">
                       <AlertCircle size={24} />
-                      <h3 className="text-lg sm:text-xl font-serif font-bold">Reason for Rejection</h3>
+                      <h3 className="text-lg sm:text-xl font-serif font-bold">{t('adminDashboard.rejectionReasonTitle')}</h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-ink-soft">This message will be sent to the hospital. Please be specific (e.g., "License document is blurry").</p>
+                    <p className="text-xs sm:text-sm text-ink-soft">{t('adminDashboard.rejectionReasonDesc')}</p>
                     <textarea 
                       autoFocus
                       disabled={actionLoading}
                       className="w-full h-36 sm:h-40 p-4 sm:p-5 bg-paper border border-line-soft rounded-2xl outline-none focus:border-crimson text-sm resize-none"
-                      placeholder="Write your reason here..."
+                      placeholder={t('adminDashboard.reasonPlaceholder')}
                       value={rejectionReason}
                       onChange={(e) => setReason(e.target.value)}
                     />
                     <div className="flex gap-3 sm:gap-4">
-                      <Button variant="ghost" disabled={actionLoading} onClick={() => setShowRejectStep(false)} className="flex-1 h-12 rounded-xl">Back</Button>
+                      <Button variant="ghost" disabled={actionLoading} onClick={() => setShowRejectStep(false)} className="flex-1 h-12 rounded-xl">{t('adminDashboard.backBtn')}</Button>
                       <Button 
                         variant="primary" 
                         disabled={!rejectionReason || actionLoading}
                         onClick={() => handleConfirmReject(selectedHosp.id)}
                         className="flex-1 h-12 rounded-xl font-bold justify-center text-xs"
                       >
-                        Confirm Rejection
+                        {t('adminDashboard.confirmRejectBtn')}
                       </Button>
                     </div>
                   </motion.div>
@@ -447,7 +425,6 @@ const BloodCenterDashboardPage = () => {
   );
 };
 
-// --- HELPERS ---
 interface StatChip {
   text: string;
   tone: 'crimson' | 'verified';

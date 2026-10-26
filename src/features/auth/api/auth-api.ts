@@ -71,9 +71,20 @@ export const resetPassword = async (payload: any) => {
 };
 
 /**
- * Establishes the password for a newly invited Admin
- * POST /api/auth/admin/setup
+ * Validates setup token and retrieves prefilled email context
+ * GET /api/auth/admin/setup?token=xyz
  */
+export const getInviteContext = async (token: string) => {
+  try {
+    const response = await axiosInstance.get('/api/auth/admin/setup', {
+      params: { token },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || "Invalid or expired setup token.";
+  }
+};
+
 export const setupAdminPassword = async (payload: any) => {
   try {
     const response = await axiosInstance.post('/api/auth/admin/setup', payload);
@@ -82,6 +93,7 @@ export const setupAdminPassword = async (payload: any) => {
     throw error.response?.data?.error || "Failed to set password. Link may be expired.";
   }
 };
+
 
 /**
  * Completes an invitation sent by Super Admin.
@@ -127,3 +139,16 @@ export const submitHospitalFeedback = async (payload: { email: string; hospitalN
     throw error.response?.data?.error || "Failed to submit appeal. Please try again.";
   }
 };
+
+/**
+ * Fetches current authenticated user context and permissions
+ * GET /api/auth/me
+ */
+export const getCurrentUser = async () => {
+  try {
+    const response = await axiosInstance.get('/api/auth/me');
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || "Failed to fetch user session.";
+  }
+};

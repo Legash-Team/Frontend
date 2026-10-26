@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import type { HospitalStockItem } from './models/hospital-stock-types';
 import { Filter, ArrowUpDown } from 'lucide-react';
 import { LocationLink } from '@/utils/mapsUrl';
+import { getStockClassification } from '@/utils/stockClassification';
 
 const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -133,9 +134,19 @@ const HospitalStockPage = () => {
                         <div className="text-sm font-bold text-ink">{item.bloodType || 'N/A'}</div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-crimson/10 text-crimson font-bold font-mono text-sm">
-                          {item.availableUnits || 0} {t('hospitalAnalytics.units')}
-                        </div>
+                        {(() => {
+                          const stockClass = getStockClassification(item.availableUnits);
+                          return (
+                            <div className="inline-flex items-center gap-2">
+                              <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${stockClass.badgeClass}`}>
+                                {t(stockClass.labelKey, stockClass.defaultLabel)}
+                              </span>
+                              <div className={`inline-flex items-center justify-center px-3 py-1 rounded-full border font-bold font-mono text-sm ${stockClass.badgeClass}`}>
+                                {item.availableUnits || 0} {t('hospitalAnalytics.units')}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))}
