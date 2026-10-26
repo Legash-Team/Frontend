@@ -1,25 +1,75 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
-import { PieChart } from 'lucide-react';
+import { PieChart, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 import { fetchHospitalAnalytics } from './api/admin-api';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import type { HospitalAnalyticsData } from './models/hospital-analytics-types';
-import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
 const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-const COLORS = ['#C31F3B', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6'];
+
+const WeeklyTooltip = ({ active, payload }: any) => {
+  if (!active || !payload || !payload.length) return null;
+  const item = payload[0]?.payload;
+  if (!item) return null;
+
+  return (
+    <div className="bg-white/95 backdrop-blur-md border border-line-soft rounded-2xl shadow-xl p-4 min-w-[230px] text-xs space-y-2.5">
+      <div className="border-b border-line-soft pb-1.5 flex justify-between items-center">
+        <span className="font-bold text-ink text-sm">Week of {item.weekLabel}</span>
+        <span className="text-[10px] font-mono text-ink-soft">{item.week}</span>
+      </div>
+
+      <div className="space-y-1.5 font-sans">
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1.5 font-semibold text-crimson">
+            <span className="w-2.5 h-2.5 rounded-full bg-crimson inline-block" />
+            Total Demand:
+          </span>
+          <span className="font-mono font-bold text-ink">{item.demand} units</span>
+        </div>
+        <div className="pl-4 text-[11px] text-ink-soft space-y-0.5">
+          <div className="flex justify-between">
+            <span>• Donor Requests:</span>
+            <span className="font-mono font-medium text-ink">{item.donorDemand ?? 0} units</span>
+          </div>
+          <div className="flex justify-between">
+            <span>• Blood Center:</span>
+            <span className="font-mono font-medium text-ink">{item.bloodCenterDemand ?? 0} units</span>
+          </div>
+          <div className="flex justify-between text-verified font-medium">
+            <span>• Fulfilled:</span>
+            <span className="font-mono">{item.fulfilledDemand ?? 0} units</span>
+          </div>
+        </div>
+
+        <div className="border-t border-line-soft/60 pt-1.5 flex items-center justify-between">
+          <span className="flex items-center gap-1.5 font-semibold text-emerald-600">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+            Available Supply:
+          </span>
+          <span className="font-mono font-bold text-ink">{item.supply} units</span>
+        </div>
+      </div>
+
+      <div className="border-t border-line-soft/60 pt-1 text-[10px] text-ink-soft italic leading-snug">
+        Fulfilled demand is portion of requested units successfully closed.
+      </div>
+    </div>
+  );
+};
 
 const HospitalAnalyticsPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState<HospitalAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedBloodType, setSelectedBloodType] = useState<string>('ALL');
 
   const loadAnalytics = async () => {
     setLoading(true);
@@ -39,6 +89,36 @@ const HospitalAnalyticsPage = () => {
   useEffect(() => {
     loadAnalytics();
   }, []);
+
+  const weeklyChartData = (data?.weeklyNeedVsSupply || []).map((item) => {
+    if (selectedBloodType === 'ALL') {
+      return {
+        week: item.week,
+        weekLabel: item.weekLabel,
+        demand: item.demand,
+        donorDemand: item.donorDemand,
+        bloodCenterDemand: item.bloodCenterDemand,
+        fulfilledDemand: item.fulfilledDemand,
+        supply: item.supply,
+      };
+    }
+    const btData = item.byBloodType?.[selectedBloodType] || {
+      demand: 0,
+      donorDemand: 0,
+      bloodCenterDemand: 0,
+      fulfilledDemand: 0,
+      supply: 0,
+    };
+    return {
+      week: item.week,
+      weekLabel: item.weekLabel,
+      demand: btData.demand,
+      donorDemand: btData.donorDemand,
+      bloodCenterDemand: btData.bloodCenterDemand,
+      fulfilledDemand: btData.fulfilledDemand,
+      supply: btData.supply,
+    };
+  });
 
   return (
     <AdminLayout
@@ -138,53 +218,141 @@ const HospitalAnalyticsPage = () => {
               </div>
             </div>
 
-            {/* Trends Chart */}
+            {/* Weekly Blood Need vs Available Supply Graph */}
             <div className="bg-white border border-line-soft rounded-[24px] shadow-sm p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-line-soft">
-                <div className="p-2 bg-crimson/10 text-crimson rounded-lg"><Activity size={20} /></div>
-                <h3 className="text-lg font-serif font-bold text-ink">{t('hospitalAnalytics.trendsTitle')}</h3>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-line-soft">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-crimson/10 text-crimson rounded-lg mt-0.5">
+                    <Scale size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-serif font-bold text-ink">
+                      {t('hospitalAnalytics.needVsSupplyTitle', 'Weekly Blood Need vs Available Supply')}
+                    </h3>
+                    <p className="text-xs font-sans text-ink-soft mt-0.5">
+                      {t('hospitalAnalytics.needVsSupplySubtitle', 'Comparison between weekly requested blood quantities and available blood stock inventory.')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Blood Type Filter */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedBloodType('ALL')}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                      selectedBloodType === 'ALL'
+                        ? 'bg-crimson text-white shadow-xs'
+                        : 'bg-sand/40 hover:bg-sand/70 text-ink-soft hover:text-ink'
+                    }`}
+                  >
+                    All Types
+                  </button>
+                  {BLOOD_TYPES.map((bt) => (
+                    <button
+                      key={bt}
+                      type="button"
+                      onClick={() => setSelectedBloodType(bt)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${
+                        selectedBloodType === bt
+                          ? 'bg-crimson text-white shadow-xs'
+                          : 'bg-sand/40 hover:bg-sand/70 text-ink-soft hover:text-ink'
+                      }`}
+                    >
+                      {bt}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {data.trends && data.trends.length > 0 ? (
-                <div className="h-[400px] w-full">
+              {/* Summary Metrics for selected filter */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 p-4 bg-sand/20 rounded-2xl border border-line-soft/60">
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ink-soft">
+                    {selectedBloodType === 'ALL' ? 'Total Demand (8 Wks)' : `${selectedBloodType} Demand (8 Wks)`}
+                  </span>
+                  <p className="text-lg font-serif font-bold text-crimson mt-0.5">
+                    {weeklyChartData.reduce((acc, w) => acc + w.demand, 0)} <span className="text-xs font-sans font-normal text-ink-soft">units</span>
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ink-soft">
+                    Fulfilled Requests
+                  </span>
+                  <p className="text-lg font-serif font-bold text-verified mt-0.5">
+                    {weeklyChartData.reduce((acc, w) => acc + w.fulfilledDemand, 0)} <span className="text-xs font-sans font-normal text-ink-soft">units</span>
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ink-soft">
+                    Current Week Stock
+                  </span>
+                  <p className="text-lg font-serif font-bold text-emerald-600 mt-0.5">
+                    {weeklyChartData[weeklyChartData.length - 1]?.supply || 0} <span className="text-xs font-sans font-normal text-ink-soft">units</span>
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ink-soft">
+                    Active Filter
+                  </span>
+                  <p className="text-lg font-serif font-bold text-ink mt-0.5">
+                    {selectedBloodType === 'ALL' ? 'All Blood Types' : selectedBloodType}
+                  </p>
+                </div>
+              </div>
+
+              {weeklyChartData.length > 0 ? (
+                <div className="h-[380px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.trends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <BarChart
+                      data={weeklyChartData}
+                      margin={{ top: 15, right: 15, left: -10, bottom: 0 }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis
-                        dataKey="date"
+                        dataKey="weekLabel"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: '#64748b' }}
-                        dy={10}
+                        tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }}
+                        dy={8}
                       />
                       <YAxis
                         axisLine={false}
                         tickLine={false}
                         tick={{ fontSize: 12, fill: '#64748b' }}
+                        allowDecimals={false}
+                        label={{ value: 'Units', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: 11 } }}
                       />
-                      <RechartsTooltip
-                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}
+                      <RechartsTooltip content={<WeeklyTooltip />} />
+                      <Legend
+                        iconType="circle"
+                        wrapperStyle={{ paddingTop: '20px' }}
+                        formatter={(value) =>
+                          value === 'demand'
+                            ? 'Blood Demand (Requested Units)'
+                            : 'Available Supply (Inventory Units)'
+                        }
                       />
-                      <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-
-                      {BLOOD_TYPES.map((bt, idx) => (
-                        <Line
-                          key={bt}
-                          type="monotone"
-                          dataKey={bt}
-                          name={bt}
-                          stroke={COLORS[idx]}
-                          strokeWidth={2}
-                          dot={{ r: 3, strokeWidth: 2 }}
-                          activeDot={{ r: 6 }}
-                        />
-                      ))}
-                    </LineChart>
+                      <Bar
+                        dataKey="demand"
+                        name="demand"
+                        fill="#C31F3B"
+                        radius={[6, 6, 0, 0]}
+                        maxBarSize={36}
+                      />
+                      <Bar
+                        dataKey="supply"
+                        name="supply"
+                        fill="#10B981"
+                        radius={[6, 6, 0, 0]}
+                        maxBarSize={36}
+                      />
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
                 <EmptyState
-                  title={t('hospitalAnalytics.noTrends')}
+                  title={t('hospitalAnalytics.noData', 'No weekly analytics available.')}
                 />
               )}
             </div>

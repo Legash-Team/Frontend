@@ -9,6 +9,7 @@ import {
 } from '@/features/hospital/api/hospital-api';
 import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
 import type { BloodStock, BloodType } from '@/features/hospital/types/hospital-types';
+import { getStockClassification } from '@/utils/stockClassification';
 import {
   Droplets,
   CheckCircle2,
@@ -191,7 +192,7 @@ export const BloodStockPage: React.FC = () => {
             {ALLOWED_BLOOD_TYPES.map((type) => {
               const currentUnits = savedStock[type] ?? 0;
               const draftUnits = draftStock[type] ?? 0;
-              const isLow = currentUnits < 5;
+              const stockClass = getStockClassification(currentUnits);
               const isDirty = draftUnits !== currentUnits;
 
               return (
@@ -200,8 +201,10 @@ export const BloodStockPage: React.FC = () => {
                   className={`p-4 rounded-2xl border transition-all relative ${
                     isDirty
                       ? 'bg-amber-50/40 border-amber-200 shadow-xs'
-                      : isLow
+                      : stockClass.level === 'low'
                       ? 'bg-crimson/5 border-crimson/20 shadow-xs'
+                      : stockClass.level === 'limited'
+                      ? 'bg-amber-50/30 border-amber-200/60 shadow-xs'
                       : 'bg-white border-line-soft shadow-xs'
                   }`}
                 >
@@ -210,11 +213,9 @@ export const BloodStockPage: React.FC = () => {
                       {type}
                     </span>
                     <span
-                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                        isLow ? 'bg-crimson/10 text-crimson' : 'bg-verified/10 text-verified'
-                      }`}
+                      className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${stockClass.badgeClass}`}
                     >
-                      {isLow ? t('hospitalDashboard.lowStock') : t('hospitalDashboard.adequate')}
+                      {t(stockClass.labelKey, stockClass.defaultLabel)}
                     </span>
                   </div>
 

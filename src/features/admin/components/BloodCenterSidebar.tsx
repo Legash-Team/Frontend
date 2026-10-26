@@ -11,10 +11,10 @@ import {
   ClipboardList,
   Building2,
   Inbox,
+  User,
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/features/auth/context/AuthContext';
-import { TEMP_OPEN_ACCESS } from '@/lib/temporaryAccess';
 import { useTranslation } from 'react-i18next';
 
 interface BloodCenterSidebarProps {
@@ -29,9 +29,7 @@ export const BloodCenterSidebar = ({ mobileOpen = false, onMobileClose }: BloodC
   const { t } = useTranslation();
 
   // Hospital approval / feedback is only available when the Super Admin has granted it.
-  // TEMP_OPEN_ACCESS: show everything while the backend auth flow is unfinished.
   const canApprove =
-    TEMP_OPEN_ACCESS ||
     user?.role === 'superadmin' ||
     Boolean(user?.permissions?.canApproveHospitals);
 
@@ -41,7 +39,7 @@ export const BloodCenterSidebar = ({ mobileOpen = false, onMobileClose }: BloodC
   menuItems.push({ icon: LayoutDashboard, label: t('nav.bloodCenter.dashboard'), path: '/blood-center/dashboard' });
 
   // Incoming Requests from Hospitals
-  menuItems.push({ icon: Inbox, label: 'Hospital Requests', path: '/blood-center/requests' });
+  menuItems.push({ icon: Inbox, label: t('nav.bloodCenter.hospitalRequests'), path: '/blood-center/requests' });
 
   // Event Management - every invited blood center can post events
   menuItems.push({ icon: CalendarPlus, label: t('nav.bloodCenter.postEvent'), path: '/blood-center/events' });
@@ -52,6 +50,9 @@ export const BloodCenterSidebar = ({ mobileOpen = false, onMobileClose }: BloodC
     menuItems.push({ icon: Building2, label: t('nav.bloodCenter.hospitals'), path: '/blood-center/hospitals' });
     menuItems.push({ icon: MessageSquare, label: t('nav.bloodCenter.feedback'), path: '/blood-center/feedbacks' });
   }
+
+  // Profile - last section on the blood admin sidebar
+  menuItems.push({ icon: User, label: t('nav.bloodCenter.profile'), path: '/blood-center/profile' });
   
   const handleSignOut = () => {
     logout(); 

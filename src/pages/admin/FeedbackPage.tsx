@@ -1,36 +1,48 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, 
   CheckCircle2, 
   AlertCircle, 
-  Search,
-  History,
-  Building2,
-  Phone,
-  Mail,
-  MapPin,
-  ShieldCheck,
-  Activity,
-  X,
-  Eye
+  Search, 
+  History, 
+  Building2, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  ShieldCheck, 
+  Activity, 
+  X, 
+  Eye 
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { fetchFeedbacks, markFeedbackReviewed, approveHospital } from './api/admin-api';
+import { LocationLink } from '@/utils/mapsUrl';
 import { useDialog } from '@/context/DialogContext';
 
 const FeedbackPage = () => {
+  const { t } = useTranslation();
   const { confirm, toast } = useDialog();
   const location = useLocation();
+  const { user } = useAuth();
 
-  // Blood center users get the blood center chrome, admins keep the admin chrome
   const isBloodCenter = location.pathname.startsWith('/blood-center');
+  const canApprove =
+    user?.role === 'superadmin' ||
+    Boolean(user?.permissions?.canApproveHospitals);
+
+  if (isBloodCenter && !canApprove) {
+    return <Navigate to="/blood-center/dashboard" replace />;
+  }
+
   const Layout = isBloodCenter ? BloodCenterLayout : AdminLayout;
 
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
@@ -63,8 +75,6 @@ const FeedbackPage = () => {
     loadFeedbacks();
   }, []);
 
-  // --- ACTIONS ---
-
   const handleMarkReviewed = async (id: string) => {
     setActionLoading(true);
     try {
@@ -76,7 +86,7 @@ const FeedbackPage = () => {
         if (selectedFeedback && (selectedFeedback.id === id || selectedFeedback._id === id)) {
           setSelectedFeedback((prev: any) => ({ ...prev, status: 'reviewed' }));
         }
-        toast.success('Appeal marked as reviewed.');
+        toast.success(t('feedback.markSuccess'));
       }
     } catch (err: any) {
       toast.error(err || 'Failed to resolve appeal.');
@@ -95,10 +105,10 @@ const FeedbackPage = () => {
     }
 
     const ok = await confirm({
-      title: 'Approve Hospital Facility',
+      title: t('feedback.reApproveBtn'),
       message: `Are you sure you want to approve "${feedbackItem.hospitalName || feedbackItem.hospital?.hospitalName}" and grant them access to Legash?`,
       type: 'info',
-      confirmText: 'Approve Facility',
+      confirmText: t('feedback.reApproveBtn'),
     });
     if (!ok) {
       return;
@@ -106,10 +116,8 @@ const FeedbackPage = () => {
 
     setActionLoading(true);
     try {
-      // 1. Approve the hospital account
       const approveRes = await approveHospital(hospitalId.toString());
       if (approveRes.success) {
-        // 2. Mark this appeal as reviewed
         try {
           await markFeedbackReviewed(feedbackId);
         } catch (_) {}
@@ -126,7 +134,7 @@ const FeedbackPage = () => {
         }));
 
         setSelectedFeedback(null);
-        toast.success('Hospital approved successfully! An approval email has been sent to them.');
+        toast.success(t('feedback.reApproveSuccess'));
       }
     } catch (err: any) {
       toast.error(err || 'Failed to approve hospital.');
@@ -150,7 +158,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // Filter logic
   const filteredFeedbacks = feedbacks.filter(item => {
     const matchesTab = item.status === activeTab;
     const name = item.hospitalName || item.hospital?.hospitalName || 'Hospital';
@@ -162,7 +169,7 @@ const FeedbackPage = () => {
   });
 
   return (
-    <Layout title="Feedbacks" icon={<MessageSquare size={16} className="stroke-[1.75]" />}>
+    <Layout title={t('feedback.title')} icon={<MessageSquare size={16} className="stroke-[1.75]" />}>
       <div className="space-y-8">
         
         {/* TAB & SEARCH NAVIGATION */}
@@ -174,7 +181,7 @@ const FeedbackPage = () => {
                 activeTab === 'new' ? 'bg-white text-crimson shadow-sm' : 'text-ink-soft hover:text-ink'
               }`}
             >
-              New Appeals ({feedbacks.filter(f => f.status === 'new').length})
+              {t('feedback.tabNew')} ({feedbacks.filter(f => f.status === 'new').length})
             </button>
             <button
               onClick={() => setActiveTab('reviewed')}
@@ -182,7 +189,7 @@ const FeedbackPage = () => {
                 activeTab === 'reviewed' ? 'bg-white text-crimson shadow-sm' : 'text-ink-soft hover:text-ink'
               }`}
             >
-              History
+              {t('feedback.tabReviewed')}
             </button>
           </div>
 
@@ -190,7 +197,7 @@ const FeedbackPage = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft/30" size={18} />
             <input 
               type="text" 
-              placeholder="Search by facility name or email..." 
+              placeholder={t('feedback.searchPlaceholder')} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-11 pl-12 pr-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm transition-all"
@@ -201,7 +208,7 @@ const FeedbackPage = () => {
         {/* LOADING & ERROR STATES */}
         {loading ? (
           <div className="bg-white rounded-[32px] border border-line-soft shadow-xs">
-            <LoadingState text="Loading appeals list..." />
+            <LoadingState text="Loading appeals..." />
           </div>
         ) : error ? (
           <ErrorState
@@ -237,7 +244,7 @@ const FeedbackPage = () => {
                               <h3 className="text-xl font-serif font-bold text-ink">{item.hospitalName || hospitalObj?.hospitalName || 'Hospital'}</h3>
                               {item.status === 'new' && (
                                 <span className="px-2 py-0.5 rounded-full bg-crimson text-white text-[9px] font-black uppercase tracking-widest animate-pulse">
-                                  Pending Review
+                                  {t('feedback.tabNew')}
                                 </span>
                               )}
                               {isApproved && (
@@ -256,11 +263,11 @@ const FeedbackPage = () => {
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-8">
-                          {/* Context Area */}
+                          {/* Rejection Area */}
                           <div className="p-6 rounded-2xl bg-crimson/[0.02] border border-crimson/5">
                             <div className="flex items-center gap-2 mb-3 text-crimson opacity-60">
                               <AlertCircle size={14} />
-                              <span className="text-[9px] font-mono font-bold uppercase tracking-widest">Previous Rejection Reason</span>
+                              <span className="text-[9px] font-mono font-bold uppercase tracking-widest">Rejection Reason</span>
                             </div>
                             <p className="text-sm text-ink-soft leading-relaxed italic">
                               "{item.rejectionReason || hospitalObj?.rejectionReason || 'No registered reason'}"
@@ -271,7 +278,7 @@ const FeedbackPage = () => {
                           <div className="p-6 rounded-2xl bg-paper border border-line-soft">
                             <div className="flex items-center gap-2 mb-3 text-ink opacity-60">
                               <MessageSquare size={14} />
-                              <span className="text-[9px] font-mono font-bold uppercase tracking-widest">Hospital Appeal Message</span>
+                              <span className="text-[9px] font-mono font-bold uppercase tracking-widest">{t('feedback.appealMessage')}</span>
                             </div>
                             <p className="text-sm text-ink leading-relaxed font-medium">
                               {item.message}
@@ -292,7 +299,7 @@ const FeedbackPage = () => {
                               disabled={actionLoading}
                               onClick={() => setSelectedFeedback(item)}
                             >
-                              <Eye size={16} /> Inspect Details
+                              <Eye size={16} /> {t('feedback.inspectBtn')}
                             </Button>
 
                             {item.status === 'new' && (
@@ -302,7 +309,7 @@ const FeedbackPage = () => {
                                 disabled={actionLoading}
                                 onClick={() => handleMarkReviewed(id)}
                               >
-                                <CheckCircle2 size={16} className="text-verified" /> Mark Reviewed
+                                <CheckCircle2 size={16} className="text-verified" /> {t('feedback.markReviewedBtn')}
                               </Button>
                             )}
 
@@ -313,7 +320,7 @@ const FeedbackPage = () => {
                                 disabled={actionLoading}
                                 onClick={() => handleApproveFromAppeal(item)}
                               >
-                                <CheckCircle2 size={16} /> Approve Facility
+                                <CheckCircle2 size={16} /> {t('feedback.reApproveBtn')}
                               </Button>
                             )}
                           </div>
@@ -325,7 +332,7 @@ const FeedbackPage = () => {
               ) : (
                 <EmptyState
                   icon={<MessageSquare className="w-12 h-12" strokeWidth={1} />}
-                  title="No feedbacks found in this category."
+                  title={t('feedback.noFeedbacks')}
                 />
               )}
             </AnimatePresence>
@@ -355,7 +362,7 @@ const FeedbackPage = () => {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-serif font-bold text-ink leading-none">Appeal & Facility Inspection</h3>
+                    <h3 className="text-xl font-serif font-bold text-ink leading-none">{t('feedback.inspectBtn')}</h3>
                     <p className="text-[10px] font-mono font-bold text-ink-soft/50 uppercase mt-1 tracking-widest">
                       Ref: CASE-{(selectedFeedback.id || selectedFeedback._id).substring(0, 8).toUpperCase()}
                     </p>
@@ -371,9 +378,8 @@ const FeedbackPage = () => {
               </div>
 
               <div className="p-8 md:p-10 space-y-8 max-h-[75vh] overflow-y-auto">
-                {/* Hospital Information */}
                 <div>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-ink-soft mb-4">Facility Information</h4>
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-ink-soft mb-4">{t('feedback.hospitalInfo')}</h4>
                   <div className="grid md:grid-cols-2 gap-6 bg-paper p-6 rounded-2xl border border-line-soft">
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
@@ -423,10 +429,8 @@ const FeedbackPage = () => {
                           <p className="text-sm font-bold text-ink">
                             {selectedFeedback.hospital?.location?.address || 'Ethiopia'}
                           </p>
-                          {selectedFeedback.hospital?.location?.coordinates && (
-                            <p className="text-[11px] font-mono text-ink-soft mt-0.5">
-                              Coordinates: {selectedFeedback.hospital.location.coordinates[1]}, {selectedFeedback.hospital.location.coordinates[0]}
-                            </p>
+                          {selectedFeedback.hospital?.location && (
+                            <LocationLink location={selectedFeedback.hospital.location} className="mt-1.5" />
                           )}
                         </div>
                       </div>
@@ -438,7 +442,7 @@ const FeedbackPage = () => {
                 <div className="space-y-4">
                   <div className="p-5 rounded-2xl bg-crimson/5 border border-crimson/20">
                     <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-crimson mb-2 flex items-center gap-1.5">
-                      <AlertCircle size={14} /> Rejection Reason Given
+                      <AlertCircle size={14} /> Rejection Reason
                     </p>
                     <p className="text-sm text-ink italic">
                       "{selectedFeedback.rejectionReason || selectedFeedback.hospital?.rejectionReason || 'No recorded reason'}"
@@ -447,7 +451,7 @@ const FeedbackPage = () => {
 
                   <div className="p-5 rounded-2xl bg-paper border border-line-soft">
                     <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-ink-soft mb-2 flex items-center gap-1.5">
-                      <MessageSquare size={14} /> Hospital's Appeal Message
+                      <MessageSquare size={14} /> {t('feedback.appealMessage')}
                     </p>
                     <p className="text-sm text-ink font-medium leading-relaxed">
                       {selectedFeedback.message}
@@ -464,7 +468,7 @@ const FeedbackPage = () => {
                       onClick={() => handleMarkReviewed(selectedFeedback.id || selectedFeedback._id)}
                       className="shadow-none"
                     >
-                      <CheckCircle2 size={16} className="text-verified" /> Mark Reviewed Only
+                      <CheckCircle2 size={16} className="text-verified" /> {t('feedback.markReviewedBtn')}
                     </Button>
                   )}
 
@@ -474,7 +478,7 @@ const FeedbackPage = () => {
                       disabled={actionLoading}
                       onClick={() => handleApproveFromAppeal(selectedFeedback)}
                     >
-                      <CheckCircle2 size={16} className="text-verified" /> Approve Facility & Notify
+                      <CheckCircle2 size={16} className="text-verified" /> {t('feedback.reApproveBtn')}
                     </Button>
                   )}
                 </div>

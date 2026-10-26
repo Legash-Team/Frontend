@@ -48,10 +48,18 @@ export const LoginForm = () => {
     setIsLoading(true);
     try {
       const data = await login({ email: email.trim(), password });
-      if (data.role === 'admin' || data.role === 'bloodcenter') {
-        navigate('/blood-center/dashboard');
-      } else if (data.role === 'superadmin') {
+      const role = data.role;
+      const centerName = data.user?.centerName;
+      if (role === 'superadmin') {
         navigate('/admin/dashboard');
+      } else if (role === 'admin') {
+        if (centerName) {
+          navigate('/blood-center/dashboard');
+        } else {
+          navigate('/admin/dashboard');
+        }
+      } else if (role === 'bloodcenter') {
+        navigate('/blood-center/dashboard');
       } else {
         const fromPath = (location.state as any)?.from?.pathname || '/hospital/dashboard';
         navigate(fromPath, { replace: true });

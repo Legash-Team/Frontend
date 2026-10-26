@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Button from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
@@ -29,6 +30,7 @@ import {
 import { useDialog } from '@/context/DialogContext';
 
 export const HospitalBloodCenterRequestsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { confirm, toast } = useDialog();
 
   const [requests, setRequests] = useState<BloodCenterRequestItem[]>([]);
@@ -72,7 +74,6 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
     setFormQuantity('5');
     setFormNote('');
     setFormError(null);
-    // Default closing time to 48 hours from now
     const d = new Date(Date.now() + 48 * 60 * 60 * 1000);
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     setFormClosesAt(d.toISOString().slice(0, 16));
@@ -98,24 +99,23 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
     }
     const closesAtDate = new Date(formClosesAt);
     if (isNaN(closesAtDate.getTime()) || closesAtDate <= new Date()) {
-      setFormError('Closing time must be in the future.');
+      setFormError('Closing time must be a valid future date & time.');
       return;
     }
 
     setSubmitting(true);
     try {
-      const res = await createBloodCenterRequest({
-        bloodType: formBloodType,
+      await createBloodCenterRequest({
+        bloodType: formBloodType as BloodType,
         quantityNeeded: qty,
         closesAt: closesAtDate.toISOString(),
         note: formNote.trim() || undefined,
       });
-      toast.success(res?.message || 'Blood center request created successfully.');
+      toast.success(t('hospitalBloodCenterRequests.createSuccess'));
       setCreateModalOpen(false);
       loadRequests();
     } catch (err: any) {
-      const msg = err.response?.data?.error || err.message || 'Failed to create request.';
-      setFormError(msg);
+      setFormError(err.response?.data?.error || err.message || 'Failed to post blood center request.');
     } finally {
       setSubmitting(false);
     }
@@ -129,8 +129,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
       const centers = await fetchAcceptedBloodCenters(reqItem.id);
       setAcceptedCenters(centers);
     } catch (err: any) {
-      toast.error('Failed to load accepted blood centers.');
-      setAcceptedCenters([]);
+      toast.error(err.response?.data?.error || err.message || 'Failed to load responded blood centers.');
     } finally {
       setCentersLoading(false);
     }
@@ -138,16 +137,16 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
 
   const handleCloseRequest = async (reqItem: BloodCenterRequestItem) => {
     const ok = await confirm({
-      title: 'Close Blood Center Request',
-      message: 'Are you sure you want to close this request? Blood centers will no longer be able to respond.',
-      type: 'danger',
-      confirmText: 'Close Request',
+      title: t('hospitalBloodCenterRequests.closeRequestBtn'),
+      message: t('hospitalBloodCenterRequests.closeConfirm'),
+      type: 'warning',
+      confirmText: t('hospitalBloodCenterRequests.closeRequestBtn'),
     });
     if (!ok) return;
 
     try {
       await closeBloodCenterRequest(reqItem.id);
-      toast.success('Request closed successfully.');
+      toast.success(t('hospitalBloodCenterRequests.closeSuccess'));
       loadRequests();
     } catch (err: any) {
       toast.error(err.response?.data?.error || err.message || 'Failed to close request.');
@@ -169,26 +168,26 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout icon={<Building2 size={16} className="stroke-[1.75]" />}>
       <div className="space-y-6 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line-soft">
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
               <Building2 className="w-6 h-6 text-crimson" />
-              Blood Center Requests
+              {t('hospitalBloodCenterRequests.title')}
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Request bulk blood kits from regional Blood Centers within search radius.
+              {t('hospitalBloodCenterRequests.description')}
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
             <button
               type="button"
               onClick={loadRequests}
               className="p-2.5 border border-line-soft rounded-xl text-ink-soft hover:text-ink hover:bg-paper transition-colors"
-              title="Refresh requests"
+              title={t('hospitalBloodCenterRequests.refreshBtn')}
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -196,10 +195,10 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
               type="button"
               variant="primary"
               onClick={handleOpenCreateModal}
-              className="px-4 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs"
+              className="gap-2 px-4 py-2.5 shadow-xs"
             >
               <Plus className="w-4 h-4" />
-              <span>New Center Request</span>
+              <span>{t('hospitalBloodCenterRequests.newRequestBtn')}</span>
             </Button>
           </div>
         </div>
@@ -219,7 +218,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
             action={
               <Button type="button" variant="primary" onClick={handleOpenCreateModal} className="mt-4 gap-2">
                 <Plus className="w-4 h-4" />
-                <span>Create Request</span>
+                <span>{t('hospitalBloodCenterRequests.newRequestBtn')}</span>
               </Button>
             }
           />
@@ -248,7 +247,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-5 py-3.5 font-mono font-bold text-ink text-sm">
-                          {r.quantityNeeded} <span className="text-xs font-normal text-ink-soft">kits</span>
+                          {t('hospitalBloodCenterRequests.unitsCount', { count: r.quantityNeeded })}
                         </td>
                         <td className="px-5 py-3.5">
                           <span
@@ -259,16 +258,16 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                             }`}
                           >
                             {isOpen ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                            {r.status}
+                            {isOpen ? t('hospitalBloodCenterRequests.statusOpen') : t('hospitalBloodCenterRequests.statusClosed')}
                           </span>
                         </td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-xs font-semibold text-verified bg-verified/10 px-2 py-0.5 rounded">
-                              {r.acceptedCount} accepted
+                              {t('hospitalBloodCenterRequests.acceptedBadge', { count: r.acceptedCount })}
                             </span>
                             <span className="font-mono text-xs text-ink-soft">
-                              / {r.matchedCenterCount} notified
+                              / {r.matchedCenterCount}
                             </span>
                           </div>
                         </td>
@@ -282,7 +281,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                               onClick={() => handleViewAcceptedCenters(r)}
                               className="px-3 py-1.5 bg-paper hover:bg-paper-dim text-ink border border-line-soft rounded-lg text-xs font-semibold transition-colors"
                             >
-                              Accepted Centers ({r.acceptedCount})
+                              {t('hospitalBloodCenterRequests.viewAcceptedBtn')} ({r.acceptedCount})
                             </button>
                             {isOpen && (
                               <button
@@ -290,7 +289,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                                 onClick={() => handleCloseRequest(r)}
                                 className="px-3 py-1.5 border border-line-soft hover:border-crimson/30 hover:bg-crimson/5 text-crimson rounded-lg text-xs font-semibold transition-colors"
                               >
-                                Close
+                                {t('hospitalBloodCenterRequests.closeRequestBtn')}
                               </button>
                             )}
                           </div>
@@ -310,9 +309,9 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
             <div className="bg-white border border-line-soft rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-line-soft">
                 <div>
-                  <h3 className="font-serif font-bold text-xl text-ink">New Blood Center Request</h3>
+                  <h3 className="font-serif font-bold text-xl text-ink">{t('hospitalBloodCenterRequests.modalTitle')}</h3>
                   <p className="text-xs text-ink-soft mt-0.5">
-                    Notifies all eligible Blood Centers within search radius.
+                    {t('hospitalBloodCenterRequests.description')}
                   </p>
                 </div>
                 <button
@@ -334,7 +333,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div>
                   <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft mb-1.5">
-                    Blood Type <span className="text-crimson">*</span>
+                    {t('hospitalBloodCenterRequests.bloodTypeLabel')} <span className="text-crimson">*</span>
                   </label>
                   <div className="grid grid-cols-4 gap-2">
                     {ALLOWED_BLOOD_TYPES.map((bt) => (
@@ -356,7 +355,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
 
                 <div>
                   <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft mb-1.5">
-                    Quantity Needed (kits) <span className="text-crimson">*</span>
+                    {t('hospitalBloodCenterRequests.quantityLabel')} <span className="text-crimson">*</span>
                   </label>
                   <input
                     type="number"
@@ -370,7 +369,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
 
                 <div>
                   <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft mb-1.5">
-                    Request Closes At <span className="text-crimson">*</span>
+                    {t('hospitalBloodCenterRequests.closesAtLabel')} <span className="text-crimson">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -383,13 +382,13 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
 
                 <div>
                   <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-ink-soft mb-1.5">
-                    Optional Note
+                    {t('hospitalBloodCenterRequests.noteLabel')}
                   </label>
                   <textarea
                     rows={3}
                     value={formNote}
                     onChange={(e) => setFormNote(e.target.value)}
-                    placeholder="Provide any clinical context or emergency details for centers..."
+                    placeholder={t('hospitalBloodCenterRequests.notePlaceholder')}
                     className="w-full px-3.5 py-2.5 bg-white border border-line-soft rounded-xl text-sm outline-none focus:border-crimson resize-none"
                   />
                 </div>
@@ -406,10 +405,10 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                     type="submit"
                     variant="primary"
                     isLoading={submitting}
-                    loadingText="Submitting..."
+                    loadingText={t('hospitalBloodCenterRequests.submittingBtn')}
                     className="px-5 py-2.5 bg-crimson hover:bg-crimson-dark text-white rounded-xl text-xs font-semibold"
                   >
-                    Submit Request
+                    {t('hospitalBloodCenterRequests.submitBtn')}
                   </Button>
                 </div>
               </form>
@@ -424,10 +423,10 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
               <div className="flex items-center justify-between pb-4 border-b border-line-soft">
                 <div>
                   <h3 className="font-serif font-bold text-xl text-ink">
-                    Accepted Blood Centers
+                    {t('hospitalBloodCenterRequests.acceptedCentersTitle')}
                   </h3>
                   <p className="text-xs text-ink-soft mt-0.5">
-                    Blood Type: <span className="font-mono font-bold text-crimson">{selectedRequest.bloodType}</span> | Needed: <span className="font-mono font-bold">{selectedRequest.quantityNeeded} kits</span>
+                    Blood Type: <span className="font-mono font-bold text-crimson">{selectedRequest.bloodType}</span> | Needed: <span className="font-mono font-bold">{t('hospitalBloodCenterRequests.unitsCount', { count: selectedRequest.quantityNeeded })}</span>
                   </p>
                 </div>
                 <button
@@ -445,10 +444,7 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                 </div>
               ) : acceptedCenters.length === 0 ? (
                 <div className="p-8 text-center bg-paper/40 border border-line-soft rounded-xl space-y-1">
-                  <p className="text-sm font-sans font-semibold text-ink">No Blood Centers have accepted yet</p>
-                  <p className="text-xs text-ink-soft">
-                    Centers notified within radius are reviewing the request. Check back soon.
-                  </p>
+                  <p className="text-sm font-sans font-semibold text-ink">{t('hospitalBloodCenterRequests.noAcceptedYet')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -482,7 +478,6 @@ export const HospitalBloodCenterRequestsPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Location & Google Maps Link */}
                       <div className="pt-2 border-t border-line-soft/80">
                         <LocationLink location={c.location || { address: c.address, coordinates: c.coordinates ? [c.coordinates.lng, c.coordinates.lat] : undefined, mapsUrl: c.mapsUrl }} />
                       </div>

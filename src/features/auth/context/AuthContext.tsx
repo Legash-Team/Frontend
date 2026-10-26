@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { loginHospital } from '@/features/hospital/api/hospital-api';
+import { getCurrentUser } from '@/features/auth/api/auth-api';
 
 export interface HospitalUser {
   id?: string;
   name?: string;
+  centerName?: string;
   hospitalName?: string;
   email?: string;
   phone?: string;
@@ -101,6 +103,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUser(null);
           }
         }
+
+        // Asynchronously refresh user permissions from backend so permission grant/revoke takes effect on reload
+        getCurrentUser()
+          .then((res) => {
+            if (res?.user) {
+              const freshUser: HospitalUser = {
+                id: res.user.id || res.user._id,
+                name: res.user.name,
+                hospitalName: res.user.hospitalName,
+                email: res.user.email,
+                phone: res.user.phone,
+                licenseNumber: res.user.licenseNumber,
+                role: res.role || res.user.role,
+                permissions: res.permissions || res.user.permissions || null,
+                verificationStatus: res.user.verificationStatus,
+                location: res.user.location,
+              };
+              setUser((prev) => {
+                const merged = { ...(prev || {}), ...freshUser };
+                localStorage.setItem(USER_KEY, JSON.stringify(merged));
+                sessionStorage.setItem(USER_KEY, JSON.stringify(merged));
+                return merged;
+              });
+            }
+          })
+          .catch((err) => {
+            console.warn('Session refresh failed:', err);
+          });
       }
     } catch (err) {
       console.error('Failed to restore auth session:', err);
@@ -119,14 +149,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error(res.message || 'Authentication failed: No token received.');
       }
 
+      const resolvedPermissions =
+        res.permissions ||
+        res.user?.permissions ||
+        (res as any).permissions ||
+        (res.user as any)?.permissions ||
+        null;
+
       const resolvedUser: HospitalUser = {
         id: res.user?.id || (res.hospital as any)?.id || 'hospital_user',
         name: res.user?.name || res.hospital?.name || '',
+        centerName: res.user?.centerName || (res.user as any)?.centerName,
         email: res.user?.email || res.hospital?.email || credentials.email,
         phone: res.hospital?.phone || '',
         licenseNumber: res.hospital?.licenseNumber || '',
         role: res.role || 'hospital',
-        permissions: (res as any).permissions || (res.user as any)?.permissions || null,
+        permissions: resolvedPermissions,
         verificationStatus: res.verificationStatus || 'approved',
         location: res.hospital?.location || null,
       };
@@ -153,6 +191,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         token: resolvedToken,
         user: resolvedUser,
         role: res.role,
+        permissions: resolvedPermissions,
         success: true,
         message: res.message,
       };

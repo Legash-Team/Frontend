@@ -14,8 +14,6 @@ import {
   Mail,
   Building2,
   Save,
-  MapPin,
-  FileText,
 } from 'lucide-react';
 
 export const EditProfilePage: React.FC = () => {
@@ -165,6 +163,10 @@ export const EditProfilePage: React.FC = () => {
           email: response.hospital?.email || prev.email,
         }));
       }
+
+      setTimeout(() => {
+        navigate('/hospital/profile');
+      }, 900);
     } catch (err: unknown) {
       let message = t('editProfile.updateFailed');
       if (typeof err === 'object' && err !== null && 'response' in err) {
@@ -280,58 +282,20 @@ export const EditProfilePage: React.FC = () => {
                 />
 
                 {/* Editable Field: Email */}
-                <Input
-                  label={t('auth.login.emailLabel')}
-                  type="email"
-                  name="email"
-                  value={profile.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                  placeholder="contact@hospital.org"
-                  helperText={t('editProfile.emailHelper')}
-                  requiredBadge
-                  disabled={submitting}
-                />
-
-                {/* Read-Only Field: License Number */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-gray-500" />
-                      {t('editProfile.licenseLabel')}
-                    </span>
-                    <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-semibold">
-                      {t('editProfile.readOnly')}
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.licenseNumber}
-                    disabled
-                    className="w-full px-3.5 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-500 cursor-not-allowed font-mono"
+                <div className="md:col-span-2">
+                  <Input
+                    label={t('auth.login.emailLabel')}
+                    type="email"
+                    name="email"
+                    value={profile.email}
+                    onChange={handleChange}
+                    error={errors.email}
+                    placeholder="contact@hospital.org"
+                    helperText={t('editProfile.emailHelper')}
+                    requiredBadge
+                    disabled={submitting}
                   />
-                  <p className="text-xs text-gray-400">{t('editProfile.licenseFixed')}</p>
                 </div>
-              </div>
-
-              {/* Read-Only Field: Geolocation Pin */}
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-red-600" />
-                    {t('editProfile.coordinatesLabel')}
-                  </span>
-                  <span className="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded font-semibold">
-                    {t('editProfile.readOnly')}
-                  </span>
-                </div>
-                {profile.location ? (
-                  <p className="text-xs text-gray-700 font-mono">
-                    {t('editProfile.latitude')} {profile.location.lat} | {t('editProfile.longitude')} {profile.location.lng}
-                  </p>
-                ) : (
-                  <p className="text-xs text-gray-500">{t('editProfile.noCoordinates')}</p>
-                )}
               </div>
 
               {/* Action Buttons */}

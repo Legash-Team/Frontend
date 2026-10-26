@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
 import Button from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
@@ -15,10 +16,16 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
 } from 'lucide-react';
+import { LocationLink } from '@/utils/mapsUrl';
 import { useDialog } from '@/context/DialogContext';
 
 export const BloodCenterIncomingRequestsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { confirm, toast } = useDialog();
 
   const [requests, setRequests] = useState<IncomingBloodCenterRequest[]>([]);
@@ -44,19 +51,19 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
   }, []);
 
   const handleRespond = async (requestId: string, status: 'accepted' | 'denied') => {
-    const actionLabel = status === 'accepted' ? 'Accept' : 'Deny';
+    const isAccept = status === 'accepted';
     const ok = await confirm({
-      title: `${actionLabel} Blood Request`,
-      message: `Are you sure you want to ${status} this request from the hospital? Once accepted, your facility contact details and location will be shared with the hospital.`,
-      type: status === 'accepted' ? 'info' : 'danger',
-      confirmText: actionLabel,
+      title: isAccept ? t('bloodCenterIncomingRequests.acceptConfirmTitle') : t('bloodCenterIncomingRequests.denyConfirmTitle'),
+      message: isAccept ? t('bloodCenterIncomingRequests.acceptConfirmMsg') : t('bloodCenterIncomingRequests.denyConfirmMsg'),
+      type: isAccept ? 'info' : 'danger',
+      confirmText: isAccept ? t('bloodCenterIncomingRequests.acceptBtn') : t('bloodCenterIncomingRequests.denyBtn'),
     });
     if (!ok) return;
 
     setRespondingId(requestId);
     try {
       await respondToBloodCenterRequest(requestId, status);
-      toast.success(`Request ${status} successfully.`);
+      toast.success(isAccept ? t('bloodCenterIncomingRequests.acceptSuccess') : t('bloodCenterIncomingRequests.denySuccess'));
       loadRequests();
     } catch (err: any) {
       toast.error(err.response?.data?.error || err.message || `Failed to ${status} request.`);
@@ -81,7 +88,7 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
 
   return (
     <BloodCenterLayout
-      title="Incoming Hospital Requests"
+      title={t('bloodCenterIncomingRequests.title')}
       icon={<Inbox size={16} className="stroke-[1.75]" />}
     >
       <div className="space-y-6 max-w-5xl mx-auto">
@@ -90,10 +97,10 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
               <Inbox className="w-6 h-6 text-crimson" />
-              Incoming Hospital Requests
+              {t('bloodCenterIncomingRequests.title')}
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Hospitals in your geographic radius requesting emergency or bulk blood supplies.
+              {t('bloodCenterIncomingRequests.description')}
             </p>
           </div>
 
@@ -101,7 +108,7 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
             type="button"
             onClick={loadRequests}
             className="p-2.5 border border-line-soft rounded-xl text-ink-soft hover:text-ink hover:bg-paper transition-colors self-start sm:self-auto"
-            title="Refresh requests"
+            title={t('bloodCenterIncomingRequests.refreshBtn')}
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -110,7 +117,7 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
         {/* Content */}
         {loading ? (
           <div className="bg-white rounded-2xl border border-line-soft p-12">
-            <LoadingState text="Checking for incoming hospital requests..." />
+            <LoadingState text="Loading requests..." />
           </div>
         ) : error ? (
           <ErrorState
@@ -122,8 +129,8 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
         ) : requests.length === 0 ? (
           <EmptyState
             icon={<Inbox className="w-12 h-12 text-ink-soft/40" />}
-            title="No Incoming Requests"
-            description="There are currently no open blood requests from nearby hospitals."
+            title={t('bloodCenterIncomingRequests.noRequests')}
+            description={t('bloodCenterIncomingRequests.noRequestsDesc')}
           />
         ) : (
           <div className="space-y-4">
@@ -144,7 +151,7 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
                           {r.bloodType}
                         </span>
                         <span className="font-serif font-bold text-lg text-ink">
-                          {r.quantityNeeded} <span className="text-sm font-sans font-normal text-ink-soft">kits requested</span>
+                          {t('bloodCenterIncomingRequests.unitsNeeded', { count: r.quantityNeeded })}
                         </span>
                       </div>
                       <p className="text-xs font-mono text-ink-soft">
@@ -155,19 +162,60 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
                     <div>
                       {isPending ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-mono font-semibold">
-                          <Clock className="w-3.5 h-3.5" /> Awaiting Your Response
+                          <Clock className="w-3.5 h-3.5" /> {t('bloodCenterIncomingRequests.statusOpen')}
                         </span>
                       ) : isAccepted ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-verified/10 text-verified border border-verified/20 text-xs font-mono font-semibold">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Accepted
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t('bloodCenterIncomingRequests.statusAccepted')}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-paper text-ink-soft border border-line-soft text-xs font-mono font-semibold">
-                          <XCircle className="w-3.5 h-3.5" /> Denied
+                          <XCircle className="w-3.5 h-3.5" /> {t('bloodCenterIncomingRequests.statusDenied')}
                         </span>
                       )}
                     </div>
                   </div>
+
+                  {/* Sender Hospital Info */}
+                  {r.hospital && (
+                    <div className="p-3.5 bg-paper/70 rounded-xl border border-line-soft space-y-2">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 text-ink font-serif font-bold text-sm">
+                          <Building2 className="w-4 h-4 text-crimson shrink-0" />
+                          <span>{r.hospital.hospitalName}</span>
+                        </div>
+                        {r.hospital.location?.address && (
+                          <div className="flex items-center gap-1.5 text-xs text-ink-soft">
+                            <MapPin className="w-3.5 h-3.5 text-ink-soft/70 shrink-0" />
+                            <span>{r.hospital.location.address}</span>
+                          </div>
+                        )}
+                        {r.hospital.location && (
+                          <LocationLink location={r.hospital.location} className="pt-0.5" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-xs font-mono text-ink-soft flex-wrap">
+                        {r.hospital.phone && (
+                          <a
+                            href={`tel:${r.hospital.phone}`}
+                            className="flex items-center gap-1 hover:text-crimson transition-colors"
+                          >
+                            <Phone className="w-3 h-3 text-crimson shrink-0" />
+                            <span>{r.hospital.phone}</span>
+                          </a>
+                        )}
+                        {r.hospital.email && (
+                          <a
+                            href={`mailto:${r.hospital.email}`}
+                            className="flex items-center gap-1 hover:text-crimson transition-colors"
+                          >
+                            <Mail className="w-3 h-3 text-crimson shrink-0" />
+                            <span>{r.hospital.email}</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {r.note && (
                     <div className="p-3 bg-paper/60 border border-line-soft rounded-xl text-xs text-ink leading-relaxed">
@@ -192,7 +240,7 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
                           onClick={() => handleRespond(r.requestId, 'denied')}
                           className="px-4 py-2 border border-line-soft hover:bg-paper text-ink-soft hover:text-ink rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
                         >
-                          Deny
+                          {t('bloodCenterIncomingRequests.denyBtn')}
                         </button>
                         <Button
                           type="button"
@@ -203,7 +251,7 @@ export const BloodCenterIncomingRequestsPage: React.FC = () => {
                           onClick={() => handleRespond(r.requestId, 'accepted')}
                           className="px-5 py-2 bg-verified hover:bg-verified/90 text-white rounded-xl text-xs font-semibold"
                         >
-                          Accept Request
+                          {t('bloodCenterIncomingRequests.acceptBtn')}
                         </Button>
                       </div>
                     ) : (

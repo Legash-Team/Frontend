@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -17,11 +18,13 @@ import {
   Sparkles,
   RefreshCw,
   PieChart,
+  MessageSquare,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { fetchPendingHospitals, approveHospital, rejectHospital } from './api/admin-api';
+import { fetchPendingHospitals, approveHospital, rejectHospital, fetchFeedbacks } from './api/admin-api';
+import { LocationLink } from '@/utils/mapsUrl';
 import { useDialog } from '@/context/DialogContext';
 import { useAuth } from '@/features/auth/context/AuthContext';
 
@@ -41,7 +44,6 @@ interface PendingHospital {
   location?: PendingHospitalLocation | null;
 }
 
-// admin-api throws plain strings (server message or fallback); normalize anything else to a readable message
 const getErrorMessage = (err: unknown, fallback: string): string => {
   if (typeof err === 'string' && err.trim()) return err;
   if (err instanceof Error && err.message) return err.message;
@@ -49,9 +51,10 @@ const getErrorMessage = (err: unknown, fallback: string): string => {
 };
 
 const DashboardPage = () => {
+  const { t, i18n } = useTranslation();
   const { toast } = useDialog();
   const { user } = useAuth();
-  // --- STATE FOR INTEGRATED FUNCTIONALITY ---
+
   const [hospitals, setHospitals] = useState<PendingHospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +64,9 @@ const DashboardPage = () => {
   const [rejectionReason, setReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
-  // --- API CALL: FETCH PENDING ---
+  const [appealsCount, setAppealsCount] = useState<number | null>(null);
+  const [appealsLoading, setAppealsLoading] = useState(true);
+
   const loadPendingHospitals = async () => {
     setLoading(true);
     setError(null);
@@ -73,17 +78,38 @@ const DashboardPage = () => {
         setHospitals([]);
       }
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Failed to fetch pending applications.'));
+      setError(getErrorMessage(err, t('adminDashboard.loadFailed')));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
+  const loadAppeals = async () => {
+    setAppealsLoading(true);
+    try {
+      const res = await fetchFeedbacks();
+      if (res.success && Array.isArray(res.feedbacks)) {
+        const newAppeals = res.feedbacks.filter((f: any) => f.status === 'new');
+        setAppealsCount(newAppeals.length);
+      } else {
+        setAppealsCount(0);
+      }
+    } catch {
+      setAppealsCount(0);
+    } finally {
+      setAppealsLoading(false);
+    }
+  };
+
+  const reloadAll = () => {
     loadPendingHospitals();
+    loadAppeals();
+  };
+
+  useEffect(() => {
+    reloadAll();
   }, []);
 
-  // --- ACTIONS ---
   const handleApprove = async (id: string) => {
     setActionLoading(true);
     try {
@@ -91,10 +117,10 @@ const DashboardPage = () => {
       if (res.success) {
         setHospitals(prev => prev.filter(h => h.id !== id));
         setSelectedHosp(null);
-        toast.success('Hospital approved successfully! An approval email has been sent.');
+        toast.success(t('adminDashboard.approveSuccess'));
       }
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err, 'Failed to approve hospital.'));
+      toast.error(getErrorMessage(err, t('adminDashboard.loadFailed')));
     } finally {
       setActionLoading(false);
     }
@@ -102,7 +128,7 @@ const DashboardPage = () => {
 
   const handleConfirmReject = async (id: string) => {
     if (!rejectionReason.trim()) {
-      toast.warning('Please provide a rejection reason.');
+      toast.warning(t('adminDashboard.reasonPlaceholder'));
       return;
     }
     setActionLoading(true);
@@ -113,38 +139,39 @@ const DashboardPage = () => {
         setSelectedHosp(null);
         setShowRejectStep(false);
         setReason('');
-        toast.success('Hospital registration declined.');
+        toast.success(t('adminDashboard.rejectSuccess'));
       }
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err, 'Failed to reject hospital.'));
+      toast.error(getErrorMessage(err, t('adminDashboard.loadFailed')));
     } finally {
       setActionLoading(false);
     }
   };
 
   const getDisplayTime = (isoString?: string) => {
-    if (!isoString) return 'New Case';
+    if (!isoString) return t('adminDashboard.newCase');
     try {
       const date = new Date(isoString);
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const locale = i18n.language === 'am' ? 'am-ET' : i18n.language === 'om' ? 'om-ET' : 'en-US';
+      return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
     } catch {
-      return 'New Case';
+      return t('adminDashboard.newCase');
     }
   };
 
   return (
-    <AdminLayout title="Hospitals">
+    <AdminLayout title={t('adminDashboard.title')}>
       <div className="space-y-6">
 
-        {/* PAGE HEADER — matches the hospital dashboard header structure */}
+        {/* PAGE HEADER */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-line-soft gap-4">
           <div>
             <h1 className="text-2xl font-serif font-bold text-ink tracking-tight flex items-center gap-2.5">
               <ShieldCheck className="w-6 h-6 text-crimson stroke-[1.75]" />
-              <span>Hospitals to Review</span>
+              <span>{t('adminDashboard.title')}</span>
             </h1>
             <p className="text-sm font-sans text-ink-soft mt-1">
-              Review pending hospital applications and keep the Legash facility network verified.
+              {t('adminDashboard.description')}
             </p>
           </div>
 
@@ -154,76 +181,87 @@ const DashboardPage = () => {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft rounded-xl text-xs font-sans font-semibold transition-colors"
             >
               <PieChart className="w-4 h-4 text-ink-soft stroke-[1.75]" />
-              <span>View Analytics</span>
+              <span>{t('adminDashboard.viewAnalytics')}</span>
             </Link>
           </div>
         </div>
 
-        {/* WELCOME BANNER — clean white surface + soft crimson/sand glow */}
+        {/* WELCOME BANNER */}
         <div className="relative overflow-hidden rounded-2xl border border-line-soft bg-white shadow-sm p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          {/* Subtle crimson glow, bottom-right */}
           <div className="absolute -right-10 -bottom-16 w-56 h-56 rounded-full bg-crimson/[0.07] blur-3xl pointer-events-none" />
-          {/* Subtle sand glow, top-left */}
           <div className="absolute -left-16 -top-16 w-48 h-48 rounded-full bg-sand/50 blur-3xl pointer-events-none" />
 
           <div className="space-y-2 z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-crimson/[0.06] rounded-full text-[11px] font-mono font-bold uppercase tracking-wider text-crimson border border-crimson/15">
               <Sparkles className="w-3.5 h-3.5 text-crimson stroke-[1.75]" />
-              <span>Legash Admin</span>
+              <span>{t('adminDashboard.badge')}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-ink">
-              Welcome, {user?.name || 'Administrator'}
+              {t('adminDashboard.welcome', { name: user?.name || t('common.administrator') })}
             </h2>
             <p className="text-sm font-sans text-ink-soft max-w-2xl leading-relaxed">
-              Approve or reject hospital applications based on their submitted information, provide a reason when declining, and keep hospital applications moving across Ethiopia.
+              {t('adminDashboard.welcomeDesc')}
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0 z-10">
             <button
               type="button"
-              onClick={loadPendingHospitals}
-              disabled={loading}
+              onClick={reloadAll}
+              disabled={loading || appealsLoading}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-crimson text-white hover:bg-crimson-dark font-sans font-bold rounded-xl text-xs transition-all shadow-sm shadow-crimson/15 disabled:opacity-60"
             >
-              <RefreshCw className={`w-4 h-4 text-white stroke-[1.75] ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh List</span>
+              <RefreshCw className={`w-4 h-4 text-white stroke-[1.75] ${loading || appealsLoading ? 'animate-spin' : ''}`} />
+              <span>{t('adminDashboard.refreshList')}</span>
             </button>
           </div>
         </div>
 
-        {/* STATS STRIP — bordered cards with mono labels + status chips */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* STATS STRIP */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <AdminStatCard
-            label="Pending Approval"
+            label={t('adminDashboard.statPending')}
             value={loading ? '...' : String(hospitals.length)}
             icon={<Clock />}
             chip={
               loading
-                ? { text: 'Loading', tone: 'verified' }
+                ? { text: t('adminDashboard.statLoading'), tone: 'verified' }
                 : hospitals.length === 0
-                  ? { text: 'Clear', tone: 'verified' }
-                  : { text: 'Awaiting', tone: 'crimson' }
+                  ? { text: t('adminDashboard.statClear'), tone: 'verified' }
+                  : { text: t('adminDashboard.statAwaiting'), tone: 'crimson' }
             }
           />
-          <AdminStatCard label="System Integrity" value="Active" icon={<ShieldCheck />} chip={{ text: 'Secure', tone: 'verified' }} />
-          <AdminStatCard label="System Status" value="Online" icon={<Activity />} chip={{ text: 'Live', tone: 'verified' }} />
+          <AdminStatCard
+            label={t('adminDashboard.statAppeals')}
+            value={appealsLoading ? '...' : String(appealsCount ?? 0)}
+            icon={<MessageSquare />}
+            to="/admin/feedbacks"
+            chip={
+              appealsLoading
+                ? { text: t('adminDashboard.statLoading'), tone: 'verified' }
+                : (appealsCount ?? 0) === 0
+                  ? { text: t('adminDashboard.statClear'), tone: 'verified' }
+                  : { text: t('adminDashboard.statAwaiting'), tone: 'crimson' }
+            }
+          />
+          <AdminStatCard label={t('adminDashboard.statIntegrity')} value={t('adminDashboard.statActive')} icon={<ShieldCheck />} chip={{ text: t('adminDashboard.statSecure'), tone: 'verified' }} />
+          <AdminStatCard label={t('adminDashboard.statStatus')} value={t('adminDashboard.statOnline')} icon={<Activity />} chip={{ text: t('adminDashboard.statLive'), tone: 'verified' }} />
         </div>
 
-        {/* LIST HEADER — shared section-header pattern */}
+        {/* LIST HEADER */}
         <div className="flex items-center justify-between border-b border-line-soft pb-4 gap-4">
           <div>
             <h2 className="text-base font-serif font-bold text-ink flex items-center gap-2">
               <Building2 className="w-5 h-5 text-crimson stroke-[1.75]" />
-              <span>Facilities to Review</span>
+              <span>{t('adminDashboard.facilitiesTitle')}</span>
             </h2>
             <p className="text-xs font-sans text-ink-soft mt-0.5">
-              New hospital registrations waiting for approval or a rejection reason.
+              {t('adminDashboard.facilitiesSubtitle')}
             </p>
           </div>
           {!loading && !error && (
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-ink-soft bg-paper border border-line-soft px-2.5 py-1 rounded-lg whitespace-nowrap">
-              {hospitals.length} pending
+              {t('adminDashboard.pendingCount', { count: hospitals.length })}
             </span>
           )}
         </div>
@@ -231,11 +269,11 @@ const DashboardPage = () => {
         {/* LOADING & ERROR STATES */}
         {loading ? (
           <div className="bg-white rounded-2xl border border-line-soft shadow-xs">
-            <LoadingState text="Loading hospitals..." />
+            <LoadingState text={t('adminDashboard.loadingHospitals')} />
           </div>
         ) : error ? (
           <ErrorState
-            title="Failed to load hospitals"
+            title={t('adminDashboard.loadFailed')}
             message={error}
             onRetry={loadPendingHospitals}
           />
@@ -260,7 +298,7 @@ const DashboardPage = () => {
                 <h4 className="text-lg font-serif font-bold text-ink mb-1">{hosp.hospitalName}</h4>
                 <p className="text-xs font-mono text-ink-soft uppercase">{hosp.licenseNumber}</p>
                 <div className="mt-6 pt-4 border-t border-line-soft flex items-center justify-between text-crimson font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                  Inspect Application <ChevronRight size={14} />
+                  {t('adminDashboard.inspectApplication')} <ChevronRight size={14} />
                 </div>
               </motion.div>
             ))}
@@ -270,8 +308,8 @@ const DashboardPage = () => {
             <div className="w-12 h-12 mx-auto rounded-xl bg-verified/10 flex items-center justify-center text-verified mb-3">
               <CheckCircle2 size={24} className="stroke-[1.75]" />
             </div>
-            <p className="text-ink-soft font-serif italic text-lg">No hospitals waiting for review.</p>
-            <p className="text-xs font-sans text-ink-soft/70 mt-1">New hospital applications will appear here for review.</p>
+            <p className="text-ink-soft font-serif italic text-lg">{t('adminDashboard.noHospitals')}</p>
+            <p className="text-xs font-sans text-ink-soft/70 mt-1">{t('adminDashboard.noHospitalsDesc')}</p>
           </div>
         )}
       </div>
@@ -280,14 +318,12 @@ const DashboardPage = () => {
       <AnimatePresence>
         {selectedHosp && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => { if (!actionLoading) { setSelectedHosp(null); setShowRejectStep(false); } }}
               className="absolute inset-0 bg-ink/60 backdrop-blur-sm"
             />
             
-            {/* Modal Card */}
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -301,8 +337,8 @@ const DashboardPage = () => {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-serif font-bold text-ink leading-none">Verification Review</h3>
-                    <p className="text-[10px] font-mono font-bold text-ink-soft/50 uppercase mt-1 tracking-widest">Case ID: {selectedHosp.id.toUpperCase()}</p>
+                    <h3 className="text-lg sm:text-xl font-serif font-bold text-ink leading-none">{t('adminDashboard.reviewModalTitle')}</h3>
+                    <p className="text-[10px] font-mono font-bold text-ink-soft/50 uppercase mt-1 tracking-widest">{t('adminDashboard.caseId', { id: selectedHosp.id.toUpperCase() })}</p>
                   </div>
                 </div>
                 <button disabled={actionLoading} onClick={() => { setSelectedHosp(null); setShowRejectStep(false); }} className="p-2 hover:bg-white rounded-full text-ink-soft transition-colors"><X size={20} /></button>
@@ -314,17 +350,16 @@ const DashboardPage = () => {
                   <>
                     <div className="grid md:grid-cols-2 gap-6 sm:gap-10">
                       <div className="space-y-5 sm:space-y-6">
-                        <DetailItem label="Legal Entity" value={selectedHosp.hospitalName} icon={<Building2 />} />
-                        <DetailItem label="Medical License" value={selectedHosp.licenseNumber} icon={<Activity />} />
-                        <DetailItem label="Contact Email" value={selectedHosp.email} icon={<Mail />} />
+                        <DetailItem label={t('adminDashboard.legalEntity')} value={selectedHosp.hospitalName} icon={<Building2 />} />
+                        <DetailItem label={t('adminDashboard.medicalLicense')} value={selectedHosp.licenseNumber} icon={<Activity />} />
+                        <DetailItem label={t('adminDashboard.contactEmail')} value={selectedHosp.email} icon={<Mail />} />
                       </div>
                       <div className="space-y-5 sm:space-y-6">
-                        <DetailItem label="Phone Line" value={selectedHosp.phone} icon={<Phone />} />
-                        <DetailItem label="Facility Address" value={selectedHosp.location?.address || 'N/A'} icon={<MapPin />} />
+                        <DetailItem label={t('adminDashboard.phoneLine')} value={selectedHosp.phone} icon={<Phone />} />
+                        <DetailItem label={t('adminDashboard.facilityAddress')} value={selectedHosp.location?.address || t('common.notAvailable')} icon={<MapPin />} />
                         {selectedHosp.location && (
                           <div className="p-3.5 sm:p-4 bg-paper rounded-2xl border border-line-soft">
-                            <p className="text-[9px] font-mono font-bold text-ink-soft/40 uppercase mb-1">Geolocation</p>
-                            <p className="text-xs font-bold text-ink font-mono">{selectedHosp.location.lat}, {selectedHosp.location.lng}</p>
+                            <LocationLink location={selectedHosp.location} showLabel label={t('adminDashboard.facilityMap')} />
                           </div>
                         )}
                       </div>
@@ -338,7 +373,7 @@ const DashboardPage = () => {
                         onClick={() => setShowRejectStep(true)}
                         className="flex-1 border border-crimson text-crimson hover:bg-crimson hover:text-white text-xs font-bold uppercase tracking-widest h-12 sm:h-14 rounded-2xl"
                       >
-                        Decline Application
+                        {t('adminDashboard.declineBtn')}
                       </Button>
                       <Button 
                         variant="primary" 
@@ -346,7 +381,7 @@ const DashboardPage = () => {
                         onClick={() => handleApprove(selectedHosp.id)}
                         className="flex-1 h-12 sm:h-14 rounded-2xl font-bold flex gap-2 items-center justify-center text-xs uppercase tracking-wider"
                       >
-                        <CheckCircle2 size={18} /> Approve Facility
+                        <CheckCircle2 size={18} /> {t('adminDashboard.approveBtn')}
                       </Button>
                     </div>
                   </>
@@ -355,26 +390,26 @@ const DashboardPage = () => {
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                     <div className="flex items-center gap-3 text-crimson">
                       <AlertCircle size={24} />
-                      <h3 className="text-lg sm:text-xl font-serif font-bold">Reason for Rejection</h3>
+                      <h3 className="text-lg sm:text-xl font-serif font-bold">{t('adminDashboard.rejectionReasonTitle')}</h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-ink-soft">This message will be sent to the hospital. Please be specific (e.g., "License document is blurry").</p>
+                    <p className="text-xs sm:text-sm text-ink-soft">{t('adminDashboard.rejectionReasonDesc')}</p>
                     <textarea 
                       autoFocus
                       disabled={actionLoading}
                       className="w-full h-36 sm:h-40 p-4 sm:p-5 bg-paper border border-line-soft rounded-2xl outline-none focus:border-crimson text-sm resize-none"
-                      placeholder="Write your reason here..."
+                      placeholder={t('adminDashboard.reasonPlaceholder')}
                       value={rejectionReason}
                       onChange={(e) => setReason(e.target.value)}
                     />
                     <div className="flex gap-3 sm:gap-4">
-                      <Button variant="ghost" disabled={actionLoading} onClick={() => setShowRejectStep(false)} className="flex-1 h-12 rounded-xl">Back</Button>
+                      <Button variant="ghost" disabled={actionLoading} onClick={() => setShowRejectStep(false)} className="flex-1 h-12 rounded-xl">{t('adminDashboard.backBtn')}</Button>
                       <Button 
                         variant="primary" 
                         disabled={!rejectionReason || actionLoading}
                         onClick={() => handleConfirmReject(selectedHosp.id)}
                         className="flex-1 h-12 rounded-xl font-bold justify-center text-xs"
                       >
-                        Confirm Rejection
+                        {t('adminDashboard.confirmRejectBtn')}
                       </Button>
                     </div>
                   </motion.div>
@@ -394,29 +429,34 @@ interface StatChip {
   tone: 'crimson' | 'verified';
 }
 
-const AdminStatCard = ({ label, value, icon, chip }: {
+const AdminStatCard = ({ label, value, icon, chip, to }: {
   label: string;
   value: React.ReactNode;
   icon: React.ReactElement;
   chip: StatChip;
-}) => (
-  <div className="bg-white rounded-2xl border border-line-soft shadow-xs p-6 space-y-4">
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2 text-ink-soft/60">
-        {React.cloneElement(icon as React.ReactElement<{ size?: number; className?: string }>, { size: 16, className: 'w-4 h-4 stroke-[1.75]' })}
-        <span className="text-[10px] font-mono font-bold text-ink-soft/60 uppercase tracking-widest">{label}</span>
+  to?: string;
+}) => {
+  const content = (
+    <div className={`bg-white rounded-2xl border border-line-soft shadow-xs p-6 space-y-4 ${to ? 'hover:border-crimson/40 hover:shadow-sm transition-all cursor-pointer' : ''}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-ink-soft/60">
+          {React.cloneElement(icon as React.ReactElement<{ size?: number; className?: string }>, { size: 16, className: 'w-4 h-4 stroke-[1.75]' })}
+          <span className="text-[10px] font-mono font-bold text-ink-soft/60 uppercase tracking-widest">{label}</span>
+        </div>
+        <span
+          className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+            chip.tone === 'verified' ? 'bg-verified/10 text-verified' : 'bg-crimson/10 text-crimson'
+          }`}
+        >
+          {chip.text}
+        </span>
       </div>
-      <span
-        className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
-          chip.tone === 'verified' ? 'bg-verified/10 text-verified' : 'bg-crimson/10 text-crimson'
-        }`}
-      >
-        {chip.text}
-      </span>
+      <p className="text-2xl font-serif font-bold text-ink tracking-tight">{value}</p>
     </div>
-    <p className="text-2xl font-serif font-bold text-ink tracking-tight">{value}</p>
-  </div>
-);
+  );
+
+  return to ? <Link to={to} className="block">{content}</Link> : content;
+};
 
 const DetailItem = ({ label, value, icon }: { label: string; value: React.ReactNode; icon: React.ReactElement }) => (
   <div className="flex gap-4 items-start">

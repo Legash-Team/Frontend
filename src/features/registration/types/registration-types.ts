@@ -1,6 +1,7 @@
 export interface LocationData {
   lat: number;
   lng: number;
+  address?: string;
 }
 
 // 1. Internal Form State (What the user types) - Keep this as is

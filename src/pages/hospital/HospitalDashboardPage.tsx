@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { getHospitalDashboard } from '@/features/hospital/api/hospital-api';
@@ -9,6 +9,7 @@ import { ALLOWED_BLOOD_TYPES } from '@/features/hospital/types/hospital-types';
 import type { DashboardData } from '@/features/hospital/types/hospital-types';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { getStockClassification } from '@/utils/stockClassification';
 import {
   LayoutDashboard,
   Building2,
@@ -16,10 +17,12 @@ import {
   Eye,
   Sparkles,
   AlertCircle,
+  HelpCircle,
 } from 'lucide-react';
 
 export const HospitalDashboardPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +121,16 @@ export const HospitalDashboardPage: React.FC = () => {
               <Droplets className="w-4 h-4 stroke-[1.75]" />
               <span>{t('hospitalDashboard.manageStock')}</span>
             </Link>
+
+            <Link
+              to="/hospital/faq"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-paper hover:bg-paper-dim border border-line-soft text-ink-soft hover:text-crimson rounded-xl text-xs font-sans font-semibold transition-colors"
+              title={t('nav.hospital.helpFaq')}
+              aria-label={t('nav.hospital.helpFaq')}
+            >
+              <HelpCircle className="w-4 h-4 stroke-[1.75]" />
+              <span className="hidden sm:inline">{t('nav.hospital.helpFaq')}</span>
+            </Link>
           </div>
         </div>
 
@@ -137,7 +150,7 @@ export const HospitalDashboardPage: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => setQueueOpen(true)}
+              onClick={() => navigate('/hospital/medical-records', { state: { tab: 'waiting' } })}
               className="flex-shrink-0 px-4 py-2.5 bg-crimson text-white text-xs sm:text-sm font-sans font-bold rounded-xl hover:bg-crimson-dark transition-colors shadow-xs whitespace-nowrap"
             >
               {t('dashboard.donationQueue.viewQueue')}
@@ -218,25 +231,27 @@ export const HospitalDashboardPage: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {ALLOWED_BLOOD_TYPES.map((type) => {
                     const quantity = bloodStockMap[type] ?? 0;
-                    const isLow = quantity < 5;
+                    const stockClass = getStockClassification(quantity);
 
                     return (
                       <div
                         key={type}
-                        className={`p-4 rounded-xl border transition-all ${isLow
+                        className={`p-4 rounded-xl border transition-all ${
+                          stockClass.level === 'low'
                             ? 'bg-crimson/5 border-crimson/20 shadow-xs'
+                            : stockClass.level === 'limited'
+                            ? 'bg-amber-50/50 border-amber-200/60'
                             : 'bg-paper/60 border-line-soft hover:border-line'
-                          }`}
+                        }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-mono font-bold text-ink bg-white px-2.5 py-0.5 rounded border border-line-soft">
                             {type}
                           </span>
                           <span
-                            className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isLow ? 'bg-crimson/10 text-crimson' : 'bg-verified/10 text-verified'
-                              }`}
+                            className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${stockClass.badgeClass}`}
                           >
-                            {isLow ? t('hospitalDashboard.lowStock') : t('hospitalDashboard.adequate')}
+                            {t(stockClass.labelKey, stockClass.defaultLabel)}
                           </span>
                         </div>
                         <div className="mt-3 flex items-baseline justify-between">

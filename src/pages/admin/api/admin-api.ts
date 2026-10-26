@@ -173,6 +173,46 @@ export const deleteAdmin = async (id: string) => {
 };
 
 /**
+ * PATCH /api/superadmin/admins/:id/permissions
+ */
+export const updateAdminPermissions = async (
+  id: string,
+  permissions: { canApproveHospitals?: boolean; canPostEvents?: boolean }
+) => {
+  try {
+    const response = await axiosInstance.patch<{
+      success: boolean;
+      message?: string;
+      admin?: {
+        id: string;
+        name: string;
+        email: string;
+        permissions: { canApproveHospitals: boolean; canPostEvents: boolean };
+        emailVerified: boolean;
+        createdAt: string;
+      };
+    }>(`/api/superadmin/admins/${id}/permissions`, { permissions });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to update admin permissions.';
+  }
+};
+
+/**
+ * PATCH /api/admin/events/:id/close
+ */
+export const closeEvent = async (id: string) => {
+  try {
+    const response = await axiosInstance.patch<{ success: boolean; message?: string; event?: any }>(
+      `/api/admin/events/${id}/close`
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data?.error || 'Failed to close event.';
+  }
+};
+
+/**
  * GET /api/superadmin/hospitals/stock
  */
 export const fetchHospitalStock = async (bloodType: string = '', sortOption: string = ''): Promise<HospitalStockResponse> => {
@@ -242,6 +282,9 @@ export const fetchHospitalAnalytics = async (): Promise<HospitalAnalyticsRespons
       success: raw?.success ?? true,
       data: {
         nationalTotals: analytics.national?.byBloodType || {},
+        nationalNeed: analytics.nationalNeed || {},
+        needVsSupply: analytics.needVsSupply || [],
+        weeklyNeedVsSupply: analytics.weeklyNeedVsSupply || [],
         topHospitals: analytics.topHospitals || [],
         bottomHospitals: analytics.bottomHospitals || [],
         trends: (analytics.trends?.last30Days || []).map((t: any) => ({

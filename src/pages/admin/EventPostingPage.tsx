@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { BloodCenterLayout } from '@/layouts/BloodCenterLayout';
-import { CalendarPlus } from 'lucide-react';
 import { 
   Upload, 
   ImageIcon, 
@@ -10,7 +10,8 @@ import {
   Calendar, 
   X,
   Smartphone,
-  Info
+  Info,
+  CalendarPlus
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import RichTextEditor from '@/components/ui/RichTextEditor';
@@ -18,15 +19,14 @@ import { uploadMedia, createEvent } from './api/admin-api';
 import { useDialog } from '@/context/DialogContext';
 
 const EventPostingPage = () => {
+  const { t } = useTranslation();
   const { toast } = useDialog();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
 
-  // Blood center users get the blood center chrome, admins keep the admin chrome
   const isBloodCenter = location.pathname.startsWith('/blood-center');
   const Layout = isBloodCenter ? BloodCenterLayout : AdminLayout;
   
-  // --- FORM STATE ---
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -39,15 +39,12 @@ const EventPostingPage = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
 
-  // --- LOGIC: DATE STATUS ---
   const isExpired = formData.expiryDate ? new Date(formData.expiryDate) < new Date() : false;
 
-  // --- HANDLERS ---
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      // Create a temporary URL so the UI can show the image/video
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
@@ -61,7 +58,7 @@ const EventPostingPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.description.trim() || !formData.expiryDate) {
-      toast.warning("Please fill in title, description, and closing date.");
+      toast.warning(t('eventPosting.titleRequired'));
       return;
     }
 
@@ -90,8 +87,7 @@ const EventPostingPage = () => {
       });
 
       if (res.success) {
-        toast.success(res.message || "Event broadcasted to the mobile network!");
-        // Reset form
+        toast.success(res.message || t('eventPosting.successMsg'));
         setFormData({
           title: '',
           description: '',
@@ -109,7 +105,7 @@ const EventPostingPage = () => {
   };
 
   return (
-    <Layout title="Post Event" icon={<CalendarPlus size={16} className="stroke-[1.75]" />}>
+    <Layout title={t('eventPosting.title')} icon={<CalendarPlus size={16} className="stroke-[1.75]" />}>
       <div className="grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 lg:gap-12 items-start">
         
         {/* LEFT: THE FORM */}
@@ -120,7 +116,7 @@ const EventPostingPage = () => {
               {/* 1. MEDIA UPLOAD */}
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-2">
-                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">Visual Content</label>
+                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">{t('eventPosting.mediaUpload')}</label>
                    <div className="flex bg-paper p-1 rounded-lg border border-line-soft">
                       <button 
                         type="button" 
@@ -148,7 +144,7 @@ const EventPostingPage = () => {
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white shadow-sm flex items-center justify-center text-ink-soft group-hover:text-crimson transition-colors mb-3 sm:mb-4">
                       <Upload size={22} />
                     </div>
-                    <p className="text-sm font-bold text-ink">Click to upload media</p>
+                    <p className="text-sm font-bold text-ink">{t('eventPosting.uploadPrompt')}</p>
                     <p className="text-xs text-ink-soft mt-1">High resolution {formData.mediaType} recommended</p>
                   </div>
                 ) : (
@@ -172,14 +168,14 @@ const EventPostingPage = () => {
               {/* 2. EVENT TITLE */}
               <div className="space-y-3">
                 <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">
-                  Event Title <span className="text-crimson">*</span>
+                  {t('eventPosting.titleLabel')} <span className="text-crimson">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. Community Blood Drive — Bole"
+                  placeholder={t('eventPosting.titlePlaceholder')}
                   className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                 />
               </div>
@@ -188,14 +184,13 @@ const EventPostingPage = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest">
-                    Detailed Description <span className="text-crimson">*</span>
+                    {t('eventPosting.descLabel')} <span className="text-crimson">*</span>
                   </label>
-                  <span className="text-[10px] font-mono text-ink-soft/50 uppercase">Rich Text & Newlines</span>
                 </div>
                 <RichTextEditor 
                   value={formData.description}
                   onChange={(val) => setFormData({ ...formData, description: val })}
-                  placeholder="Describe the campaign, locations, eligible blood types, and donation guidelines..."
+                  placeholder={t('eventPosting.descPlaceholder')}
                   minHeight="180px"
                 />
               </div>
@@ -204,18 +199,18 @@ const EventPostingPage = () => {
               <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest flex items-center gap-2">
-                    <LinkIcon size={14} /> Action Link <span className="text-ink-soft/40">(Optional)</span>
+                    <LinkIcon size={14} /> {t('eventPosting.regLinkLabel')}
                   </label>
                   <input 
                     type="url" value={formData.applyLink}
                     onChange={(e) => setFormData({...formData, applyLink: e.target.value})}
-                    placeholder="https://registration.org"
+                    placeholder={t('eventPosting.regLinkPlaceholder')}
                     className="w-full h-12 px-4 bg-paper border border-line-soft rounded-xl outline-none focus:border-crimson text-sm"
                   />
                 </div>
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-mono font-bold text-ink-soft uppercase tracking-widest flex items-center gap-2">
-                    <Calendar size={14} /> Expiry Date <span className="text-crimson">*</span>
+                    <Calendar size={14} /> {t('eventPosting.expiryLabel')} <span className="text-crimson">*</span>
                   </label>
                   <input 
                     type="datetime-local" value={formData.expiryDate}
@@ -233,7 +228,7 @@ const EventPostingPage = () => {
                 isLoading={isPosting}
                 className="w-full h-14 rounded-2xl font-bold text-base sm:text-lg shadow-xl"
               >
-                Launch Broadcast
+                {t('eventPosting.publishBtn')}
               </Button>
             </form>
           </div>
@@ -243,13 +238,13 @@ const EventPostingPage = () => {
         <div className="lg:sticky lg:top-8 space-y-6 w-full flex flex-col items-center lg:items-stretch">
            <div className="flex items-center gap-3 text-ink opacity-40 mb-2 px-2 self-start">
               <Smartphone size={20} />
-              <span className="text-xs font-black uppercase tracking-widest">Mobile Live Preview</span>
+              <span className="text-xs font-black uppercase tracking-widest">{t('eventPosting.previewHeader')}</span>
            </div>
 
            {/* SMARTPHONE FRAME */}
            <div className="relative w-full max-w-[320px] sm:max-w-[340px] h-[580px] sm:h-[640px] bg-ink rounded-[44px] sm:rounded-[50px] border-[6px] sm:border-[8px] border-gray-900 shadow-2xl mx-auto overflow-hidden">
               <div className="absolute top-0 w-full h-6 bg-black flex justify-center items-end pb-1 z-20">
-                 <div className="w-16 h-4 bg-gray-900 rounded-full" /> {/* Notch */}
+                 <div className="w-16 h-4 bg-gray-900 rounded-full" />
               </div>
 
               <div className="w-full h-full bg-paper pt-8 overflow-hidden flex flex-col">
@@ -284,7 +279,7 @@ const EventPostingPage = () => {
                          />
                        ) : (
                          <p className="text-[11px] text-ink-soft/40 italic leading-relaxed break-words">
-                           The formatted event description will appear here with headings, lists, and line breaks as you type...
+                           {t('eventPosting.descPlaceholder')}
                          </p>
                        )}
                        
@@ -301,7 +296,7 @@ const EventPostingPage = () => {
            <div className="p-4 sm:p-5 bg-paper rounded-2xl border border-line-soft flex gap-3 max-w-[340px] mx-auto lg:max-w-none">
               <Info size={18} className="text-crimson shrink-0 mt-0.5" />
               <p className="text-[10px] text-ink-soft leading-relaxed italic">
-                This preview approximates how donors across Ethiopia will view the formatted event on their Legash Mobile application.
+                {t('eventPosting.previewSub')}
               </p>
            </div>
         </div>
