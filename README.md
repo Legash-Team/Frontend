@@ -1,8 +1,6 @@
 # Legash — Frontend Web Application
 
-Legash is a Smart Blood Donation Management System designed to connect blood donors, hospitals, and blood centers through a unified digital platform.
-
-This repository, **legash-web**, contains the web application used by hospitals, blood centers, administrators, and super administrators. It provides interfaces for hospital management, blood stock monitoring, blood requisitions, donor coordination, event publishing, and administrative operations.
+---
 
 ## Repository Information
 
@@ -109,7 +107,7 @@ npm install
 Create a `.env` file in the root directory and configure the backend API URL:
 
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3000
 ```
 
 For production, use the deployed backend API URL.
@@ -134,30 +132,4 @@ Generate the production build:
 npm run build
 ```
 
-## Backend Integration
-
-The frontend communicates with the Legash Backend API through RESTful endpoints.
-
-The backend handles authentication, authorization, database operations, donation workflows, inventory management, and other business logic, while the frontend provides the corresponding user interfaces.
-
 Ensure that the backend is running and that `VITE_API_URL` points to the correct API environment.
-
-## Testing
-
-Build the application:
-
-```bash
-npm run build
-```
-
-Run additional available tests and checks using the scripts defined in `package.json`.
-
-Verify affected pages, API integrations, responsive layouts, and role-based access behavior before submitting changes.
-
-## Git Workflow
-
-- Create a separate branch for each task.
-- Keep changes focused on the assigned feature or fix.
-- Open a pull request for review.
-- Verify the production build before merging.
-- Avoid committing directly to the main branch.
