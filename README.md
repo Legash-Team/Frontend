@@ -30,6 +30,60 @@
 - REST API — Backend communication
 - i18n — Internationalization and multilingual support
 
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v20 or later recommended)
+- npm
+- Git
+
+### Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone <frontend-repository-url>
+cd Frontend
+npm install
+```
+
+### Environment Configuration
+
+Create a `.env` file in the root directory and configure the backend API URL:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+For production, use the deployed backend API URL.
+
+### Running the Application
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The frontend will be available at:
+
+`http://localhost:5173`
+
+## Production Build
+
+Generate the production build:
+
+```bash
+npm run build
+```
+
+Ensure that the backend is running and that `VITE_API_URL` points to the correct API environment.
+
+---
+
 ## Engineering Team & Responsibilities
 
 The frontend is developed through collaboration between two engineers, with responsibilities covering frontend architecture and design systems, dashboard experiences, multilingual localization, hospital medical records, registration workflows, inventory management, and facility administration.
@@ -83,53 +137,3 @@ The frontend is developed through collaboration between two engineers, with resp
 **Form Development & Validation:** Develops and maintains application forms and their supporting components, ensuring consistent input handling, validation, and data submission behavior.
 
 **Backend API Integration:** Integrates hospital registration, blood inventory, requisition, and facility profile interfaces with their corresponding backend API endpoints.
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v20 or later recommended)
-- npm
-- Git
-
-### Installation
-
-Clone the repository and install dependencies:
-
-```bash
-git clone <frontend-repository-url>
-cd Frontend
-npm install
-```
-
-### Environment Configuration
-
-Create a `.env` file in the root directory and configure the backend API URL:
-
-```env
-VITE_API_URL=http://localhost:3000
-```
-
-For production, use the deployed backend API URL.
-
-### Running the Application
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-The frontend will be available at:
-
-`http://localhost:5173`
-
-## Production Build
-
-Generate the production build:
-
-```bash
-npm run build
-```
-
-Ensure that the backend is running and that `VITE_API_URL` points to the correct API environment.
